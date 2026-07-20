@@ -30,3 +30,6 @@ https://atinjin.github.io/atinjin-pages/oratio/
 
 엠블럼은 `oratio/emblem.png`, 채널 통계(특송·구독자 수)는 `index.html` 머리말의
 `.stats` 영역에서 고칠 수 있습니다.
+
+본문·제목 글꼴은 **가톨릭체**(`oratio/catholic.woff2`, 구형 브라우저용 `catholic.ttf`)를
+`@font-face`로 불러와 씁니다. 숫자와 일부 라틴 문구는 Cormorant Garamond를 씁니다.
