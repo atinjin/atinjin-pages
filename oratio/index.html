@@ -165,10 +165,9 @@
   .stat-line{margin:7px 0 0;font-size:.95rem;color:var(--brass);letter-spacing:.01em;line-height:1.5}
   .stat-line .lbl{color:var(--ash);font-weight:400}
   .stat-line .v{color:var(--brass-lit);font-weight:700}
-  .tag{display:inline-block;margin-top:11px;font-size:.8rem;letter-spacing:.08em;color:var(--brass);
-    border:1px solid rgba(201,164,92,.3);border-radius:4px;padding:4px 10px}
-  .link{display:inline-block;margin-top:12px;margin-left:8px;font-size:.9rem;color:var(--ash);
-    text-decoration:none;border-bottom:1px solid rgba(162,150,184,.35);padding-bottom:1px}
+  .titlerow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0}
+  .tag{display:inline-block;font-size:.8rem;letter-spacing:.08em;color:var(--brass);
+    border:1px solid rgba(201,164,92,.3);border-radius:4px;padding:3px 9px;white-space:nowrap}
 
   .card--hero .plate{position:absolute;left:12px;bottom:12px;z-index:4;width:56px;height:60px}
   .card--hero .plate b{font-size:2.7rem}
@@ -187,7 +186,7 @@
   .card--row .title{font-size:1.16rem;line-height:1.4}
   .card--row .credit{font-size:.9rem;margin-top:4px}
   .card--row .stat-line{font-size:.88rem;margin-top:4px}
-  .card--row .tag,.card--row .link{display:none}
+  .card--row .tag{display:none}
 
   footer{margin-top:36px;text-align:center;color:var(--ash);font-size:.95rem;line-height:1.95}
   footer .fmark{color:var(--brass);font-size:.85rem;letter-spacing:.4em;display:block;margin-bottom:10px}
@@ -303,10 +302,10 @@ function cardHTML(s){
   if (s.date)  bits.push(esc(s.date));
   const stat = bits.length ? '<p class="stat-line">' + bits.join(' · ') + '</p>' : '';
 
-  const info = '<div class="meta"><h2 class="title">' + esc(s.title) + '</h2>' +
-    '<p class="credit">' + esc(s.credit) + '</p>' + stat +
-    '<span class="tag">' + esc(s.tag) + '</span>' +
-    '<a class="link" href="https://youtu.be/' + s.vid + '" target="_blank" rel="noopener">유튜브에서 보기 ↗</a></div>';
+  const info = '<div class="meta">' +
+    '<div class="titlerow"><h2 class="title">' + esc(s.title) + '</h2>' +
+    '<span class="tag">' + esc(s.tag) + '</span></div>' +
+    '<p class="credit">' + esc(s.credit) + '</p>' + stat + '</div>';
 
   const shell = 'class="card ' + (big ? 'card--hero' : 'card--row') + ' r' + s.rank + ' ' +
     (revealed.has(s.vid) ? 'in' : '') + '" data-key="' + s.vid + '" style="--h:' + (250 + s.rank * 6) + '"';
