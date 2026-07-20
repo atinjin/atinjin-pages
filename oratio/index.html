@@ -68,7 +68,7 @@
   .parish{font-size:.98rem;color:var(--ash);margin:0;line-height:1.55}
 
   /* 1주년 기념 표식 */
-  .anniv{display:flex;align-items:center;justify-content:center;gap:16px;margin:18px 0 6px}
+  .anniv{display:flex;align-items:center;justify-content:center;gap:16px;margin:18px 0 10px}
   .anniv .ln{height:1px;width:46px;
     background:linear-gradient(90deg,transparent,rgba(201,164,92,.8))}
   .anniv .ln.r{background:linear-gradient(90deg,rgba(201,164,92,.8),transparent)}
@@ -76,10 +76,8 @@
     color:var(--brass-lit);text-shadow:0 3px 22px rgba(201,164,92,.32)}
   .anniv-unit{font-family:var(--serif);font-weight:700;font-size:1.16rem;color:var(--brass);
     align-self:flex-end;padding-bottom:.42rem;margin-left:-7px}
-  .anniv-label{font-family:var(--num);font-weight:500;font-size:.9rem;
-    letter-spacing:.34em;text-indent:.34em;color:var(--ash);margin:0 0 8px}
   .anniv-date{font-family:var(--num);font-weight:500;font-size:1.05rem;letter-spacing:.12em;
-    color:var(--brass);margin:0 0 18px}
+    color:var(--brass);margin:0 0 20px}
   .anniv-date b{font-weight:600;color:var(--brass-lit)}
 
   /* 채널 통계 */
@@ -217,7 +215,6 @@
       <span class="anniv-num">1</span><span class="anniv-unit">주년</span>
       <span class="ln r"></span>
     </div>
-    <p class="anniv-label">YouTube Channel · First Anniversary</p>
     <p class="anniv-date">2025. 7. 19 &nbsp;—&nbsp; <b>2026. 7. 19</b></p>
     <div class="stats">
       <div class="stat"><b>84</b><span>특송</span></div>
@@ -226,7 +223,7 @@
     </div>
     <h1>지난 한 해, 가장 사랑받은 특송<br><span class="top">Top 10</span></h1>
     <div class="rule"><span>✦</span></div>
-    <p class="lede" id="lede">오라씨오 성가대 유튜브 채널이 첫 걸음을 뗀 지 어느덧 한 해가 되었습니다.<br>지난 한 해 올린 특송 가운데 가장 큰 사랑을 받은 열 곡을 정성껏 골라 담았습니다.<br>표지를 가만히 눌러 주시면, 그 자리에서 바로 함께 들으실 수 있어요.</p>
+    <p class="lede" id="lede">노래로 채운 유튜브 첫 해,<br>마음에 오래 남은 열 곡을 담았습니다.<br>표지를 누르면 바로 들으실 수 있어요.</p>
     <div class="tools">
       <button class="tool" id="orderBtn">10위부터 보기</button>
       <button class="tool" id="pickBtn">오늘의 한 곡</button>
@@ -276,7 +273,7 @@ const esc = s => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','
 if (BOXED) {
   document.getElementById('note').style.display = 'block';
   document.getElementById('lede').innerHTML =
-    '오라씨오 성가대 유튜브 채널이 첫 걸음을 뗀 지 어느덧 한 해가 되었습니다.<br>가장 큰 사랑을 받은 특송 열 곡을 정성껏 골라 담았습니다.<br>표지를 눌러 주시면 유튜브에서 열립니다.';
+    '노래로 채운 유튜브 첫 해,<br>마음에 오래 남은 열 곡을 담았습니다.<br>표지를 누르면 유튜브에서 열립니다.';
 }
 
 function cardHTML(s){
