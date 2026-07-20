@@ -156,6 +156,7 @@
   .title{font-family:var(--serif);font-weight:700;margin:0;letter-spacing:-.01em}
   .credit{margin:6px 0 0;color:var(--ash);font-size:.95rem;line-height:1.55}
   .stat-line{margin:7px 0 0;font-size:.95rem;color:var(--brass);letter-spacing:.01em;line-height:1.5}
+  .stat-line .lbl{color:var(--ash);font-weight:400}
   .stat-line .v{color:var(--brass-lit);font-weight:700}
   .tag{display:inline-block;margin-top:11px;font-size:.8rem;letter-spacing:.08em;color:var(--brass);
     border:1px solid rgba(201,164,92,.3);border-radius:4px;padding:4px 10px}
@@ -239,16 +240,16 @@
    예) views:"1,234회",  date:"2025. 8. 3"
    ─────────────────────────────────────────────── */
 const SONGS = [
-  {rank:1,  vid:"0qD4lwmup9I", title:"사명",          credit:"이권희",                    tag:"봉헌 · 파견", views:"", date:""},
-  {rank:2,  vid:"worrj2KO3u0", title:"Ave Maria",     credit:"강나현 비비아나",            tag:"성모 성가",  views:"", date:""},
-  {rank:3,  vid:"UsT1KRjdyLo", title:"Anima Christi", credit:"Marco Frisina",             tag:"라틴 성가",  views:"", date:""},
-  {rank:4,  vid:"cSw9GENhwNA", title:"당신께 가는 길",  credit:"김상균 라우렌시오",          tag:"성가",      views:"", date:""},
-  {rank:5,  vid:"QPKNBadGAL4", title:"축복합니다",      credit:"박수진 안젤라",              tag:"축복",      views:"", date:""},
-  {rank:6,  vid:"w_JFy8aaIvk", title:"평화의 기도",     credit:"Allen Pote",                tag:"합창",      views:"", date:""},
-  {rank:7,  vid:"rtiGY7YdzDk", title:"Ave Maria",     credit:"Libera · Robert Prizeman",  tag:"성모 성가",  views:"", date:""},
-  {rank:8,  vid:"_R1tarfCff0", title:"부활의 소식",     credit:"최덕신",                    tag:"부활",      views:"", date:""},
-  {rank:9,  vid:"OU7ddCV4__Q", title:"잊지 말아요",     credit:"김도훈 작곡 · 백지영 노래",   tag:"가요",      views:"", date:""},
-  {rank:10, vid:"aDn-6t9iWbI", title:"시편 23편",      credit:"유미진 라파엘라",            tag:"시편",      views:"", date:""}
+  {rank:1,  vid:"0qD4lwmup9I", title:"사명",          credit:"이권희",                    tag:"봉헌 · 파견", views:"1.2천회", date:"2025. 9."},
+  {rank:2,  vid:"worrj2KO3u0", title:"Ave Maria",     credit:"강나현 비비아나",            tag:"성모 성가",  views:"1.1천회", date:"2026. 1."},
+  {rank:3,  vid:"UsT1KRjdyLo", title:"Anima Christi", credit:"Marco Frisina",             tag:"라틴 성가",  views:"570회",   date:"2025. 8."},
+  {rank:4,  vid:"cSw9GENhwNA", title:"당신께 가는 길",  credit:"김상균 라우렌시오",          tag:"성가",      views:"552회",   date:"2025. 7."},
+  {rank:5,  vid:"QPKNBadGAL4", title:"축복합니다",      credit:"박수진 안젤라",              tag:"축복",      views:"539회",   date:"2025. 11."},
+  {rank:6,  vid:"w_JFy8aaIvk", title:"평화의 기도",     credit:"Allen Pote",                tag:"합창",      views:"536회",   date:"2025. 10."},
+  {rank:7,  vid:"rtiGY7YdzDk", title:"Ave Maria",     credit:"Libera · Robert Prizeman",  tag:"성모 성가",  views:"540회",   date:"2026. 5."},
+  {rank:8,  vid:"_R1tarfCff0", title:"부활의 소식",     credit:"최덕신",                    tag:"부활",      views:"526회",   date:"2025. 8."},
+  {rank:9,  vid:"OU7ddCV4__Q", title:"잊지 말아요",     credit:"김도훈 작곡 · 백지영 노래",   tag:"가요",      views:"525회",   date:"2026. 2."},
+  {rank:10, vid:"aDn-6t9iWbI", title:"시편 23편",      credit:"유미진 라파엘라",            tag:"시편",      views:"500회",   date:"2025. 10."}
 ];
 
 /* 미리보기(iframe) 안에서는 내장 재생이 막히므로 유튜브로 바로 넘깁니다 */
@@ -292,7 +293,7 @@ function cardHTML(s){
   }
 
   const bits = [];
-  if (s.views) bits.push('<span class="v">' + esc(s.views) + '</span>');
+  if (s.views) bits.push('<span class="lbl">조회</span> <span class="v">' + esc(s.views) + '</span>');
   if (s.date)  bits.push(esc(s.date));
   const stat = bits.length ? '<p class="stat-line">' + bits.join(' · ') + '</p>' : '';
 
