@@ -193,10 +193,42 @@
   .bar{position:fixed;left:0;top:0;height:2px;width:0;z-index:9;
     background:linear-gradient(90deg,var(--brass),var(--brass-lit))}
 
+  /* 시작 버튼 강조 */
+  .tool--go{border-color:transparent;font-weight:700;color:#241A3D;
+    background:linear-gradient(180deg,var(--brass-lit),var(--brass))}
+  .tool--go:active{filter:brightness(1.06);background:linear-gradient(180deg,var(--brass-lit),var(--brass))}
+
+  /* ── 순위 카운트다운 스테이지 ─────────────── */
+  .stage{display:none;margin-top:6px}
+  body.mode-cd #chart,body.mode-cd .tools,body.mode-cd .note{display:none}
+  body.mode-cd .stage{display:block}
+  .cd-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 14px}
+  .cd-now{font-family:var(--serif);font-weight:700;font-size:1.5rem;color:var(--brass-lit)}
+  .cd-now .rk{font-family:var(--num);font-weight:600;font-size:1.55em;margin:0 .04em}
+  .cd-skip{flex:0 0 auto;min-height:42px;padding:0 15px;border-radius:999px;cursor:pointer;
+    border:1px solid rgba(201,164,92,.34);background:rgba(244,237,224,.05);color:var(--ivory);
+    font-family:var(--sans);font-size:.92rem}
+  .cd-skip:active{background:rgba(201,164,92,.16)}
+  .cd-card{margin:0 0 16px}
+  .cd-card.pop{animation:cdpop .5s cubic-bezier(.2,.8,.3,1)}
+  @keyframes cdpop{0%{opacity:0;transform:scale(.92) translateY(20px)}60%{opacity:1}100%{opacity:1;transform:none}}
+  .cd-dots{display:flex;justify-content:center;align-items:center;gap:9px;margin:0 0 18px;min-height:14px}
+  .cd-dot{width:8px;height:8px;border-radius:50%;background:rgba(162,150,184,.3);transition:.3s}
+  .cd-dot.done{background:var(--brass)}
+  .cd-dot.cur{background:var(--brass-lit);transform:scale(1.6);box-shadow:0 0 10px rgba(235,211,160,.6)}
+  .cd-next{display:block;width:100%;min-height:58px;border-radius:999px;cursor:pointer;
+    border:1px solid transparent;font-family:var(--sans);font-size:1.08rem;font-weight:700;
+    color:#241A3D;background:linear-gradient(180deg,var(--brass-lit),var(--brass))}
+  .cd-next:active{filter:brightness(1.06)}
+  .cd-hint{text-align:center;color:var(--ash);font-size:.86rem;margin:13px 0 0}
+  #stage.fin .cd-now{font-size:1.72rem;text-shadow:0 2px 22px rgba(235,211,160,.5)}
+  .cd-next:focus-visible,.cd-skip:focus-visible{outline:2px solid var(--brass-lit);outline-offset:3px}
+
   @media (prefers-reduced-motion:reduce){
     html{scroll-behavior:auto}
     .card{opacity:1;transform:none;transition:none}
     .card.in .plate::after{animation:none}
+    .cd-card.pop{animation:none}
   }
 </style>
 </head>
@@ -224,11 +256,22 @@
     </div>
     <h1>지난 1년 동안<br>가장 사랑받은 특송<br><span class="top">Top 10</span></h1>
     <div class="tools">
-      <button class="tool" id="orderBtn">10위부터 보기</button>
+      <button class="tool tool--go" id="cdBtn">🏆 카운트다운</button>
       <button class="tool" id="pickBtn">오늘의 한 곡</button>
     </div>
     <p class="note" id="note"><b>미리보기 안내</b><br>이 창에서는 유튜브 썸네일과 내장 재생이 막혀 있어 자체 표지로 보입니다. 파일을 내려받아 브라우저에서 열면 썸네일과 재생이 모두 정상으로 나옵니다.</p>
   </header>
+
+  <section id="stage" class="stage" aria-live="polite">
+    <div class="cd-head">
+      <span class="cd-now" id="cdNow"></span>
+      <button class="cd-skip" id="cdSkip">한번에 보기 ▸</button>
+    </div>
+    <div class="cd-card" id="cdCard"></div>
+    <div class="cd-dots" id="cdDots"></div>
+    <button class="cd-next" id="cdNext"></button>
+    <p class="cd-hint" id="cdHint">카드를 누르면 바로 들으실 수 있어요</p>
+  </section>
 
   <main id="chart"></main>
 
@@ -261,22 +304,28 @@ const SONGS = [
 const BOXED = (() => { try { return window.self !== window.top; } catch (e) { return true; } })();
 
 const chart = document.getElementById('chart');
-const orderBtn = document.getElementById('orderBtn');
+const cdBtn = document.getElementById('cdBtn');
 const pickBtn = document.getElementById('pickBtn');
+const stage = document.getElementById('stage');
+const cdNow = document.getElementById('cdNow');
+const cdCard = document.getElementById('cdCard');
+const cdDots = document.getElementById('cdDots');
+const cdNext = document.getElementById('cdNext');
 const PLAY = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 0l14 8-14 8z"/></svg>';
 
-let countdown = false, playing = null;
+let playing = null, cdRank = 10;
 const revealed = new Set();
 const esc = s => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
 if (BOXED) {
   document.getElementById('note').style.display = 'block';
+  document.getElementById('cdHint').textContent = '카드를 누르면 유튜브에서 열립니다';
   document.getElementById('lede').innerHTML =
     '지난 한 해, 정성으로 드린 노래.<br>듣는 이에게 위로와 힘이 되고,<br>마침내 주님께 올려지기를 기도합니다.';
 }
 
-function cardHTML(s){
-  const big = s.rank <= 3 || playing === s.vid;
+function cardHTML(s, forceBig){
+  const big = forceBig || s.rank <= 3 || playing === s.vid;
   const live = playing === s.vid;
   const medal = {1:'🥇 1위',2:'🥈 2위',3:'🥉 3위'}[s.rank];
   const plate = '<span class="plate"><b>' + s.rank + '</b></span>';
@@ -315,26 +364,62 @@ function cardHTML(s){
     : '<article ' + shell + '>' + plate + cover + info + '</article>';
 }
 
-function render(){
-  const list = countdown ? [...SONGS].reverse() : SONGS;
-  chart.innerHTML = list.map(cardHTML).join('');
-  chart.querySelectorAll('.cover img').forEach(img => {
+/* 썸네일이 막히거나 회색 '이미지 없음' 표지면 hqdefault → 자체 표지로 대체 */
+function attachImgHandlers(root){
+  root.querySelectorAll('.cover img').forEach(img => {
     const fail = function(){
       if (this.dataset.done) return;
       if (this.src.indexOf('maxresdefault') > -1) {
-        this.src = this.src.replace('maxresdefault','hqdefault');   // 다음 화질로 재시도
+        this.src = this.src.replace('maxresdefault','hqdefault');
       } else {
         this.dataset.done = '1';
-        this.classList.add('gone');                                 // 자체 표지로 대체
+        this.classList.add('gone');
       }
     };
-    // 유튜브가 200으로 돌려주는 120×90 회색 '이미지 없음' 표지도 실패로 간주
     const check = function(){ if (this.naturalWidth === 120) fail.call(this); };
     img.addEventListener('error', fail);
     img.addEventListener('load', check);
     if (img.complete) { img.naturalWidth === 0 ? fail.call(img) : check.call(img); }
   });
+}
+
+function render(){
+  chart.innerHTML = SONGS.map(s => cardHTML(s)).join('');
+  attachImgHandlers(chart);
   chart.querySelectorAll('.card').forEach(c => io.observe(c));
+}
+
+/* ── 순위 카운트다운 (10위 → 1위) ─────────── */
+function renderStage(){
+  const s = SONGS.find(x => x.rank === cdRank);
+  stage.classList.toggle('fin', cdRank === 1);
+  cdNow.innerHTML = cdRank === 1
+    ? '🥇 대망의 <span class="rk">1</span>위'
+    : '제 <span class="rk">' + cdRank + '</span>위';
+  cdCard.innerHTML = cardHTML(s, true);
+  const card = cdCard.querySelector('.card');
+  if (card) card.classList.add('in');
+  revealed.add(s.vid);
+  attachImgHandlers(cdCard);
+  cdCard.classList.remove('pop'); void cdCard.offsetWidth; cdCard.classList.add('pop');
+  let d = '';
+  for (let r = 10; r >= 1; r--) d += '<span class="cd-dot ' + (r > cdRank ? 'done' : r === cdRank ? 'cur' : '') + '"></span>';
+  cdDots.innerHTML = d;
+  cdNext.textContent = cdRank > 1 ? '다음 순위 보기 ▸' : '🎉 전체 순위 보기 ▸';
+}
+
+function startCountdown(){
+  cdRank = 10; playing = null;
+  document.body.classList.add('mode-cd');
+  renderStage();
+  stage.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function exitToList(){
+  playing = null;
+  document.body.classList.remove('mode-cd');
+  render();
+  window.scrollTo({top:0, behavior:'smooth'});
 }
 
 const io = new IntersectionObserver(entries => {
@@ -354,12 +439,20 @@ chart.addEventListener('click', e => {
   chart.querySelector('[data-key="' + playing + '"]').scrollIntoView({behavior:'smooth', block:'nearest'});
 });
 
-orderBtn.addEventListener('click', () => {
-  countdown = !countdown;
-  playing = null;
-  orderBtn.textContent = countdown ? '1위부터 보기' : '10위부터 보기';
-  render();
-  window.scrollTo({top:0, behavior:'smooth'});
+cdBtn.addEventListener('click', startCountdown);
+
+cdNext.addEventListener('click', () => {
+  if (cdRank > 1) { cdRank--; playing = null; renderStage(); }
+  else exitToList();
+});
+
+document.getElementById('cdSkip').addEventListener('click', exitToList);
+
+stage.addEventListener('click', e => {
+  const btn = e.target.closest('.cover');
+  if (!btn || !btn.dataset.vid) return;
+  playing = btn.dataset.vid;
+  renderStage();
 });
 
 pickBtn.addEventListener('click', () => {
