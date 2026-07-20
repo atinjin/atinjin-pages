@@ -40,6 +40,7 @@
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html{scroll-behavior:smooth}
   body{margin:0;background:var(--ink-deep);color:var(--ivory);font-family:var(--sans);
+    font-size:17px;line-height:1.6;-webkit-text-size-adjust:100%;
     overflow-x:hidden;word-break:keep-all;overflow-wrap:break-word}
   body::before{content:"";position:fixed;inset:0;z-index:-1;
     background:
@@ -50,44 +51,54 @@
     padding:calc(26px + env(safe-area-inset-top)) 16px calc(48px + env(safe-area-inset-bottom))}
 
   /* ── 머리말 ─────────────────────────────── */
-  .mark{font-family:var(--num);font-weight:500;font-size:.95rem;letter-spacing:.52em;
-    color:var(--brass);margin:0 0 16px;text-indent:.52em}
   .masthead{text-align:center}
-  .eyebrow{font-size:.72rem;letter-spacing:.34em;text-indent:.34em;color:var(--ash);margin:0 0 4px}
+  .emblem{display:block;width:148px;height:148px;margin:0 auto 14px;
+    filter:drop-shadow(0 6px 22px rgba(0,0,0,.5))}
+  .brand{font-family:var(--serif);font-weight:700;font-size:1.62rem;color:var(--ivory);
+    margin:0 0 4px;letter-spacing:.01em}
+  .parish{font-size:.98rem;color:var(--ash);margin:0;line-height:1.55}
 
   /* 1주년 기념 표식 */
-  .anniv{display:flex;align-items:center;justify-content:center;gap:16px;margin:14px 0 6px}
+  .anniv{display:flex;align-items:center;justify-content:center;gap:16px;margin:18px 0 6px}
   .anniv .ln{height:1px;width:46px;
     background:linear-gradient(90deg,transparent,rgba(201,164,92,.8))}
   .anniv .ln.r{background:linear-gradient(90deg,rgba(201,164,92,.8),transparent)}
-  .anniv-num{font-family:var(--num);font-weight:600;font-size:3.2rem;line-height:.9;
+  .anniv-num{font-family:var(--num);font-weight:600;font-size:3.4rem;line-height:.9;
     color:var(--brass-lit);text-shadow:0 3px 22px rgba(201,164,92,.32)}
-  .anniv-unit{font-family:var(--serif);font-weight:700;font-size:1.06rem;color:var(--brass);
+  .anniv-unit{font-family:var(--serif);font-weight:700;font-size:1.16rem;color:var(--brass);
     align-self:flex-end;padding-bottom:.42rem;margin-left:-7px}
-  .anniv-label{font-family:var(--num);font-weight:500;font-size:.8rem;
-    letter-spacing:.46em;text-indent:.46em;color:var(--ash);margin:0 0 8px}
-  .anniv-date{font-family:var(--num);font-weight:500;font-size:.94rem;letter-spacing:.13em;
-    color:var(--brass);margin:0 0 20px}
+  .anniv-label{font-family:var(--num);font-weight:500;font-size:.9rem;
+    letter-spacing:.34em;text-indent:.34em;color:var(--ash);margin:0 0 8px}
+  .anniv-date{font-family:var(--num);font-weight:500;font-size:1.05rem;letter-spacing:.12em;
+    color:var(--brass);margin:0 0 18px}
   .anniv-date b{font-weight:600;color:var(--brass-lit)}
 
-  h1{font-family:var(--serif);font-weight:700;font-size:clamp(1.72rem,7.4vw,2.34rem);
+  /* 채널 통계 */
+  .stats{display:flex;justify-content:center;margin:0 0 22px}
+  .stat{padding:0 20px;text-align:center}
+  .stat + .stat{border-left:1px solid rgba(201,164,92,.3)}
+  .stat b{display:block;font-family:var(--num);font-weight:600;font-size:2.1rem;line-height:1;
+    color:var(--brass-lit)}
+  .stat span{display:block;margin-top:6px;font-size:.9rem;letter-spacing:.05em;color:var(--ash)}
+
+  h1{font-family:var(--serif);font-weight:700;font-size:clamp(1.86rem,7.8vw,2.5rem);
      line-height:1.42;margin:0;text-wrap:balance}
   h1 em{font-style:normal;color:var(--brass-lit)}
-  h1 .top{display:inline-block;font-family:var(--num);font-weight:600;font-size:1.16em;
+  h1 .top{display:inline-block;font-family:var(--num);font-weight:600;font-size:1.18em;
      letter-spacing:.02em;margin-top:.12em}
   .rule{display:flex;align-items:center;gap:12px;margin:20px 0 18px;color:var(--brass)}
   .rule::before,.rule::after{content:"";height:1px;flex:1;
     background:linear-gradient(90deg,transparent,rgba(201,164,92,.5),transparent)}
-  .rule span{font-size:.7rem}
-  .lede{margin:0 auto;color:var(--ash);font-size:.86rem;line-height:1.85;max-width:24em}
-  .tools{display:flex;gap:8px;margin:22px 0 24px}
-  .tool{flex:1;min-height:46px;border-radius:999px;cursor:pointer;
+  .rule span{font-size:.72rem}
+  .lede{margin:0 auto;color:var(--ivory);opacity:.9;font-size:1.06rem;line-height:1.9;max-width:23em}
+  .tools{display:flex;gap:10px;margin:24px 0 26px}
+  .tool{flex:1;min-height:54px;border-radius:999px;cursor:pointer;
     border:1px solid rgba(201,164,92,.34);background:rgba(244,237,224,.04);
-    color:var(--ivory);font-family:var(--sans);font-size:.83rem;transition:background .2s}
+    color:var(--ivory);font-family:var(--sans);font-size:1rem;transition:background .2s}
   .tool:active{background:rgba(201,164,92,.16)}
   .tool:focus-visible,.cover:focus-visible,.link:focus-visible{outline:2px solid var(--brass-lit);outline-offset:3px}
-  .note{display:none;margin:0 0 22px;padding:11px 13px;border-radius:10px;font-size:.75rem;
-    line-height:1.65;color:var(--ash);border:1px solid rgba(201,164,92,.24);
+  .note{display:none;margin:0 0 22px;padding:12px 15px;border-radius:10px;font-size:.9rem;
+    line-height:1.7;color:var(--ash);border:1px solid rgba(201,164,92,.24);
     background:rgba(201,164,92,.06)}
   .note b{color:var(--brass-lit);font-weight:400}
 
@@ -113,9 +124,9 @@
     gap:7px;padding:14px 46px;text-align:center;
     background:radial-gradient(115% 88% at 50% 4%,hsl(var(--h) 38% 31%),transparent 72%),
                linear-gradient(158deg,#2E2250,#170F29)}
-  .fb i{font-style:normal;color:var(--brass);font-size:.82rem;letter-spacing:.3em;opacity:.85}
-  .fb strong{font-family:var(--serif);font-weight:700;font-size:1.18rem;color:var(--brass-lit);line-height:1.35}
-  .fb small{font-size:.7rem;color:var(--ash)}
+  .fb i{font-style:normal;color:var(--brass);font-size:.9rem;letter-spacing:.3em;opacity:.85}
+  .fb strong{font-family:var(--serif);font-weight:700;font-size:1.34rem;color:var(--brass-lit);line-height:1.35}
+  .fb small{font-size:.82rem;color:var(--ash)}
 
   .play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:2;
     width:54px;height:54px;border-radius:50%;display:grid;place-items:center;
@@ -141,21 +152,23 @@
     border:1px solid rgba(235,211,160,.42);
     -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 
-  .meta{padding:13px 15px 15px}
+  .meta{padding:14px 16px 16px}
   .title{font-family:var(--serif);font-weight:700;margin:0;letter-spacing:-.01em}
-  .credit{margin:5px 0 0;color:var(--ash);font-size:.78rem;line-height:1.5}
-  .tag{display:inline-block;margin-top:9px;font-size:.66rem;letter-spacing:.1em;color:var(--brass);
-    border:1px solid rgba(201,164,92,.3);border-radius:4px;padding:3px 8px}
-  .link{display:inline-block;margin-top:11px;margin-left:8px;font-size:.72rem;color:var(--ash);
+  .credit{margin:6px 0 0;color:var(--ash);font-size:.95rem;line-height:1.55}
+  .stat-line{margin:7px 0 0;font-size:.95rem;color:var(--brass);letter-spacing:.01em;line-height:1.5}
+  .stat-line .v{color:var(--brass-lit);font-weight:700}
+  .tag{display:inline-block;margin-top:11px;font-size:.8rem;letter-spacing:.08em;color:var(--brass);
+    border:1px solid rgba(201,164,92,.3);border-radius:4px;padding:4px 10px}
+  .link{display:inline-block;margin-top:12px;margin-left:8px;font-size:.9rem;color:var(--ash);
     text-decoration:none;border-bottom:1px solid rgba(162,150,184,.35);padding-bottom:1px}
 
-  .card--hero .plate{position:absolute;left:12px;bottom:12px;z-index:4;width:52px;height:56px}
-  .card--hero .plate b{font-size:2.5rem}
-  .card--hero .title{font-size:1.28rem}
+  .card--hero .plate{position:absolute;left:12px;bottom:12px;z-index:4;width:56px;height:60px}
+  .card--hero .plate b{font-size:2.7rem}
+  .card--hero .title{font-size:1.56rem}
 
-  .card--row{display:grid;grid-template-columns:38px 104px 1fr;align-items:center;gap:11px;padding:10px}
-  .card--row .plate{width:38px;height:44px}
-  .card--row .plate b{font-size:1.5rem}
+  .card--row{display:grid;grid-template-columns:42px 110px 1fr;align-items:center;gap:12px;padding:11px}
+  .card--row .plate{width:42px;height:48px}
+  .card--row .plate b{font-size:1.66rem}
   .card--row .cover{border-radius:9px}
   .card--row .veil{background:linear-gradient(180deg,rgba(23,15,41,.05),rgba(23,15,41,.45))}
   .card--row .play{width:34px;height:34px}
@@ -163,12 +176,13 @@
   .card--row .fb{padding:6px} .card--row .fb i{font-size:1.15rem;letter-spacing:0}
   .card--row .fb strong,.card--row .fb small{display:none}
   .card--row .meta{padding:0}
-  .card--row .title{font-size:.98rem;line-height:1.4}
-  .card--row .credit{font-size:.73rem;margin-top:3px}
+  .card--row .title{font-size:1.16rem;line-height:1.4}
+  .card--row .credit{font-size:.9rem;margin-top:4px}
+  .card--row .stat-line{font-size:.88rem;margin-top:4px}
   .card--row .tag,.card--row .link{display:none}
 
-  footer{margin-top:34px;text-align:center;color:var(--ash);font-size:.78rem;line-height:1.9}
-  footer .fmark{color:var(--brass);font-size:.8rem;letter-spacing:.4em;display:block;margin-bottom:10px}
+  footer{margin-top:36px;text-align:center;color:var(--ash);font-size:.95rem;line-height:1.95}
+  footer .fmark{color:var(--brass);font-size:.85rem;letter-spacing:.4em;display:block;margin-bottom:10px}
   .bar{position:fixed;left:0;top:0;height:2px;width:0;z-index:9;
     background:linear-gradient(90deg,var(--brass),var(--brass-lit))}
 
@@ -184,18 +198,25 @@
 
 <div class="wrap">
   <header class="masthead">
-    <p class="mark">ORATIO CHOIR</p>
-    <p class="eyebrow">오라씨오 성가대</p>
+    <img class="emblem" src="emblem.png" width="148" height="148" decoding="async"
+         alt="오라씨오 성가대 엠블럼 — 천주교 서울대교구 대치동성당 교중미사 성가대">
+    <p class="brand">오라씨오 성가대</p>
+    <p class="parish">천주교 서울대교구 대치동성당 · 교중미사</p>
     <div class="anniv">
       <span class="ln"></span>
       <span class="anniv-num">1</span><span class="anniv-unit">주년</span>
       <span class="ln r"></span>
     </div>
-    <p class="anniv-label">First Anniversary</p>
+    <p class="anniv-label">YouTube Channel · First Anniversary</p>
     <p class="anniv-date">2025. 7. 19 &nbsp;—&nbsp; <b>2026. 7. 19</b></p>
+    <div class="stats">
+      <div class="stat"><b>84</b><span>특송</span></div>
+      <div class="stat"><b>109</b><span>구독자</span></div>
+      <div class="stat"><b>10</b><span>인기 Top</span></div>
+    </div>
     <h1>지난 한 해, 가장 사랑받은 특송<br><span class="top">Top 10</span></h1>
     <div class="rule"><span>✦</span></div>
-    <p class="lede" id="lede">오라씨오 성가대가 첫 걸음을 뗀 지 어느덧 한 해가 되었습니다.<br>그동안 가장 큰 사랑을 받은 특송 열 곡을 정성껏 골라 담았습니다.<br>표지를 가만히 눌러 주시면, 그 자리에서 바로 함께 들으실 수 있어요.</p>
+    <p class="lede" id="lede">오라씨오 성가대 유튜브 채널이 첫 걸음을 뗀 지 어느덧 한 해가 되었습니다.<br>지난 한 해 올린 특송 가운데 가장 큰 사랑을 받은 열 곡을 정성껏 골라 담았습니다.<br>표지를 가만히 눌러 주시면, 그 자리에서 바로 함께 들으실 수 있어요.</p>
     <div class="tools">
       <button class="tool" id="orderBtn">10위부터 보기</button>
       <button class="tool" id="pickBtn">오늘의 한 곡</button>
@@ -214,19 +235,20 @@
 <script>
 /* ───────────────────────────────────────────────
    곡 목록 — 이 부분만 고치면 순위표가 바뀝니다.
-   views 칸에 조회수를 적으면 이름 옆에 함께 나옵니다. 예) views:"1.2만 회"
+   views 칸에 조회수를, date 칸에 업로드 날짜를 적으면 카드에 함께 나옵니다.
+   예) views:"1,234회",  date:"2025. 8. 3"
    ─────────────────────────────────────────────── */
 const SONGS = [
-  {rank:1,  vid:"0qD4lwmup9I", title:"사명",          credit:"이권희",                    tag:"봉헌 · 파견", views:""},
-  {rank:2,  vid:"worrj2KO3u0", title:"Ave Maria",     credit:"강나현 비비아나",            tag:"성모 성가",  views:""},
-  {rank:3,  vid:"UsT1KRjdyLo", title:"Anima Christi", credit:"Marco Frisina",             tag:"라틴 성가",  views:""},
-  {rank:4,  vid:"cSw9GENhwNA", title:"당신께 가는 길",  credit:"김상균 라우렌시오",          tag:"성가",      views:""},
-  {rank:5,  vid:"QPKNBadGAL4", title:"축복합니다",      credit:"박수진 안젤라",              tag:"축복",      views:""},
-  {rank:6,  vid:"w_JFy8aaIvk", title:"평화의 기도",     credit:"Allen Pote",                tag:"합창",      views:""},
-  {rank:7,  vid:"rtiGY7YdzDk", title:"Ave Maria",     credit:"Libera · Robert Prizeman",  tag:"성모 성가",  views:""},
-  {rank:8,  vid:"_R1tarfCff0", title:"부활의 소식",     credit:"최덕신",                    tag:"부활",      views:""},
-  {rank:9,  vid:"OU7ddCV4__Q", title:"잊지 말아요",     credit:"김도훈 작곡 · 백지영 노래",   tag:"가요",      views:""},
-  {rank:10, vid:"aDn-6t9iWbI", title:"시편 23편",      credit:"유미진 라파엘라",            tag:"시편",      views:""}
+  {rank:1,  vid:"0qD4lwmup9I", title:"사명",          credit:"이권희",                    tag:"봉헌 · 파견", views:"", date:""},
+  {rank:2,  vid:"worrj2KO3u0", title:"Ave Maria",     credit:"강나현 비비아나",            tag:"성모 성가",  views:"", date:""},
+  {rank:3,  vid:"UsT1KRjdyLo", title:"Anima Christi", credit:"Marco Frisina",             tag:"라틴 성가",  views:"", date:""},
+  {rank:4,  vid:"cSw9GENhwNA", title:"당신께 가는 길",  credit:"김상균 라우렌시오",          tag:"성가",      views:"", date:""},
+  {rank:5,  vid:"QPKNBadGAL4", title:"축복합니다",      credit:"박수진 안젤라",              tag:"축복",      views:"", date:""},
+  {rank:6,  vid:"w_JFy8aaIvk", title:"평화의 기도",     credit:"Allen Pote",                tag:"합창",      views:"", date:""},
+  {rank:7,  vid:"rtiGY7YdzDk", title:"Ave Maria",     credit:"Libera · Robert Prizeman",  tag:"성모 성가",  views:"", date:""},
+  {rank:8,  vid:"_R1tarfCff0", title:"부활의 소식",     credit:"최덕신",                    tag:"부활",      views:"", date:""},
+  {rank:9,  vid:"OU7ddCV4__Q", title:"잊지 말아요",     credit:"김도훈 작곡 · 백지영 노래",   tag:"가요",      views:"", date:""},
+  {rank:10, vid:"aDn-6t9iWbI", title:"시편 23편",      credit:"유미진 라파엘라",            tag:"시편",      views:"", date:""}
 ];
 
 /* 미리보기(iframe) 안에서는 내장 재생이 막히므로 유튜브로 바로 넘깁니다 */
@@ -244,7 +266,7 @@ const esc = s => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','
 if (BOXED) {
   document.getElementById('note').style.display = 'block';
   document.getElementById('lede').innerHTML =
-    '오라씨오 성가대가 첫 걸음을 뗀 지 어느덧 한 해가 되었습니다.<br>가장 큰 사랑을 받은 특송 열 곡을 정성껏 골라 담았습니다.<br>표지를 눌러 주시면 유튜브에서 열립니다.';
+    '오라씨오 성가대 유튜브 채널이 첫 걸음을 뗀 지 어느덧 한 해가 되었습니다.<br>가장 큰 사랑을 받은 특송 열 곡을 정성껏 골라 담았습니다.<br>표지를 눌러 주시면 유튜브에서 열립니다.';
 }
 
 function cardHTML(s){
@@ -269,8 +291,13 @@ function cardHTML(s){
       : '<button class="cover" data-vid="' + s.vid + '" aria-label="' + esc(s.title) + ' 재생">' + guts + '</button>';
   }
 
+  const bits = [];
+  if (s.views) bits.push('<span class="v">' + esc(s.views) + '</span>');
+  if (s.date)  bits.push(esc(s.date));
+  const stat = bits.length ? '<p class="stat-line">' + bits.join(' · ') + '</p>' : '';
+
   const info = '<div class="meta"><h2 class="title">' + esc(s.title) + '</h2>' +
-    '<p class="credit">' + esc(s.credit) + (s.views ? ' · ' + esc(s.views) : '') + '</p>' +
+    '<p class="credit">' + esc(s.credit) + '</p>' + stat +
     '<span class="tag">' + esc(s.tag) + '</span>' +
     '<a class="link" href="https://youtu.be/' + s.vid + '" target="_blank" rel="noopener">유튜브에서 보기 ↗</a></div>';
 

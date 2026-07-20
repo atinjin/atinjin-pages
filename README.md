@@ -25,4 +25,8 @@ https://atinjin.github.io/atinjin-pages/oratio/
 ## 순위표 수정
 
 `oratio/index.html` 안의 `SONGS` 배열만 고치면 순위표가 바뀝니다.
-`views` 칸에 조회수를 적으면 이름 옆에 함께 표시됩니다. (예: `views:"1.2만 회"`)
+`views` 칸에 조회수를, `date` 칸에 업로드 날짜를 적으면 카드에 함께 표시됩니다.
+(예: `views:"1,234회", date:"2025. 8. 3"`)
+
+엠블럼은 `oratio/emblem.png`, 채널 통계(특송·구독자 수)는 `index.html` 머리말의
+`.stats` 영역에서 고칠 수 있습니다.
