@@ -242,11 +242,19 @@
     border:1px solid rgba(201,164,92,.32);background:rgba(201,164,92,.09);
     color:var(--ivory);font-size:1rem;line-height:1.85}
   .cd-finale b{display:block;margin-bottom:6px;color:var(--brass-lit);font-weight:700;font-size:1.1rem}
+  /* 이전/다음 순위 버튼 (아이콘:다음 = 1:5) */
+  .cd-nav{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,5fr);gap:10px;margin:0 0 16px}
+  .cd-prev{min-width:0;min-height:66px;border-radius:16px;cursor:pointer;
+    border:1px solid rgba(201,164,92,.4);background:rgba(244,237,224,.05);color:var(--brass-lit);
+    display:flex;align-items:center;justify-content:center}
+  .cd-prev svg{width:24px;height:24px}
+  .cd-prev:active{background:rgba(201,164,92,.16)}
+  .cd-prev:disabled{opacity:.32;cursor:default}
   /* 다음 순위 버튼 — 크고 눈에 띄게 */
-  .cd-next{display:block;width:100%;min-height:66px;border-radius:16px;cursor:pointer;border:0;
+  .cd-next{min-width:0;min-height:66px;border-radius:16px;cursor:pointer;border:0;
     font-family:var(--sans);font-size:1.22rem;font-weight:800;letter-spacing:.02em;color:#2A1D0C;
     background:linear-gradient(180deg,#F6D888,#E7A63F);
-    box-shadow:0 8px 26px rgba(231,166,63,.42);margin:0 0 16px;
+    box-shadow:0 8px 26px rgba(231,166,63,.42);
     animation:cdpulse 1.9s ease-in-out infinite}
   @keyframes cdpulse{0%,100%{box-shadow:0 8px 24px rgba(231,166,63,.34)}50%{box-shadow:0 10px 34px rgba(246,216,136,.62)}}
   .cd-next:active{filter:brightness(1.07)}
@@ -256,7 +264,7 @@
   .cd-dot.cur{background:var(--brass-lit);transform:scale(1.6);box-shadow:0 0 10px rgba(235,211,160,.6)}
   .cd-hint{text-align:center;color:var(--ash);font-size:.86rem;margin:13px 0 0}
   #stage.fin .cd-now{font-size:1.72rem;text-shadow:0 2px 22px rgba(235,211,160,.5)}
-  .cd-next:focus-visible,.cd-skip:focus-visible{outline:2px solid var(--brass-lit);outline-offset:3px}
+  .cd-next:focus-visible,.cd-skip:focus-visible,.cd-prev:focus-visible{outline:2px solid var(--brass-lit);outline-offset:3px}
 
   @media (prefers-reduced-motion:reduce){
     html{scroll-behavior:auto}
@@ -306,7 +314,12 @@
     </div>
     <div class="cd-card" id="cdCard"></div>
     <p class="cd-finale" id="cdFinale" hidden><b>오라씨오 성가대 유튜브 채널 1주년</b>지난 한 해 동안 함께 노래하고 기도해 주신<br>모든 분께 진심으로 감사드립니다.</p>
-    <button class="cd-next" id="cdNext"></button>
+    <div class="cd-nav">
+      <button class="cd-prev" id="cdPrev" aria-label="이전 순위 보기">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="cd-next" id="cdNext"></button>
+    </div>
     <div class="cd-dots" id="cdDots"></div>
     <p class="cd-hint" id="cdHint">카드를 누르면 바로 들으실 수 있어요</p>
   </section>
@@ -348,6 +361,7 @@ const cdNow = document.getElementById('cdNow');
 const cdCard = document.getElementById('cdCard');
 const cdDots = document.getElementById('cdDots');
 const cdNext = document.getElementById('cdNext');
+const cdPrev = document.getElementById('cdPrev');
 const cdFinale = document.getElementById('cdFinale');
 const PLAY = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 0l14 8-14 8z"/></svg>';
 
@@ -451,6 +465,7 @@ function renderStage(){
   for (let r = 10; r >= 1; r--) d += '<span class="cd-dot ' + (r > cdRank ? 'done' : r === cdRank ? 'cur' : '') + '"></span>';
   cdDots.innerHTML = d;
   cdNext.textContent = cdRank > 1 ? (cdRank - 1) + '위 보기 ▸' : '🎉 전체 순위 보기 ▸';
+  cdPrev.disabled = cdRank === 10;
 }
 
 function startCountdown(){
@@ -495,6 +510,10 @@ cdBtn.addEventListener('click', startCountdown);
 cdNext.addEventListener('click', () => {
   if (cdRank > 1) { cdRank--; playing = null; renderStage(); }
   else exitToList();
+});
+
+cdPrev.addEventListener('click', () => {
+  if (cdRank < 10) { cdRank++; playing = null; renderStage(); }
 });
 
 document.getElementById('cdSkip').addEventListener('click', exitToList);
