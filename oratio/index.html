@@ -68,16 +68,27 @@
   .parish{font-size:.98rem;color:var(--ash);margin:0;line-height:1.55}
 
   /* 1주년 기념 표식 */
-  .anniv{display:flex;align-items:center;justify-content:center;gap:16px;margin:18px 0 10px}
-  .anniv .ln{height:1px;width:46px;
-    background:linear-gradient(90deg,transparent,rgba(201,164,92,.8))}
-  .anniv .ln.r{background:linear-gradient(90deg,rgba(201,164,92,.8),transparent)}
-  .anniv-num{font-family:var(--num);font-weight:600;font-size:3.4rem;line-height:.9;
-    color:var(--brass-lit);text-shadow:0 3px 22px rgba(201,164,92,.32)}
-  .anniv-unit{font-family:var(--serif);font-weight:700;font-size:1.16rem;color:var(--brass);
-    align-self:flex-end;padding-bottom:.42rem;margin-left:-7px}
+  .anniv{position:relative;display:flex;align-items:center;justify-content:center;gap:13px;margin:22px 0 8px}
+  .anniv::before{content:"";position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);
+    width:270px;height:150px;z-index:0;pointer-events:none;
+    background:radial-gradient(ellipse 50% 50% at 50% 50%,rgba(235,211,160,.22),transparent 70%)}
+  .anniv>*{position:relative;z-index:1}
+  .anniv .spark{color:var(--brass);font-size:.86rem;animation:twinkle 2.6s ease-in-out infinite}
+  .anniv .spark:last-child{animation-delay:1.3s}
+  @keyframes twinkle{0%,100%{opacity:.4;transform:scale(.85)}50%{opacity:1;transform:scale(1.12)}}
+  .anniv .ln{height:1px;width:30px;background:linear-gradient(90deg,transparent,rgba(201,164,92,.85))}
+  .anniv .ln.r{background:linear-gradient(90deg,rgba(201,164,92,.85),transparent)}
+  .anniv-num{font-family:var(--num);font-weight:600;font-size:4.6rem;line-height:.82;color:var(--brass-lit);
+    background:linear-gradient(180deg,#F7E6BC,#D7AC5F);-webkit-background-clip:text;background-clip:text;
+    -webkit-text-fill-color:transparent;animation:annivglow 3s ease-in-out infinite}
+  @keyframes annivglow{0%,100%{filter:drop-shadow(0 3px 14px rgba(235,211,160,.4))}
+    50%{filter:drop-shadow(0 4px 24px rgba(235,211,160,.66))}}
+  .anniv-unit{font-family:var(--serif);font-weight:700;font-size:1.32rem;color:var(--brass);
+    align-self:flex-end;padding-bottom:.55rem;margin-left:-3px}
+  .anniv-cap{font-family:var(--serif);font-weight:700;font-size:1.04rem;color:var(--brass-lit);
+    margin:0 0 8px;letter-spacing:.01em}
   .anniv-date{font-family:var(--num);font-weight:500;font-size:1.05rem;letter-spacing:.12em;
-    color:var(--brass);margin:0 0 20px}
+    color:var(--brass);margin:0 0 22px}
   .anniv-date b{font-weight:600;color:var(--brass-lit)}
 
   /* 채널 통계 */
@@ -250,6 +261,7 @@
     .card.in .plate::after{animation:none}
     .cd-card.pop{animation:none}
     .cd-next{animation:none}
+    .anniv .spark,.anniv-num{animation:none}
   }
 </style>
 </head>
@@ -268,10 +280,11 @@
     <p class="lede" id="lede">지난 한 해, 정성으로 드린 노래.<br>듣는 이에게 위로와 힘이 되고,<br>마침내 주님께 올려지기를 기도합니다.</p>
     <div class="rule"><span>✦</span></div>
     <div class="anniv">
-      <span class="ln"></span>
+      <span class="spark">✦</span><span class="ln"></span>
       <span class="anniv-num">1</span><span class="anniv-unit">주년</span>
-      <span class="ln r"></span>
+      <span class="ln r"></span><span class="spark">✦</span>
     </div>
+    <p class="anniv-cap">유튜브 채널 개설 1주년</p>
     <p class="anniv-date">2025. 7. 19 &nbsp;—&nbsp; <b>2026. 7. 19</b></p>
     <div class="stats">
       <div class="stat"><b>84</b><span>특송</span></div>
@@ -280,7 +293,6 @@
     </div>
     <div class="tools">
       <button class="tool tool--go" id="cdBtn">Top 10 보기 ▸</button>
-      <button class="tool" id="pickBtn">오늘의 한 곡</button>
     </div>
     <p class="note" id="note"><b>미리보기 안내</b><br>이 창에서는 유튜브 썸네일과 내장 재생이 막혀 있어 자체 표지로 보입니다. 파일을 내려받아 브라우저에서 열면 썸네일과 재생이 모두 정상으로 나옵니다.</p>
   </header>
@@ -329,7 +341,6 @@ const BOXED = (() => { try { return window.self !== window.top; } catch (e) { re
 
 const chart = document.getElementById('chart');
 const cdBtn = document.getElementById('cdBtn');
-const pickBtn = document.getElementById('pickBtn');
 const stage = document.getElementById('stage');
 const cdNow = document.getElementById('cdNow');
 const cdCard = document.getElementById('cdCard');
@@ -492,18 +503,6 @@ stage.addEventListener('click', e => {
   if (!btn || !btn.dataset.vid) return;
   playing = btn.dataset.vid;
   renderStage();
-});
-
-pickBtn.addEventListener('click', () => {
-  const s = SONGS[Math.floor(Math.random() * SONGS.length)];
-  if (BOXED) { window.open('https://youtu.be/' + s.vid, '_blank', 'noopener'); return; }
-  setView('list');
-  playing = s.vid;
-  render();
-  const card = chart.querySelector('[data-key="' + s.vid + '"]');
-  card.classList.add('in','pick');
-  card.scrollIntoView({behavior:'smooth', block:'center'});
-  setTimeout(() => card.classList.remove('pick'), 2600);
 });
 
 const bar = document.getElementById('bar');
