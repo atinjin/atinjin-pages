@@ -71,7 +71,9 @@
   .parish{font-size:.98rem;color:var(--ash);margin:0;line-height:1.55}
 
   /* 1주년 기념 표식 */
-  .anniv{position:relative;display:flex;align-items:center;justify-content:center;gap:13px;margin:22px 0 8px}
+  .anniv-eyebrow{font-family:var(--serif);font-weight:700;font-size:1.58rem;color:var(--brass-lit);
+    letter-spacing:.02em;margin:24px 0 0;text-shadow:0 2px 20px rgba(235,211,160,.45)}
+  .anniv{position:relative;display:flex;align-items:center;justify-content:center;gap:13px;margin:2px 0 8px}
   .anniv::before{content:"";position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);
     width:270px;height:150px;z-index:0;pointer-events:none;
     background:radial-gradient(ellipse 50% 50% at 50% 50%,rgba(235,211,160,.22),transparent 70%)}
@@ -88,8 +90,6 @@
     50%{filter:drop-shadow(0 4px 24px rgba(235,211,160,.66))}}
   .anniv-unit{font-family:var(--serif);font-weight:700;font-size:1.32rem;color:var(--brass);
     align-self:flex-end;padding-bottom:.55rem;margin-left:-3px}
-  .anniv-cap{font-family:var(--serif);font-weight:700;font-size:1.04rem;color:var(--brass-lit);
-    margin:0 0 8px;letter-spacing:.01em}
   .anniv-date{font-family:var(--num);font-weight:500;font-size:1.05rem;letter-spacing:.12em;
     color:var(--brass);margin:0 0 22px}
   .anniv-date b{font-weight:600;color:var(--brass-lit)}
@@ -280,12 +280,12 @@
          alt="오라씨오 성가대 엠블럼 — 천주교 서울대교구 대치동성당 교중미사 성가대">
     <p class="brand">오라씨오 성가대</p>
     <p class="parish">천주교 서울대교구 대치동성당 · 교중미사</p>
+    <p class="anniv-eyebrow">유튜브 채널</p>
     <div class="anniv">
       <span class="spark">✦</span><span class="ln"></span>
       <span class="anniv-num">1</span><span class="anniv-unit">주년</span>
       <span class="ln r"></span><span class="spark">✦</span>
     </div>
-    <p class="anniv-cap">유튜브 채널 개설 1주년</p>
     <p class="anniv-date">2025. 7. 19 &nbsp;—&nbsp; <b>2026. 7. 19</b></p>
     <div class="stats">
       <div class="stat"><b>84</b><span>특송</span></div>
