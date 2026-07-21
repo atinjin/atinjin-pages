@@ -198,10 +198,22 @@
     background:linear-gradient(180deg,var(--brass-lit),var(--brass))}
   .tool--go:active{filter:brightness(1.06);background:linear-gradient(180deg,var(--brass-lit),var(--brass))}
 
+  /* ── 화면 전환 (인트로 / 카운트다운 / 목록) ── */
+  .viewbar{display:none;position:sticky;top:0;z-index:8;align-items:center;justify-content:center;
+    padding:12px 0 12px;margin:0 0 8px;
+    background:linear-gradient(180deg,rgba(23,15,41,.96),rgba(23,15,41,.72));
+    -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+  .vb-home{border:0;background:none;color:var(--brass);cursor:pointer;
+    font-family:var(--serif);font-weight:700;font-size:1.08rem;letter-spacing:.01em}
+  .vb-home:focus-visible{outline:2px solid var(--brass-lit);outline-offset:3px}
+  body:not(.view-intro) .masthead{display:none}
+  body:not(.view-list) #chart{display:none}
+  body:not(.view-list) footer{display:none}
+  body.view-cd .viewbar,body.view-list .viewbar{display:flex}
+  body.view-cd .stage{display:block}
+
   /* ── 순위 카운트다운 스테이지 ─────────────── */
-  .stage{display:none;margin-top:6px}
-  body.mode-cd #chart,body.mode-cd .tools,body.mode-cd .note{display:none}
-  body.mode-cd .stage{display:block}
+  .stage{display:none}
   .cd-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 14px}
   .cd-now{font-family:var(--serif);font-weight:700;font-size:1.5rem;color:var(--brass-lit)}
   .cd-now .rk{font-family:var(--num);font-weight:600;font-size:1.55em;margin:0 .04em}
@@ -212,14 +224,22 @@
   .cd-card{margin:0 0 16px}
   .cd-card.pop{animation:cdpop .5s cubic-bezier(.2,.8,.3,1)}
   @keyframes cdpop{0%{opacity:0;transform:scale(.92) translateY(20px)}60%{opacity:1}100%{opacity:1;transform:none}}
-  .cd-dots{display:flex;justify-content:center;align-items:center;gap:9px;margin:0 0 18px;min-height:14px}
+  .cd-finale{text-align:center;margin:0 0 16px;padding:15px 16px;border-radius:14px;
+    border:1px solid rgba(201,164,92,.32);background:rgba(201,164,92,.09);
+    color:var(--ivory);font-size:1rem;line-height:1.85}
+  .cd-finale b{display:block;margin-bottom:6px;color:var(--brass-lit);font-weight:700;font-size:1.1rem}
+  /* 다음 순위 버튼 — 크고 눈에 띄게 */
+  .cd-next{display:block;width:100%;min-height:66px;border-radius:16px;cursor:pointer;border:0;
+    font-family:var(--sans);font-size:1.22rem;font-weight:800;letter-spacing:.02em;color:#2A1D0C;
+    background:linear-gradient(180deg,#F6D888,#E7A63F);
+    box-shadow:0 8px 26px rgba(231,166,63,.42);margin:0 0 16px;
+    animation:cdpulse 1.9s ease-in-out infinite}
+  @keyframes cdpulse{0%,100%{box-shadow:0 8px 24px rgba(231,166,63,.34)}50%{box-shadow:0 10px 34px rgba(246,216,136,.62)}}
+  .cd-next:active{filter:brightness(1.07)}
+  .cd-dots{display:flex;justify-content:center;align-items:center;gap:9px;margin:0 0 4px;min-height:14px}
   .cd-dot{width:8px;height:8px;border-radius:50%;background:rgba(162,150,184,.3);transition:.3s}
   .cd-dot.done{background:var(--brass)}
   .cd-dot.cur{background:var(--brass-lit);transform:scale(1.6);box-shadow:0 0 10px rgba(235,211,160,.6)}
-  .cd-next{display:block;width:100%;min-height:58px;border-radius:999px;cursor:pointer;
-    border:1px solid transparent;font-family:var(--sans);font-size:1.08rem;font-weight:700;
-    color:#241A3D;background:linear-gradient(180deg,var(--brass-lit),var(--brass))}
-  .cd-next:active{filter:brightness(1.06)}
   .cd-hint{text-align:center;color:var(--ash);font-size:.86rem;margin:13px 0 0}
   #stage.fin .cd-now{font-size:1.72rem;text-shadow:0 2px 22px rgba(235,211,160,.5)}
   .cd-next:focus-visible,.cd-skip:focus-visible{outline:2px solid var(--brass-lit);outline-offset:3px}
@@ -229,13 +249,17 @@
     .card{opacity:1;transform:none;transition:none}
     .card.in .plate::after{animation:none}
     .cd-card.pop{animation:none}
+    .cd-next{animation:none}
   }
 </style>
 </head>
-<body>
+<body class="view-intro">
 <div class="bar" id="bar"></div>
 
 <div class="wrap">
+  <div class="viewbar" id="viewbar">
+    <button class="vb-home" id="homeBtn" aria-label="처음 화면으로">✦ 오라씨오 성가대</button>
+  </div>
   <header class="masthead">
     <img class="emblem" src="emblem.png" width="148" height="148" decoding="async"
          alt="오라씨오 성가대 엠블럼 — 천주교 서울대교구 대치동성당 교중미사 성가대">
@@ -256,7 +280,7 @@
     </div>
     <h1>지난 1년 동안<br>가장 사랑받은 특송<br><span class="top">Top 10</span></h1>
     <div class="tools">
-      <button class="tool tool--go" id="cdBtn">🏆 카운트다운</button>
+      <button class="tool tool--go" id="cdBtn">Top 10 보기 ▸</button>
       <button class="tool" id="pickBtn">오늘의 한 곡</button>
     </div>
     <p class="note" id="note"><b>미리보기 안내</b><br>이 창에서는 유튜브 썸네일과 내장 재생이 막혀 있어 자체 표지로 보입니다. 파일을 내려받아 브라우저에서 열면 썸네일과 재생이 모두 정상으로 나옵니다.</p>
@@ -268,8 +292,9 @@
       <button class="cd-skip" id="cdSkip">한번에 보기 ▸</button>
     </div>
     <div class="cd-card" id="cdCard"></div>
-    <div class="cd-dots" id="cdDots"></div>
+    <p class="cd-finale" id="cdFinale" hidden><b>오라씨오 성가대 유튜브 채널 1주년</b>지난 한 해 동안 함께 노래하고 기도해 주신<br>모든 분께 진심으로 감사드립니다.</p>
     <button class="cd-next" id="cdNext"></button>
+    <div class="cd-dots" id="cdDots"></div>
     <p class="cd-hint" id="cdHint">카드를 누르면 바로 들으실 수 있어요</p>
   </section>
 
@@ -277,7 +302,7 @@
 
   <footer>
     <span class="fmark">✦✦✦</span>
-    오라씨오 성가대 창단 1주년<br>지난 한 해 동안 함께 노래하고 기도해 주신<br>모든 분께 진심으로 감사드립니다.
+    오라씨오 성가대 유튜브 채널 1주년<br>지난 한 해 동안 함께 노래하고 기도해 주신<br>모든 분께 진심으로 감사드립니다.
   </footer>
 </div>
 
@@ -311,6 +336,7 @@ const cdNow = document.getElementById('cdNow');
 const cdCard = document.getElementById('cdCard');
 const cdDots = document.getElementById('cdDots');
 const cdNext = document.getElementById('cdNext');
+const cdFinale = document.getElementById('cdFinale');
 const PLAY = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 0l14 8-14 8z"/></svg>';
 
 let playing = null, cdRank = 10;
@@ -389,6 +415,12 @@ function render(){
   chart.querySelectorAll('.card').forEach(c => io.observe(c));
 }
 
+/* ── 화면 전환 ─────────────────────────── */
+function setView(v){
+  document.body.classList.remove('view-intro','view-cd','view-list');
+  document.body.classList.add('view-' + v);
+}
+
 /* ── 순위 카운트다운 (10위 → 1위) ─────────── */
 function renderStage(){
   const s = SONGS.find(x => x.rank === cdRank);
@@ -402,23 +434,30 @@ function renderStage(){
   revealed.add(s.vid);
   attachImgHandlers(cdCard);
   cdCard.classList.remove('pop'); void cdCard.offsetWidth; cdCard.classList.add('pop');
+  cdFinale.hidden = cdRank !== 1;
   let d = '';
   for (let r = 10; r >= 1; r--) d += '<span class="cd-dot ' + (r > cdRank ? 'done' : r === cdRank ? 'cur' : '') + '"></span>';
   cdDots.innerHTML = d;
-  cdNext.textContent = cdRank > 1 ? '다음 순위 보기 ▸' : '🎉 전체 순위 보기 ▸';
+  cdNext.textContent = cdRank > 1 ? (cdRank - 1) + '위 보기 ▸' : '🎉 전체 순위 보기 ▸';
 }
 
 function startCountdown(){
   cdRank = 10; playing = null;
-  document.body.classList.add('mode-cd');
+  setView('cd');
   renderStage();
-  stage.scrollIntoView({behavior:'smooth', block:'start'});
+  window.scrollTo({top:0, behavior:'smooth'});
 }
 
 function exitToList(){
   playing = null;
-  document.body.classList.remove('mode-cd');
+  setView('list');
   render();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function goToIntro(){
+  playing = null;
+  setView('intro');
   window.scrollTo({top:0, behavior:'smooth'});
 }
 
@@ -447,6 +486,7 @@ cdNext.addEventListener('click', () => {
 });
 
 document.getElementById('cdSkip').addEventListener('click', exitToList);
+document.getElementById('homeBtn').addEventListener('click', goToIntro);
 
 stage.addEventListener('click', e => {
   const btn = e.target.closest('.cover');
@@ -458,6 +498,7 @@ stage.addEventListener('click', e => {
 pickBtn.addEventListener('click', () => {
   const s = SONGS[Math.floor(Math.random() * SONGS.length)];
   if (BOXED) { window.open('https://youtu.be/' + s.vid, '_blank', 'noopener'); return; }
+  setView('list');
   playing = s.vid;
   render();
   const card = chart.querySelector('[data-key="' + s.vid + '"]');
