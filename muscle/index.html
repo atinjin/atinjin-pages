@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>40대 근육 만들기 프로젝트</title>
+<style>
+:root{
+  --bg:#0f1216; --card:#171b21; --card2:#1e242c; --line:#2a323c;
+  --ink:#e8edf2; --muted:#96a3b0; --accent:#4ea1ff; --accent2:#38d39f;
+  --warn:#ffb454; --danger:#ff6b6b; --chip:#232b34; --shadow:rgba(0,0,0,.3);
+}
+@media (prefers-color-scheme: light){
+  :root{ --bg:#f4f6fa; --card:#fff; --card2:#f1f4f8; --line:#e3e8ef;
+    --ink:#16202e; --muted:#5c6b7d; --accent:#1f6fe0; --accent2:#0f9a70;
+    --warn:#b8760f; --danger:#d34141; --chip:#eef2f7; --shadow:rgba(16,24,40,.07);}
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo",Roboto,"Noto Sans KR",sans-serif;
+  line-height:1.62;-webkit-font-smoothing:antialiased;font-size:15px;}
+.wrap{max-width:840px;margin:0 auto;padding:0 14px calc(60px + env(safe-area-inset-bottom));}
+
+/* ── header ── */
+.hero{padding:22px 4px 16px;}
+.hero h1{margin:0 0 5px;font-size:1.35rem;letter-spacing:-.4px;line-height:1.3;}
+.hero p{margin:0;color:var(--muted);font-size:.86rem;}
+.chips{margin-top:11px;display:flex;flex-wrap:wrap;gap:6px;}
+.chip{background:var(--chip);border:1px solid var(--line);border-radius:999px;
+  padding:4px 11px;font-size:.74rem;color:var(--muted);}
+.chip.g{border-color:var(--accent2);color:var(--accent2);}
+
+/* ── tabs ── */
+.tabbar{position:sticky;top:0;z-index:50;background:var(--bg);
+  padding:6px 0 8px;margin:0 -14px;border-bottom:1px solid var(--line);}
+.tabscroll{display:flex;gap:6px;overflow-x:auto;padding:0 14px;
+  scrollbar-width:none;-ms-overflow-style:none;}
+.tabscroll::-webkit-scrollbar{display:none}
+.tab{flex:none;background:var(--card);border:1px solid var(--line);
+  color:var(--muted);border-radius:999px;padding:8px 14px;font-size:.82rem;
+  font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;
+  transition:all .15s;}
+.tab:active{transform:scale(.96)}
+.tab.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+
+/* ── panels ── */
+.panel{display:none;animation:fade .22s ease}
+.panel.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:16px;margin:12px 0;box-shadow:0 1px 3px var(--shadow);}
+.card h2{font-size:1.02rem;margin:0 0 10px;letter-spacing:-.2px;}
+.card h3{font-size:.92rem;margin:16px 0 8px;color:var(--accent2);}
+.card h3:first-child{margin-top:0}
+p{margin:0 0 10px}
+p:last-child{margin-bottom:0}
+.muted{color:var(--muted)}
+.sm{font-size:.85rem}
+.xs{font-size:.79rem}
+.green{color:var(--accent2);font-weight:600}
+.red{color:var(--danger);font-weight:600}
+.blue{color:var(--accent);font-weight:600}
+ul.c{margin:6px 0 0;padding-left:18px}
+ul.c li{margin-bottom:6px}
+ul.c li:last-child{margin-bottom:0}
+
+/* stats */
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat{background:var(--card2);border:1px solid var(--line);border-radius:11px;padding:11px 12px}
+.stat .k{font-size:1.12rem;font-weight:700;color:var(--accent);line-height:1.25}
+.stat .l{font-size:.73rem;color:var(--muted);margin-top:3px;line-height:1.4}
+
+/* callout */
+.co{border-left:3px solid var(--warn);background:var(--card2);
+  padding:11px 13px;border-radius:0 10px 10px 0;margin:12px 0;font-size:.86rem}
+.co b{color:var(--warn)}
+.co.k{border-color:var(--accent2)} .co.k b{color:var(--accent2)}
+.co.a{border-color:var(--accent)} .co.a b{color:var(--accent)}
+.co.d{border-color:var(--danger)} .co.d b{color:var(--danger)}
+.co ul.c{margin-top:7px}
+
+/* ── day picker ── */
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:12px 0}
+.day{background:var(--card);border:1px solid var(--line);border-radius:11px;
+  padding:9px 2px;text-align:center;cursor:pointer;font-family:inherit;
+  color:var(--ink);transition:all .15s}
+.day:active{transform:scale(.94)}
+.day .dn{font-size:.82rem;font-weight:700;display:block}
+.day .di{font-size:1.05rem;margin-top:3px;display:block;line-height:1}
+.day.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.day.rest{opacity:.62}
+.day.on.rest{opacity:1}
+.today{font-size:.62rem;color:var(--accent2);display:block;margin-top:2px;font-weight:700}
+.day.on .today{color:#fff}
+
+/* ── exercise list ── */
+.dayhead{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:4px}
+.dayhead .t{font-size:1.05rem;font-weight:700}
+.tag{font-size:.7rem;padding:3px 9px;border-radius:999px;background:var(--accent);color:#fff;font-weight:600}
+.tag.g{background:var(--accent2)}
+.tag.n{background:var(--chip);color:var(--muted);border:1px solid var(--line)}
+.ex{background:var(--card2);border:1px solid var(--line);border-radius:11px;
+  padding:11px 12px;margin-bottom:7px}
+.ex .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.ex .nm{font-weight:600;font-size:.93rem;flex:1}
+.ex .enx{font-size:.63rem;background:var(--chip);border:1px solid var(--line);border-radius:4px;padding:1px 5px;color:var(--accent);font-weight:700;margin-left:5px;vertical-align:middle;white-space:nowrap}
+.ex .sr{font-size:.82rem;color:var(--accent);font-weight:700;white-space:nowrap}
+.ex .mt{font-size:.78rem;color:var(--muted);margin-top:4px;line-height:1.45}
+.ex .mt.k{color:var(--accent2)}
+.ex .rir{display:inline-block;font-size:.68rem;background:var(--chip);
+  border:1px solid var(--line);border-radius:5px;padding:1px 6px;margin-left:6px;color:var(--muted)}
+
+/* ── food table ── */
+.ft{width:100%;border-collapse:collapse;font-size:.83rem}
+.ft th,.ft td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line)}
+.ft th{color:var(--muted);font-size:.71rem;font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.ft td.p{color:var(--accent);font-weight:700;white-space:nowrap;text-align:right}
+.ft td.f{font-weight:600}
+.ft tr:last-child td{border-bottom:none}
+
+/* meal */
+.meal{background:var(--card2);border:1px solid var(--line);border-radius:11px;padding:11px 12px;margin-bottom:8px}
+.meal .mh{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:5px}
+.meal .mn{font-weight:700;font-size:.88rem}
+.meal .mp{font-size:.78rem;color:var(--accent2);font-weight:700;white-space:nowrap}
+.meal .md{font-size:.81rem;color:var(--muted);line-height:1.5}
+
+/* supp */
+.sp{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.sp:last-child{border-bottom:none;padding-bottom:0}
+.sp .ic{flex:none;font-size:1rem;line-height:1.5}
+.sp .b b{display:block;font-size:.88rem;margin-bottom:1px}
+.sp .b .d{font-size:.79rem;color:var(--muted);line-height:1.45}
+
+/* machine finder */
+.mc{background:var(--card2);border:1px solid var(--line);border-radius:11px;
+  padding:12px;margin-bottom:9px}
+.mc .mh{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;margin-bottom:7px}
+.mc .kn{font-weight:700;font-size:.94rem}
+.mc .en{font-size:.7rem;background:var(--chip);border:1px solid var(--line);
+  border-radius:5px;padding:2px 7px;color:var(--accent);font-weight:700;letter-spacing:.2px}
+.mc .row{display:flex;gap:7px;font-size:.81rem;line-height:1.5;margin-bottom:4px}
+.mc .row:last-child{margin-bottom:0}
+.mc .row .lb{flex:none;width:44px;color:var(--muted);font-size:.73rem;padding-top:1px}
+.mc .row .vv{flex:1}
+.mc .row.warn .vv{color:var(--warn)}
+.mc .row.knee .vv{color:var(--accent2)}
+.lk{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.lk a{display:inline-flex;align-items:center;gap:4px;font-size:.73rem;font-weight:600;
+  text-decoration:none;background:var(--chip);border:1px solid var(--line);
+  border-radius:7px;padding:5px 10px;color:var(--accent);transition:all .15s}
+.lk a:active{transform:scale(.95)}
+.lk a.y{color:var(--danger)}
+.src a{color:var(--accent);text-decoration:none;font-weight:600}
+.src{font-size:.83rem;line-height:1.7}
+.grp{font-size:.78rem;font-weight:700;color:var(--muted);letter-spacing:.4px;
+  text-transform:uppercase;margin:18px 0 8px;padding-left:2px}
+.grp:first-child{margin-top:0}
+.foot{margin-top:20px;padding:14px 4px 0;border-top:1px solid var(--line);
+  color:var(--muted);font-size:.73rem;line-height:1.55}
+
+@media(min-width:600px){
+  body{font-size:15.5px}
+  .wrap{padding:0 20px 70px}
+  .hero h1{font-size:1.6rem}
+  .stats{grid-template-columns:repeat(4,1fr)}
+  .card{padding:20px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="hero">
+  <h1>40대 근육 만들기 프로젝트 💪</h1>
+  <p>65kg · 175cm · 헬스장 주 4회 · 왼쪽 무릎 &amp; 간 배려 12주 플랜</p>
+  <div class="chips">
+    <span class="chip">상하체 4분할</span>
+    <span class="chip g">🦵 무릎 친화</span>
+    <span class="chip g">🫀 간 안전</span>
+    <span class="chip">🏃 러닝 · 🏊 수영</span>
+  </div>
+</div>
+
+<div class="tabbar"><div class="tabscroll" id="tabs">
+  <button class="tab on" data-t="sched">📅 주간 스케줄</button>
+  <button class="tab" data-t="nutri">🍚 영양</button>
+  <button class="tab" data-t="mach">🔍 머신 찾기</button>
+  <button class="tab" data-t="train">🏋️ 훈련 원칙</button>
+  <button class="tab" data-t="cardio">🏃 유산소</button>
+  <button class="tab" data-t="supp">💊 보조제</button>
+  <button class="tab" data-t="recov">😴 회복·진행</button>
+</div></div>
+
+<!-- ══════════ 주간 스케줄 ══════════ -->
+<section class="panel on" id="p-sched">
+  <div class="days" id="days"></div>
+  <div id="daydetail"></div>
+  <div class="co a">
+    <b>왜 이 배치인가</b> — 월요일은 헬스장·수영장 모두 휴무라 완전 휴식. 상체(화·금)와 하체(수·토) 모두 <b>약 72시간 간격</b>으로 회복되고, 수요일 저녁이 안 되니 하체 A를 <b>수요일 아침</b>으로 고정했습니다. 러닝은 하체 날 사이(목)에 넣어 다리 회복 흐름을 끊지 않습니다.
+  </div>
+</section>
+
+<!-- ══════════ 영양 ══════════ -->
+<section class="panel" id="p-nutri">
+  <div class="card">
+    <h2>🎯 하루 목표 (65kg 기준)</h2>
+    <div class="stats">
+      <div class="stat"><div class="k">130~145g</div><div class="l">단백질 (체중kg × 2.0~2.2)</div></div>
+      <div class="stat"><div class="k">약 2,700</div><div class="l">칼로리 (완만한 증량)</div></div>
+      <div class="stat"><div class="k">370~380g</div><div class="l">탄수화물</div></div>
+      <div class="stat"><div class="k">70g</div><div class="l">지방</div></div>
+    </div>
+    <div class="co a" style="margin-top:11px">
+      <b>🧮 이 숫자가 나온 계산</b><br>
+      기초대사량 <b>1,600kcal</b> × 활동계수 <b>1.55</b>(사무직 + 주 6~7회 운동) = 유지 <b>약 2,480kcal</b><br>
+      여기에 증량분 <b>+250kcal</b> → 목표 <b>약 2,700kcal</b>
+      <div class="xs muted" style="margin-top:6px">낮에 계속 앉아 계시니 활동계수를 1.7이 아닌 <b>1.55</b>로 잡았습니다. 운동은 많이 하셔도 <b>나머지 시간의 활동량(NEAT)이 낮으면</b> 총 소비가 생각보다 크지 않기 때문입니다.</div>
+    </div>
+    <p class="sm muted">이 계산은 어디까지나 <b>출발점</b>입니다. 최종 판단은 체중계가 합니다 — 2주간 2,700으로 먹어보고 <b>변화가 없으면 +150~200kcal</b>, <b>월 0.5kg 넘게 늘면 -150kcal</b>. 목표는 <b>월 +0.25~0.35kg</b>.</p>
+  </div>
+
+  <div class="card">
+    <h2>🥩 단백질 식품 — 100g당 함량</h2>
+    <p class="sm muted">하루 130~145g을 <b>한 끼 30~40g씩 3~4끼</b>로 나누는 게 활용에 유리합니다.</p>
+    <h3>동물성 (흡수·류신 함량 우수)</h3>
+    <table class="ft">
+      <thead><tr><th>식품</th><th>단백질</th><th>메모</th></tr></thead>
+      <tbody>
+        <tr><td class="f">닭가슴살</td><td class="p">23g</td><td class="muted xs">지방 적고 가성비 최고</td></tr>
+        <tr><td class="f">닭다리살(껍질X)</td><td class="p">19g</td><td class="muted xs">가슴살보다 촉촉</td></tr>
+        <tr><td class="f">소고기 우둔·설도</td><td class="p">21g</td><td class="muted xs">철분·아연 풍부</td></tr>
+        <tr><td class="f">돼지 안심</td><td class="p">21g</td><td class="muted xs">비타민 B1 풍부</td></tr>
+        <tr><td class="f">연어</td><td class="p">20g</td><td class="muted xs">오메가3 — <span class="green">관절에 좋음</span></td></tr>
+        <tr><td class="f">고등어</td><td class="p">20g</td><td class="muted xs">오메가3 풍부, 저렴</td></tr>
+        <tr><td class="f">참치캔(기름뺀)</td><td class="p">26g</td><td class="muted xs">간편, 주 2~3캔 정도로</td></tr>
+        <tr><td class="f">오징어·새우</td><td class="p">18~20g</td><td class="muted xs">지방 매우 낮음</td></tr>
+        <tr><td class="f">계란 (1개 50g)</td><td class="p">6g</td><td class="muted xs">노른자까지 먹어야 효과↑</td></tr>
+        <tr><td class="f">그릭요거트(무가당)</td><td class="p">9~10g</td><td class="muted xs">카제인 — 자기 전 좋음</td></tr>
+        <tr><td class="f">우유 (200ml)</td><td class="p">6g</td><td class="muted xs">칼슘 동시 보충</td></tr>
+        <tr><td class="f">코티지치즈</td><td class="p">11g</td><td class="muted xs">저지방 고단백</td></tr>
+      </tbody>
+    </table>
+    <h3>식물성 (섬유질·간 건강에 우호적)</h3>
+    <table class="ft">
+      <tbody>
+        <tr><td class="f">두부 (부침용)</td><td class="p">9~12g</td><td class="muted xs">한 모 ≈ 20~25g</td></tr>
+        <tr><td class="f">낫토·삶은 대두</td><td class="p">17g</td><td class="muted xs">발효식품, 장 건강</td></tr>
+        <tr><td class="f">렌틸콩(삶은)</td><td class="p">9g</td><td class="muted xs">밥에 섞으면 편함</td></tr>
+        <tr><td class="f">병아리콩</td><td class="p">9g</td><td class="muted xs">샐러드에</td></tr>
+        <tr><td class="f">귀리(건조)</td><td class="p">13g</td><td class="muted xs">탄수+단백 동시</td></tr>
+        <tr><td class="f">현미밥 (1공기 210g)</td><td class="p">6g</td><td class="muted xs">주식에서도 조금씩 쌓임</td></tr>
+      </tbody>
+    </table>
+    <div class="co k">
+      <b>💡 40대에 특히 중요한 포인트</b>
+      <ul class="c">
+        <li>나이가 들면 근육이 단백질에 둔감해집니다(anabolic resistance). 그래서 <b>한 끼 20g보다 30~40g</b>이 확실히 낫습니다.</li>
+        <li><b>류신(leucine)</b>이 근합성 스위치를 켭니다 — 유청, 계란, 우유, 소고기, 닭고기에 풍부해요.</li>
+        <li>식물성만으로 채우려면 <b>동물성보다 약 1.2~1.5배</b> 더 먹어야 비슷한 효과가 납니다. 섞어 드시는 걸 권합니다.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🍱 하루 식단 예시 (약 140g 단백질)</h2>
+    <p class="sm muted">한식 위주로 짠 예시입니다. 그대로 따를 필요는 없고 <b>끼니당 30~40g</b> 감만 잡으시면 됩니다.</p>
+    <div class="meal"><div class="mh"><span class="mn">🌅 아침</span><span class="mp">단백질 35g</span></div>
+      <div class="md">현미밥 1공기 + 계란 3개(스크램블 또는 삶은) + 두부 반 모 + 김치·나물<br>또는 오트밀 60g + 우유 200ml + 그릭요거트 100g + 바나나</div></div>
+    <div class="meal"><div class="mh"><span class="mn">🍱 점심</span><span class="mp">단백질 40g</span></div>
+      <div class="md">밥 1.5공기 + 닭가슴살/제육(안심) 150g + 국·나물 + 채소<br><span class="xs">외식이면 백반·제육·생선구이·순두부찌개 계열이 무난합니다</span></div></div>
+    <div class="meal"><div class="mh"><span class="mn">🍎 간식</span><span class="mp">단백질 25g</span></div>
+      <div class="md">유청 단백 1스쿱 + 바나나 (운동 전후)<br>또는 그릭요거트 150g + 견과 한 줌 + 과일</div></div>
+    <div class="meal"><div class="mh"><span class="mn">🌙 저녁</span><span class="mp">단백질 40g</span></div>
+      <div class="md">밥 1공기 + 고등어/연어구이 or 소고기 150g + 두부 + 채소 듬뿍<br><span class="xs">등푸른 생선을 주 2~3회 넣으면 오메가3로 관절·간에도 우호적입니다</span></div></div>
+    <div class="co">
+      <b>⚡ 유산소 한 날은 더 드세요</b> — 러닝 5km ≈ 300~350kcal, 수영 1km ≈ 300~400kcal. 목·일요일은 <b>밥 한 공기나 바나나+견과 정도를 추가</b>하지 않으면 증량 목표가 깨집니다. 마른 체형에서 근육 안 붙는 가장 흔한 이유가 바로 <b>덜 먹어서</b>라고 봅니다.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🥜 견과류 — 증량기의 비밀 무기</h2>
+    <p class="sm muted">한 줌 = 약 <b>25~30g</b> 기준. 부피 대비 칼로리가 커서 <b>배 안 부르게 칼로리를 채우기</b> 가장 좋습니다. 마른 체형에서 "배불러서 못 먹겠다"는 문제를 잘 피해 갑니다.</p>
+    <table class="ft">
+      <thead><tr><th>견과 (한 줌)</th><th>칼로리</th><th>강점</th></tr></thead>
+      <tbody>
+        <tr><td class="f">호두</td><td class="p">195kcal</td><td class="xs" style="color:var(--accent2)">🦵 오메가3 2.5g+ — 관절 염증에 최고</td></tr>
+        <tr><td class="f">마카다미아</td><td class="p">215kcal</td><td class="xs muted">칼로리 밀도 1위 — 증량에 유리</td></tr>
+        <tr><td class="f">아몬드</td><td class="p">175kcal</td><td class="xs muted">마그네슘·비타민E, 단백질 6g</td></tr>
+        <tr><td class="f">피스타치오</td><td class="p">168kcal</td><td class="xs muted">단백질 6g, 껍질 까느라 과식 방지</td></tr>
+        <tr><td class="f">캐슈넛</td><td class="p">166kcal</td><td class="xs muted">마그네슘 풍부, 부드러움</td></tr>
+        <tr><td class="f">땅콩</td><td class="p">170kcal</td><td class="xs muted">단백질 7g로 가장 높음, 저렴</td></tr>
+        <tr><td class="f">브라질너트</td><td class="p">1~2알만</td><td class="xs" style="color:var(--warn)">셀레늄 과다 주의 — 하루 1~2알로 충분</td></tr>
+      </tbody>
+    </table>
+    <h3>왜 좋은가</h3>
+    <ul class="c sm">
+      <li><b>칼로리 채우기:</b> 아몬드 한 줌 175kcal ≈ 밥 반 공기인데 포만감은 훨씬 덜합니다. <b>목·일요일 유산소로 빠진 300~400kcal</b>를 한 줌 반이면 채울 수 있어요.</li>
+      <li><b class="green">🦵 관절:</b> 호두의 오메가3(ALA)는 염증 관리에 도움 — 왼쪽 무릎을 생각하면 <b>호두 비중을 높게</b> 가져가시는 것도 방법입니다.</li>
+      <li><b>마그네슘:</b> 아몬드·캐슈넛에 풍부. 근경련·수면·회복에 관여하니 <b>보충제 의존을 줄일 수</b> 있습니다.</li>
+      <li><b>호르몬:</b> 대부분 불포화지방. 지방을 너무 줄이면 오히려 근성장에 불리합니다.</li>
+      <li><b class="green">🫀 간:</b> 농축 보조제와 달리 그냥 음식이라 부담이 없고, 지방간 관련 연구에서도 우호적으로 나오는 편입니다.</li>
+    </ul>
+    <div class="co">
+      <b>⚠️ 먹을 때 주의 3가지</b>
+      <ul class="c">
+        <li><b>봉지째 두고 먹지 않기</b> — 칼로리 밀도가 높아 순식간에 500kcal가 넘습니다. <b>한 줌씩 덜어서</b>.</li>
+        <li><b>무염·생것 위주로</b> — 꿀버터·소금 코팅 제품은 당과 나트륨이 크게 추가됩니다.</li>
+        <li><b>산패 주의</b> — 특히 호두는 오메가3가 많아 쉽게 상합니다. <b>밀봉해서 냉장 보관</b>하세요.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>⏰ 타이밍 &amp; 탄수화물·지방</h2>
+    <h3>운동 전후</h3>
+    <ul class="c sm">
+      <li><b>아침 운동(수요일 하체) 전:</b> 공복 금지. 30~60분 전 <b>바나나·토스트·오트밀</b> 등 소화 잘 되는 탄수화물을 가볍게.</li>
+      <li><b>저녁 운동 전:</b> 1.5~2시간 전 탄수+단백 식사. 배부른 상태로 시작하지 않도록.</li>
+      <li><b>운동 후:</b> 2시간 안에 <b>단백질 30~40g + 탄수화물</b>. "30분 골든타임"은 과장이지만, 하루 총량을 채우기엔 이때가 편합니다.</li>
+      <li><b>자기 전:</b> 그릭요거트나 카제인·우유 — 밤새 근합성 유지에 도움.</li>
+    </ul>
+    <h3>탄수화물 — 훈련의 연료</h3>
+    <p class="sm">쌀·고구마·감자·오트밀·과일 위주로. 근육을 늘리는 시기엔 탄수화물을 겁내지 않는 게 좋습니다. <b>운동 전후에 배치</b>하면 수행력과 회복 모두 좋아집니다.</p>
+    <h3>지방 &amp; 수분</h3>
+    <ul class="c sm">
+      <li>총 칼로리의 <b>20~25%</b>. 올리브유·견과·아보카도·등푸른 생선 위주.</li>
+      <li><span class="green">오메가3</span>는 관절 염증과 간 건강 모두에 우호적 — 주 2~3회 생선.</li>
+      <li>물은 하루 <b>2.5~3L</b>. 여름 야외 러닝 날은 더 많이 + <b>전해질(나트륨)</b>도 함께.</li>
+      <li><b>음주는 최소화</b> — 근합성과 간 두 가지를 동시에 방해하는, 이 프로젝트의 최대 방해 요소라고 봅니다.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ══════════ 머신 찾기 ══════════ -->
+<section class="panel" id="p-mach">
+  <div class="card">
+    <h2>🏋️ 내 헬스장 = TechnoGym</h2>
+    <p class="sm">다행히 <b>테크노짐</b> 셀렉션 라인이라 머신마다 <b>영문 이름과 사용법 그림</b>이 크게 붙어 있습니다. 아래 목록은 <b>실제 있는 기구</b>만 정리한 것이니, 이름을 그대로 찾으시면 됩니다.</p>
+    <div class="co a">
+      <b>💡 테크노짐 머신 공통 사용법</b>
+      <ul class="c">
+        <li><b>시트 높이부터</b> 맞추세요 — 옆에 레버나 손잡이가 있습니다. 관절(무릎·어깨) 중심이 머신 회전축과 맞아야 안전합니다.</li>
+        <li>머신에 붙은 <b>그림 스티커</b>가 정답입니다. 빨갛게 칠해진 근육이 그 기구가 쓰는 부위예요.</li>
+        <li>테크노짐은 <b>핀 무게 단위가 5kg</b>인 경우가 많습니다. 한 핀이 부담되면 <b>보조 추(2.5kg)</b>가 있는지 확인해 보세요.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🦵 하체 기구</h2>
+    <div class="mc">
+      <div class="mh"><span class="kn">레그 프레스</span><span class="en">LEG PRESS</span></div>
+      <div class="row"><span class="lb">쓰는 날</span><span class="vv">수 · 토</span></div>
+      <div class="row"><span class="lb">동작</span><span class="vv">비스듬히 앉아 발판을 <b>다리로 밀어내기</b>.</span></div>
+      <div class="row knee"><span class="lb">🦵 팁</span><span class="vv">발을 발판 <b>위쪽</b>에 두면 무릎 부담이 줄고 둔근·햄스트링이 더 쓰입니다. <b>발끝만 걸치면 종아리 운동</b>으로도 씁니다.</span></div>
+      <div class="lk"><a class="y" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=%EB%A0%88%EA%B7%B8%ED%94%84%EB%A0%88%EC%8A%A4%20%EC%9E%90%EC%84%B8">📺 영상</a><a target="_blank" rel="noopener" href="https://www.google.com/search?tbm=isch&q=technogym%20leg%20press">🖼️ 그림</a></div>
+    </div>
+    <div class="mc">
+      <div class="mh"><span class="kn">글루트</span><span class="en">GLUTE</span><span class="en">🦵 핵심</span></div>
+      <div class="row"><span class="lb">쓰는 날</span><span class="vv">수 · 토 (둘 다 첫 종목급)</span></div>
+      <div class="row"><span class="lb">동작</span><span class="vv">한쪽 무릎을 패드에 대고 서서, 반대쪽 다리로 <b>뒤로 밀어내기</b>. 엉덩이에 자극.</span></div>
+      <div class="row knee"><span class="lb">🦵 팁</span><span class="vv"><b>힙 쓰러스트 대신</b> 쓸 기구입니다. 무릎 굽힘 부하가 거의 없어 왼쪽 무릎에 가장 안전한 둔근 운동이에요.</span></div>
+      <div class="lk"><a class="y" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=%EA%B8%80%EB%A3%A8%ED%8A%B8%20%EB%A8%B8%EC%8B%A0%20%EC%9A%B4%EB%8F%99">📺 영상</a><a target="_blank" rel="noopener" href="https://www.google.com/search?tbm=isch&q=technogym%20glute%20machine">🖼️ 그림</a></div>
+    </div>
+    <div class="mc">
+      <div class="mh"><span class="kn">레그 컬</span><span class="en">LEG CURL</span></div>
+      <div class="row"><span class="lb">쓰는 날</span><span class="vv">수 · 토</span></div>
+      <div class="row"><span class="lb">동작</span><span class="vv">발목 <b>뒤</b>에 패드를 걸고 <b>뒤·아래로 당기기</b>. 허벅지 뒤(햄스트링).</span></div>
+      <div class="row warn"><span class="lb">구별법</span><span class="vv">Leg extension과 헷갈리기 쉽습니다. <b>앞으로 차면 익스텐션, 뒤로 당기면 컬</b>.</span></div>
+      <div class="lk"><a class="y" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=%EB%A0%88%EA%B7%B8%EC%BB%AC%20%EC%9E%90%EC%84%B8">📺 영상</a><a target="_blank" rel="noopener" href="https://www.google.com/search?tbm=isch&q=technogym%20leg%20curl">🖼️ 그림</a></div>
+    </div>
+    <div class="mc">
+      <div class="mh"><span class="kn">레그 익스텐션</span><span class="en">LEG EXTENSION</span></div>
+      <div class="row"><span class="lb">쓰는 날</span><span class="vv">수</span></div>
+      <div class="row"><span class="lb">동작</span><span class="vv">발목 <b>앞(정강이)</b>에 패드를 걸고 <b>앞으로 차올리기</b>. 허벅지 앞(대퇴사두).</span></div>
+      <div class="row knee"><span class="lb">🦵 주의</span><span class="vv">무릎 앞쪽에 부담이 갈 수 있는 종목입니다. <b>가볍게, 부분 범위로</b>. 아프면 그날은 빼셔도 됩니다.</span></div>
+      <div class="lk"><a class="y" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=%EB%A0%88%EA%B7%B8%20%EC%9D%B5%EC%8A%A4%ED%85%90%EC%85%98%20%EC%9E%90%EC%84%B8">📺 영상</a><a target="_blank" rel="noopener" href="https://www.google.com/search?tbm=isch&q=technogym%20leg%20extension">🖼️ 그림</a></div>
+    </div>
+    <div class="mc">
+      <div class="mh"><span class="kn">어브덕터 / 어덕터</span><span class="en">ABDUCTOR</span><span class="en">ADDUCTOR</span></div>
+      <div class="row"><span class="lb">쓰는 날</span><span class="vv">토 (웜업으로 수요일에도)</span></div>
+      <div class="row"><span class="lb">동작</span><span class="vv"><b>어브덕터 = 무릎을 바깥으로 벌리기</b>(엉덩이 옆) / <b>어덕터 = 안으로 모으기</b>(허벅지 안쪽).</span></div>
+      <div class="row knee"><span class="lb">🦵 팁</span><span class="vv">둘 다 <b>고관절 안정성</b>을 키워 무릎 정렬에 도움이 됩니다. 하체 날 <b>웜업으로 어브덕터 2세트</b>를 먼저 하면 무릎이 훨씬 편해집니다.</span></div>
+      <div class="lk"><a class="y" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=%EC%96%B4%EB%B8%8C%EB%8D%95%EC%85%98%20%EB%A8%B8%EC%8B%A0">📺 영상</a><a target="_blank" rel="noopener" href="https://www.google.com/search?tbm=isch&q=technogym%20abductor%20adductor%20machine">🖼️ 그림</a></div>
+    </div>
+    <div class="mc">
+      <div class="mh"><span class="kn">로워백</span><span class="en">LOWER BACK</span></div>
+      <div class="row"><span class="lb">쓰는 날</span><span class="vv">토</span></div>
+      <div class="row"><span class="lb">동작</span><span class="vv">앉아서 등받이를 <b>뒤로 밀어내기</b>. 척추기립근(허리).</span></div>
+      <div class="row"><span class="lb">역할</span><span class="vv">데드리프트를 하지 않는 대신 <b>후면사슬을 여기서 보강</b>합니다. 오래 앉아 있는 사무직에게도 좋습니다.</span></div>
+      <div class="lk"><a class="y" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=%EB%A1%9C%EC%9A%B0%EB%B0%B1%20%EB%A8%B8%EC%8B%A0%20%EC%9A%B4%EB%8F%99">📺 영상</a><a target="_blank" rel="noopener" href="https://www.google.com/search?tbm=isch&q=technogym%20lower%20back%20machine">🖼️ 그림</a></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>💪 상체 기구</h2>
+    <div class="mc">
+      <div class="mh"><span class="kn">벤치프레스</span><span class="en">BENCH PRESS</span></div>
+      <div class="row"><span class="lb">쓰는 날</span><span class="vv">화 (40~45kg)</span></div>
+      <div class="row"><span class="lb">주의</span><span class="vv">유일한 프리웨이트 종목입니다. <b>안전바 높이를 먼저 맞추고</b> 시작하세요. 혼자 하기 불안하면 <b>Chest press 머신으로 바꿔도</b> 효과는 비슷합니다.</span></div>
+      <div class="lk"><a class="y" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=%EB%B2%A4%EC%B9%98%ED%94%84%EB%A0%88%EC%8A%A4%20%EC%9E%90%EC%84%B8">📺 영상</a><a target="_blank" rel="noopener" href="https://www.google.com/search?tbm=isch&q=barbell%20bench%20press%20form">🖼️ 그림</a></div>
+    </div>
+    <div class="mc">
+      <div class="mh"><span class="kn">체스트 프레스</span><span class="en">CHEST PRESS</span></div>
+      <div class="row"><span class="lb">쓰는 날</span><span class="vv">금</span></div>
+      <div class="row"><span class="lb">동작</span><span class="vv">앉아서 가슴 옆 손잡이를 <b>앞으로 밀기</b>.</span></div>
+      <div class="row warn"><span class="lb">구별법</span><span class="vv">Shoulder press와 헷갈리기 쉽습니다. <b>앞으로 밀면 가슴, 위로 밀면 어깨</b>.</span></div>
+      <div class="lk"><a class="y" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=%EC%B2%B4%EC%8A%A4%ED%8A%B8%ED%94%84%EB%A0%88%EC%8A%A4%20%EB%A8%B8%EC%8B%A0">📺 영상</a><a target="_blank" rel="noopener" href="https://www.google.com/search?tbm=isch&q=technogym%20chest%20press">🖼️ 그림</a></div>
+    </div>
+    <div class="mc">
+      <div class="mh"><span class="kn">펙토랄 (가슴 플라이)</span><span class="en">PECTORAL</span></div>
+      <div class="row"><span class="lb">쓰는 날</span><span class="vv">금</span></div>
+      <div class="row"><span class="lb">동작</span><span class="vv">양팔을 벌린 채 잡고 <b>앞으로 모으기(껴안듯)</b>. 가슴 수축.</span></div>
+      <div class="lk"><a class="y" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=%ED%8E%99%EB%8D%B1%20%ED%94%8C%EB%9D%BC%EC%9D%B4%20%EC%9E%90%EC%84%B8">📺 영상</a><a target="_blank" rel="noopener" href="https://www.google.com/search?tbm=isch&q=technogym%20pectoral%20machine">🖼️ 그림</a></div>
+    </div>
+    <div class="mc">
+      <div class="mh"><span class="kn">버티컬 트랙션</span><span class="en">VERTICAL TRACTION</span></div>
+      <div class="row"><span class="lb">쓰는 날</span><span class="vv">화</span></div>
+      <div class="row"><span class="lb">동작</span><span class="vv">앉아서 <b>위 손잡이를 아래로 당기기</b>. 랫풀다운과 같은 계열이지만 손잡이가 <b>양옆에 고정</b>된 형태라 자세 잡기가 더 쉽습니다.</span></div>
+      <div class="lk"><a class="y" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=%EB%B2%84%ED%8B%B0%EC%BB%AC%20%ED%8A%B8%EB%9E%99%EC%85%98%20%EC%9A%B4%EB%8F%99">📺 영상</a><a target="_blank" rel="noopener" href="https://www.google.com/search?tbm=isch&q=technogym%20vertical%20traction">🖼️ 그림</a></div>
+    </div>
+    <div class="mc">
+      <div class="mh"><span class="kn">랫풀다운</span><span class="en">LAT PULLDOWN</span></div>
+      <div class="row"><span class="lb">쓰는 날</span><span class="vv">금 (좁은 그립)</span></div>
+      <div class="row"><span class="lb">동작</span><span class="vv">머리 위 <b>긴 바</b>를 가슴 쪽으로 끌어내리기. 화요일 Vertical traction과 <b>그립을 다르게</b> 잡아 자극 각도를 바꿉니다.</span></div>
+      <div class="lk"><a class="y" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=%EB%9E%AB%ED%92%80%EB%8B%A4%EC%9A%B4%20%EC%9E%90%EC%84%B8">📺 영상</a><a target="_blank" rel="noopener" href="https://www.google.com/search?tbm=isch&q=lat%20pulldown%20machine">🖼️ 그림</a></div>
+    </div>
+    <div class="mc">
+      <div class="mh"><span class="kn">로우</span><span class="en">LOW ROW</span></div>
+      <div class="row"><span class="lb">쓰는 날</span><span class="vv">화</span></div>
+      <div class="row"><span class="lb">동작</span><span class="vv">가슴을 패드에 대거나 앉아서 손잡이를 <b>배 쪽으로 당기기</b>. 등 두께.</span></div>
+      <div class="lk"><a class="y" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=%EB%A1%9C%EC%9A%B0%20%EB%A8%B8%EC%8B%A0%20%EC%9E%90%EC%84%B8">📺 영상</a><a target="_blank" rel="noopener" href="https://www.google.com/search?tbm=isch&q=technogym%20low%20row">🖼️ 그림</a></div>
+    </div>
+    <div class="mc">
+      <div class="mh"><span class="kn">닐링 친 딥</span><span class="en">KNEELING CHIN DIP</span><span class="en">⭐ 추천</span></div>
+      <div class="row"><span class="lb">쓰는 날</span><span class="vv">금</span></div>
+      <div class="row"><span class="lb">동작</span><span class="vv"><b>무릎을 패드에 얹으면 그만큼 무게를 덜어주는</b> 어시스트 풀업·딥스 기구. 지금 실력에도 풀업이 가능합니다.</span></div>
+      <div class="row"><span class="lb">왜 좋나</span><span class="vv">풀업은 등 발달에 가장 좋은 운동 중 하나입니다. <b>보조 무게를 조금씩 줄이는 것</b> 자체가 훌륭한 점진적 과부하 지표가 돼요.</span></div>
+      <div class="lk"><a class="y" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=%EC%96%B4%EC%8B%9C%EC%8A%A4%ED%8A%B8%20%ED%92%80%EC%97%85%20%EB%A8%B8%EC%8B%A0">📺 영상</a><a target="_blank" rel="noopener" href="https://www.google.com/search?tbm=isch&q=assisted%20pull%20up%20chin%20dip%20machine">🖼️ 그림</a></div>
+    </div>
+    <div class="mc">
+      <div class="mh"><span class="kn">숄더 프레스</span><span class="en">SHOULDER PRESS</span></div>
+      <div class="row"><span class="lb">쓰는 날</span><span class="vv">화</span></div>
+      <div class="row"><span class="lb">동작</span><span class="vv">앉아서 손잡이를 <b>머리 위로 밀어올리기</b>. 등받이가 거의 수직입니다.</span></div>
+      <div class="lk"><a class="y" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=%EC%88%84%EB%8D%94%ED%94%84%EB%A0%88%EC%8A%A4%20%EB%A8%B8%EC%8B%A0%20%EC%9E%90%EC%84%B8">📺 영상</a><a target="_blank" rel="noopener" href="https://www.google.com/search?tbm=isch&q=technogym%20shoulder%20press">🖼️ 그림</a></div>
+    </div>
+    <div class="mc">
+      <div class="mh"><span class="kn">암 컬 / 암 익스텐션</span><span class="en">ARM CURL</span><span class="en">ARM EXTENSION</span></div>
+      <div class="row"><span class="lb">쓰는 날</span><span class="vv">암 익스텐션(삼두) = 화 / 암 컬(이두) = 금</span></div>
+      <div class="row"><span class="lb">동작</span><span class="vv"><b>컬 = 팔을 굽혀 당기기</b>(앞팔 알통) / <b>익스텐션 = 팔을 펴서 밀기</b>(뒤팔).</span></div>
+      <div class="lk"><a class="y" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=%EC%95%94%EC%BB%AC%20%EB%A8%B8%EC%8B%A0%20%EC%9A%B4%EB%8F%99">📺 영상</a><a target="_blank" rel="noopener" href="https://www.google.com/search?tbm=isch&q=technogym%20arm%20curl%20arm%20extension">🖼️ 그림</a></div>
+    </div>
+    <div class="mc">
+      <div class="mh"><span class="kn">크로스오버 케이블</span><span class="en">CROSSOVER CABLES</span></div>
+      <div class="row"><span class="lb">쓰는 날</span><span class="vv">화(레터럴 레이즈) · 금(리어 델트)</span></div>
+      <div class="row"><span class="lb">동작</span><span class="vv">도르래 높이를 바꿔 다양하게 씁니다. <b>낮게 두고 옆으로 = 어깨 옆</b>, <b>높게 두고 뒤로 벌리기 = 어깨 뒤</b>.</span></div>
+      <div class="row"><span class="lb">장점</span><span class="vv">덤벨이 부족해도 <b>무게를 세밀하게</b> 고를 수 있어 어깨 같은 작은 근육에 특히 좋습니다.</span></div>
+      <div class="lk"><a class="y" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=%EC%BC%80%EC%9D%B4%EB%B8%94%20%EB%A0%88%ED%84%B0%EB%9F%B4%20%EB%A0%88%EC%9D%B4%EC%A6%88">📺 영상</a><a target="_blank" rel="noopener" href="https://www.google.com/search?tbm=isch&q=cable%20crossover%20lateral%20raise">🖼️ 그림</a></div>
+    </div>
+    <div class="mc">
+      <div class="mh"><span class="kn">복근 크런치</span><span class="en">ABDOMINAL CRUNCH</span></div>
+      <div class="row"><span class="lb">쓰는 날</span><span class="vv">수</span></div>
+      <div class="row"><span class="lb">동작</span><span class="vv">앉아서 <b>상체를 앞으로 말기</b>. 윗몸일으키기 지지대로 대체해도 됩니다.</span></div>
+      <div class="lk"><a class="y" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=%EB%B3%B5%EA%B7%BC%20%ED%81%AC%EB%9F%B0%EC%B9%98%20%EB%A8%B8%EC%8B%A0">📺 영상</a><a target="_blank" rel="noopener" href="https://www.google.com/search?tbm=isch&q=technogym%20abdominal%20crunch%20machine">🖼️ 그림</a></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🏋️ 덤벨 &amp; 케틀벨 — 머신이 못 하는 것</h2>
+    <p class="sm">머신은 안전하고 자세 잡기 쉽지만, <b>좌우 균형</b>과 <b>힙 힌지(엉덩이 접기)</b> 패턴은 프리웨이트가 훨씬 잘 만들어 줍니다. 왼쪽 무릎이 이슈라면 <b>좌우 불균형</b>이 숨어 있을 가능성이 있어, 한쪽씩 하는 운동이 특히 의미가 있다고 봅니다.</p>
+
+    <div class="mc">
+      <div class="mh"><span class="kn">덤벨 루마니안 데드리프트</span><span class="en">RDL</span><span class="en">🦵 핵심</span></div>
+      <div class="row"><span class="lb">쓰는 날</span><span class="vv">수 (하체 A 2번째)</span></div>
+      <div class="row"><span class="lb">동작</span><span class="vv">덤벨을 허벅지 앞에 들고 <b>무릎은 살짝만 굽힌 채 엉덩이를 뒤로</b> 빼며 상체를 숙이기. 햄스트링이 당기는 지점까지만 내렸다가 엉덩이로 밀어 올라옵니다.</span></div>
+      <div class="row knee"><span class="lb">🦵 왜</span><span class="vv"><b>무릎을 거의 안 굽히는데도</b> 햄스트링·둔근을 강하게 씁니다. 무릎 이슈가 있을 때 가장 가치 있는 하체 운동이에요.</span></div>
+      <div class="row warn"><span class="lb">주의</span><span class="vv"><b>허리를 둥글게 말지 않기.</b> 등을 곧게 편 상태를 못 지키겠으면 그 지점에서 멈추세요. 첫 2주는 가벼운 무게로 <b>자세만</b>.</span></div>
+      <div class="lk"><a class="y" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=%EB%8D%A4%EB%B2%A8%20%EB%A3%A8%EB%A7%88%EB%8B%88%EC%95%88%20%EB%8D%B0%EB%93%9C%EB%A6%AC%ED%94%84%ED%8A%B8%20%EC%9E%90%EC%84%B8">📺 영상</a><a target="_blank" rel="noopener" href="https://www.google.com/search?tbm=isch&q=dumbbell%20romanian%20deadlift%20form">🖼️ 그림</a></div>
+    </div>
+
+    <div class="mc">
+      <div class="mh"><span class="kn">케틀벨 스윙</span><span class="en">KB SWING</span><span class="en" style="color:var(--warn)">3주차부터</span></div>
+      <div class="row"><span class="lb">쓰는 날</span><span class="vv">토 (하체 B 2번째)</span></div>
+      <div class="row"><span class="lb">동작</span><span class="vv">케틀벨을 다리 사이로 보냈다가 <b>엉덩이를 강하게 펴서</b> 가슴 높이까지 튕겨 보내기. 팔로 드는 게 아니라 <b>엉덩이 힘으로</b> 던지는 느낌.</span></div>
+      <div class="row knee"><span class="lb">🦵 왜</span><span class="vv">스쿼트가 아니라 <b>힙 힌지</b>라 무릎 부담이 적습니다. 둔근·햄스트링과 심폐를 동시에 자극해요.</span></div>
+      <div class="row warn"><span class="lb">순서</span><span class="vv"><b>1~2주차:</b> 케틀벨 데드리프트(바닥에서 들어올리기)로 힙 힌지 먼저 익히기 → <b>3주차부터</b> 스윙. 자세 없이 하면 허리를 다치기 쉬운 종목입니다.</span></div>
+      <div class="lk"><a class="y" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=%EC%BC%80%ED%8B%80%EB%B2%A8%20%EC%8A%A4%EC%9C%99%20%EC%9E%90%EC%84%B8">📺 영상</a><a target="_blank" rel="noopener" href="https://www.google.com/search?tbm=isch&q=kettlebell%20swing%20hip%20hinge%20form">🖼️ 그림</a></div>
+    </div>
+
+    <div class="mc">
+      <div class="mh"><span class="kn">원암 덤벨 로우</span><span class="en">ONE ARM ROW</span></div>
+      <div class="row"><span class="lb">쓰는 날</span><span class="vv">화 (상체 A)</span></div>
+      <div class="row"><span class="lb">동작</span><span class="vv">벤치에 한 손·한 무릎을 짚고, 반대손으로 덤벨을 <b>허리 쪽으로 당기기</b>.</span></div>
+      <div class="row"><span class="lb">왜</span><span class="vv">한쪽씩 하니 <b>같은 무게로 부하가 2배</b>. 좌우 근력 차이도 자연스럽게 교정됩니다.</span></div>
+      <div class="lk"><a class="y" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=%EC%9B%90%EC%95%94%20%EB%8D%A4%EB%B2%A8%20%EB%A1%9C%EC%9A%B0%20%EC%9E%90%EC%84%B8">📺 영상</a><a target="_blank" rel="noopener" href="https://www.google.com/search?tbm=isch&q=one%20arm%20dumbbell%20row%20form">🖼️ 그림</a></div>
+    </div>
+
+    <div class="mc">
+      <div class="mh"><span class="kn">인클라인 덤벨 프레스 / 컬</span><span class="en">DUMBBELL</span></div>
+      <div class="row"><span class="lb">쓰는 날</span><span class="vv">금 (상체 B)</span></div>
+      <div class="row"><span class="lb">왜</span><span class="vv">덤벨은 머신보다 <b>가동범위가 넓어</b> 가슴 상부와 이두를 더 길게 늘렸다 수축할 수 있습니다. 벤치 각도는 <b>30~45도</b>.</span></div>
+      <div class="lk"><a class="y" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=%EC%9D%B8%ED%81%B4%EB%9D%BC%EC%9D%B8%20%EB%8D%A4%EB%B2%A8%20%ED%94%84%EB%A0%88%EC%8A%A4%20%EC%9E%90%EC%84%B8">📺 영상</a><a target="_blank" rel="noopener" href="https://www.google.com/search?tbm=isch&q=incline%20dumbbell%20press%20form">🖼️ 그림</a></div>
+    </div>
+
+    <div class="mc">
+      <div class="mh"><span class="kn">파머스 캐리</span><span class="en">FARMER'S CARRY</span><span class="en">선택</span></div>
+      <div class="row"><span class="lb">동작</span><span class="vv">무거운 덤벨·케틀벨을 <b>양손에 들고 20~30m 걷기</b>. 마무리 종목으로 2세트.</span></div>
+      <div class="row"><span class="lb">왜</span><span class="vv">코어·그립·자세를 한 번에 잡아줍니다. 무릎 부담도 거의 없어요. <b>오래 앉아 있는 사무직</b>에게 특히 좋습니다.</span></div>
+      <div class="lk"><a class="y" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=%ED%8C%8C%EB%A8%B8%EC%8A%A4%20%EC%BA%90%EB%A6%AC%20%EC%9A%B4%EB%8F%99">📺 영상</a><a target="_blank" rel="noopener" href="https://www.google.com/search?tbm=isch&q=farmers%20carry%20exercise">🖼️ 그림</a></div>
+    </div>
+
+    <div class="co k" style="margin-bottom:0">
+      <b>🦵 덤벨로 해도 되지만 지금은 피할 것</b> — <b>고블릿 스쿼트·런지·스텝업</b>은 좋은 운동이지만 무릎이 깊게 굽혀지고 체중이 실립니다. 왼쪽 무릎이 안정될 때까지는 <b>RDL·스윙 같은 힙 힌지 계열</b>로 가시는 걸 권합니다.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🏃 유산소 기구 (Rowing · Stepper)</h2>
+    <div class="mc">
+      <div class="mh"><span class="kn">로잉 머신</span><span class="en">ROWING</span><span class="en">🦵 강력 추천</span></div>
+      <div class="row knee"><span class="lb">🦵 무릎</span><span class="vv"><b>체중 부하가 없어 무릎에 매우 안전</b>합니다. 게다가 등·다리·코어를 동시에 쓰는 전신 운동이에요.</span></div>
+      <div class="row"><span class="lb">활용법</span><span class="vv">① <b>모든 운동 전 웜업 5~10분</b> — 전신을 데우기에 최적<br>② <b>폭염·장마로 못 뛰는 날 러닝 대체</b> 20~30분<br>③ 무릎이 안 좋은 주에 러닝 대신</span></div>
+      <div class="row"><span class="lb">자세</span><span class="vv"><b>다리 → 몸통 → 팔</b> 순서로 밀고, 돌아올 땐 반대로. 허리를 둥글게 말지 않기.</span></div>
+      <div class="lk"><a class="y" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=%EB%A1%9C%EC%9E%89%EB%A8%B8%EC%8B%A0%20%EC%9E%90%EC%84%B8">📺 영상</a><a target="_blank" rel="noopener" href="https://www.google.com/search?tbm=isch&q=rowing%20machine%20proper%20form">🖼️ 그림</a></div>
+    </div>
+    <div class="mc">
+      <div class="mh"><span class="kn">스테퍼</span><span class="en">STEPPER</span><span class="en" style="color:var(--warn)">⚠️ 신중</span></div>
+      <div class="row warn"><span class="lb">🦵 주의</span><span class="vv">계단 오르기 동작이라 <b>무릎이 반복해서 굽혀지고 체중이 실립니다</b>. 왼쪽 무릎을 생각하면 지금은 우선순위를 낮추시길 권합니다.</span></div>
+      <div class="row"><span class="lb">대안</span><span class="vv">같은 목적(유산소·둔근)이면 <b>Rowing 머신</b>이나 수영이 훨씬 안전합니다.</span></div>
+      <div class="lk"><a class="y" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=%EC%8A%A4%ED%85%8C%ED%8D%BC%20%EC%9A%B4%EB%8F%99%20%EB%AC%B4%EB%A6%8E">📺 영상</a><a target="_blank" rel="noopener" href="https://www.google.com/search?tbm=isch&q=gym%20stepper%20machine">🖼️ 그림</a></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📌 안 쓰는 기구 &amp; 이유</h2>
+    <table class="ft">
+      <thead><tr><th>기구</th><th>지금은 안 쓰는 이유</th></tr></thead>
+      <tbody>
+        <tr><td class="f">Stepper</td><td class="xs" style="color:var(--warn)">🦵 무릎 반복 굴곡 — Rowing으로 대체</td></tr>
+        <tr><td class="f">윗몸일으키기 지지대</td><td class="xs muted">Abdominal crunch 머신이 더 편함. 대체 가능</td></tr>
+        <tr><td class="f">몸통일으키기 지지대</td><td class="xs muted">Lower back 머신과 역할 중복. 원하면 교체 가능</td></tr>
+        <tr><td class="f">Adductor</td><td class="xs" style="color:var(--accent2)">쓰고 있습니다 — 토요일. 고관절 안정성 보강용</td></tr>
+      </tbody>
+    </table>
+    <div class="co k" style="margin-bottom:0">
+      <b>🦵 없어서 오히려 다행인 것</b> — 이 헬스장에는 <b>스쿼트 랙·바벨 스쿼트</b> 구성이 두드러지지 않습니다. 왼쪽 무릎을 생각하면 지금 단계에선 <b>오히려 잘 맞는 환경</b>이라고 봅니다. 레그프레스·글루트·레그컬만으로도 하체 근육은 충분히 자랍니다.
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 훈련 원칙 ══════════ -->
+<section class="panel" id="p-train">
+  <div class="card">
+    <h2>📐 4가지 원칙</h2>
+    <div class="stats">
+      <div class="stat"><div class="k">10~16</div><div class="l">부위별 주간 세트 수</div></div>
+      <div class="stat"><div class="k">주 2회</div><div class="l">각 근육 자극 빈도</div></div>
+      <div class="stat"><div class="k">RIR 1~3</div><div class="l">세트당 남기는 여유 반복</div></div>
+      <div class="stat"><div class="k">무통증</div><div class="l">무릎은 아프지 않은 범위만</div></div>
+    </div>
+    <div class="co a" style="margin-bottom:0">
+      <b>RIR이란?</b> Reps In Reserve = "더 할 수 있었던 반복 수". 8회 하고 멈췄는데 2개는 더 가능했다면 <b>RIR 2</b>입니다. 40대에는 매번 실패지점까지 몰지 않는 편이 관절·회복에 유리하다고 봅니다. 특히 하체는 RIR 2를 지켜주세요.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🏁 내 시작 중량</h2>
+    <p class="sm muted">현재 벤치 40~50kg / 풀다운 40kg / 하체는 처음. 무게보다 <b>RIR·자세</b>가 우선입니다. 테크노짐은 핀 단위가 대개 5kg이라 <b>한 핀씩</b> 올리시면 됩니다.</p>
+    <table class="ft">
+      <thead><tr><th>기구</th><th>시작</th></tr></thead>
+      <tbody>
+        <tr><td class="f">BENCH PRESS</td><td class="p">40~45kg × 5~8</td></tr>
+        <tr><td class="f">CHEST PRESS</td><td class="p">가벼운 핀부터 × 10~12</td></tr>
+        <tr><td class="f">VERTICAL TRACTION</td><td class="p">40kg × 8~10</td></tr>
+        <tr><td class="f">LAT PULLDOWN</td><td class="p">35~40kg × 10~15</td></tr>
+        <tr><td class="f">KNEELING CHIN DIP</td><td class="p">보조 많이 → 점점 ↓</td></tr>
+        <tr><td class="f">LEG PRESS</td><td class="p">빈 무게~20kg</td></tr>
+        <tr><td class="f">GLUTE</td><td class="p">가장 가벼운 핀</td></tr>
+        <tr><td class="f">LEG CURL / EXTENSION</td><td class="p">가장 가벼운 핀</td></tr>
+        <tr><td class="f">ABDUCTOR / ADDUCTOR</td><td class="p">가볍게 × 15~20</td></tr>
+        <tr><td class="f">인클라인 덤벨 프레스</td><td class="p">한쪽 10~12kg × 10~12</td></tr>
+        <tr><td class="f">원암 덤벨 로우</td><td class="p">한쪽 12~16kg × 10~12</td></tr>
+        <tr><td class="f">덤벨 RDL</td><td class="p">한쪽 10~12kg (또는 케틀벨 16kg)</td></tr>
+        <tr><td class="f">케틀벨 스윙</td><td class="p">12~16kg (3주차부터)</td></tr>
+        <tr><td class="f">덤벨 레터럴 레이즈</td><td class="p">5~8kg × 12~20</td></tr>
+      </tbody>
+    </table>
+    <div class="co a">
+      <b>🏋️ 머신 위주 환경에서 잘 크는 법</b> — 이 헬스장은 머신이 잘 갖춰져 있어 <b>안전하고 자세 잡기 쉬운</b> 게 큰 장점입니다. 대신 이렇게 보완하시면 좋겠어요.
+      <ul class="c">
+        <li><b>핀 한 칸이 너무 무거우면</b> 반복을 늘리세요(12~20회). 가벼워도 한계 가까이 가면 근비대 효과는 비슷합니다.</li>
+        <li><b>내리는 동작을 3초</b>에 걸쳐 — 같은 무게로 자극을 키우는 가장 쉬운 방법.</li>
+        <li><b>한쪽씩 하기</b> — Crossover cables나 Low row는 한 팔씩 하면 부하가 사실상 2배가 됩니다.</li>
+        <li><b>Kneeling chin dip의 보조 무게를 줄이는 것</b>이 이 환경에서 가장 좋은 진행 지표입니다.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📈 점진적 과부하 &amp; 디로드</h2>
+    <p class="sm"><b>이중 점진법</b> — 무게를 서두르지 않고 반복부터 채워 관절에 안전합니다.</p>
+    <ul class="c sm">
+      <li>반복 범위 <b>상한</b>을 모든 세트에서 채우면 → 무게를 <b>2.5kg 또는 머신 1핀</b>만 올림.</li>
+      <li>무게를 올리면 반복이 하한으로 떨어지는 게 정상 → 다시 쌓아 올림.</li>
+      <li>매주 무게가 안 올라도 괜찮습니다. <b>반복 1개</b>가 늘어도 진전입니다.</li>
+    </ul>
+    <div class="co k" style="margin-bottom:0"><b>디로드</b> — 6~8주에 한 번, 한 주는 <b>세트 수를 절반</b>으로(무게는 그대로). 40대엔 이 회복 주간이 부상 예방과 장기 성장의 열쇠라고 봅니다.</div>
+  </div>
+
+  <div class="card">
+    <h2>🦵 왼쪽 무릎 5원칙</h2>
+    <ul class="c sm">
+      <li><b>뻐근함은 OK, 날카로운 관절 통증은 STOP</b> — 아픈 범위 직전에서 멈춥니다.</li>
+      <li>깊은 스쿼트·런지·점프·계단 반복은 당분간 제외.</li>
+      <li>레그프레스는 <b>발을 발판 위쪽에</b> 두고 무릎이 편한 깊이까지만.</li>
+      <li>대퇴사두는 스쿼트가 아니어도 <b>레그프레스+익스텐션</b>으로 충분히 자랍니다.</li>
+      <li>통증이 <b>2주 이상 지속</b>되면 정형외과 진료를 권합니다.</li>
+    </ul>
+    <h3>하체 날 웜업 루틴</h3>
+    <ul class="c sm">
+      <li><b>실내자전거 5~10분</b> — 관절액 순환. 아침엔 <b>10분 필수</b>.</li>
+      <li><b>밴드 사이드워크</b> 2×15걸음 — 둔근 활성화 → 무릎 정렬 안정.</li>
+      <li><b>월 싯</b> 통증 없는 각도로 2×20~30초 — 대퇴사두 등척성 강화.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>⏰ 아침 vs 저녁</h2>
+    <p class="sm">근성장 효과는 거의 같습니다. 몸 상태가 다르니 <b>준비만 달리</b> 하면 됩니다.</p>
+    <table class="ft">
+      <thead><tr><th></th><th>☀️ 아침(수 하체)</th><th>🌙 저녁(화·금)</th></tr></thead>
+      <tbody>
+        <tr><td class="f">몸</td><td class="xs" style="color:var(--accent2)">관절 굳음 — 무릎 주의</td><td class="xs muted">근력 최고조</td></tr>
+        <tr><td class="f">웜업</td><td class="xs" style="color:var(--accent2)"><b>10~15분</b> (2배)</td><td class="xs muted">5~8분</td></tr>
+        <tr><td class="f">식사</td><td class="xs muted">30~60분 전 가볍게</td><td class="xs muted">1.5~2h 전 식사</td></tr>
+        <tr><td class="f">중량</td><td class="xs" style="color:var(--accent2)">5~10% 가볍게 OK</td><td class="xs muted">중량 도전은 여기서</td></tr>
+      </tbody>
+    </table>
+    <p class="xs muted" style="margin-top:9px">저녁 운동이 취침 2시간 이내에 끝나면 각성으로 잠들기 어려울 수 있습니다. 수면은 40대 회복의 핵심이라, 그런 경우 마무리 스트레칭을 길게 하시길 권합니다.</p>
+  </div>
+</section>
+
+<!-- ══════════ 유산소 ══════════ -->
+<section class="panel" id="p-cardio">
+  <div class="card">
+    <h2>🏃🏊 배치 원칙</h2>
+    <p class="sm">웨이트 4회 + 유산소 2~3회 = 주 6~7세션. 근육이 최우선이라면 유산소는 <b>주 2회 유지</b>를 권합니다.</p>
+    <table class="ft">
+      <thead><tr><th>종목</th><th>요일</th><th>이유</th></tr></thead>
+      <tbody>
+        <tr><td class="f">🏃 러닝 5km</td><td class="p">목</td><td class="xs muted">하체 A·B 사이. 회복 흐름 유지</td></tr>
+        <tr><td class="f">🏊 수영 1km</td><td class="p">일</td><td class="xs" style="color:var(--accent2)">무릎 충격 0. 회복성 유산소</td></tr>
+        <tr><td class="f">선택 추가</td><td class="p">토 아침</td><td class="xs muted">수영은 아침 / 하체 B는 저녁</td></tr>
+      </tbody>
+    </table>
+    <ul class="c sm" style="margin-top:10px">
+      <li><b>하체 날 직전은 피하기</b> — 지친 다리로 레그프레스 하면 무릎 부담이 큽니다.</li>
+      <li><b>수영과 상체:</b> 자유형은 어깨·등을 많이 씁니다. 일→화는 이틀 간격이라 넉넉해요.</li>
+      <li><b>같은 날이면</b> 웨이트 먼저, 유산소 나중(또는 아침/저녁 분리).</li>
+      <li><b>강도는 지금 그대로</b> — 증량기에 유산소를 더 늘릴 필요는 없다고 봅니다.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>🏃 야외 러닝 — 노면·코스</h2>
+    <table class="ft">
+      <thead><tr><th>항목</th><th>권장</th><th>피할 것</th></tr></thead>
+      <tbody>
+        <tr><td class="f">노면</td><td class="xs" style="color:var(--accent2)">우레탄 트랙 &gt; 흙길 &gt; 아스팔트</td><td class="xs muted">콘크리트 보도블록</td></tr>
+        <tr><td class="f">코스</td><td class="xs" style="color:var(--accent2)">평지 위주 (오르막은 안전)</td><td class="xs muted">긴 내리막 — 무릎에 최악</td></tr>
+        <tr><td class="f">신발</td><td class="xs" style="color:var(--accent2)">쿠션 러닝화, 500~700km 교체</td><td class="xs muted">밑창 닳은 신발</td></tr>
+      </tbody>
+    </table>
+    <ul class="c sm" style="margin-top:10px">
+      <li><b>도로 가장자리 경사 주의</b> — 배수용으로 한쪽이 기울어 있어, 늘 같은 방향으로 뛰면 <b>한쪽 무릎에만</b> 부담이 쌓입니다. 코스 방향을 번갈아 바꿔주세요.</li>
+      <li><b>보폭은 짧게, 회전수는 빠르게</b> — 발을 몸 앞 멀리 내딛을수록 무릎 충격이 커집니다.</li>
+      <li><b>첫 5분은 걷기·조깅</b>으로 — 야외는 바로 페이스가 올라가기 쉽습니다.</li>
+    </ul>
+    <div class="co">
+      <b>☀️ 지금은 한여름 — 더위가 무릎보다 위험</b><br>
+      <b>이른 아침이나 해진 뒤</b>로 옮기고 한낮(11~16시)은 피하세요. 물 충분히 + 땀 많이 흘린 날은 <b>전해질</b>도. 어지럽거나 땀이 갑자기 멎으면 <b>즉시 중단</b>. 폭염·장마로 못 뛰는 날은 <b>수영이나 실내자전거로 대체</b>하면 됩니다.
+    </div>
+    <div class="co k" style="margin-bottom:0">
+      <b>🦵 무릎엔 수영이 최고의 파트너</b> — 러닝 후 무릎이 붓거나 아프면 <b>목요일 러닝을 수영으로</b> 바꾸는 걸 우선 고려해 보세요(주 2회 수영).
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 보조제 ══════════ -->
+<section class="panel" id="p-supp">
+  <div class="card">
+    <h2>💊 원칙</h2>
+    <p class="sm">음식으로 대부분 해결하고, <b>근거 탄탄하고 간에 안전한 것만 소량</b>. 성분이 뒤섞인 <b>복합 블렌드 제품은 피하는</b> 게 간·성분 파악 면에서 안전합니다.</p>
+  </div>
+  <div class="card">
+    <h2 class="green">✅ 권장</h2>
+    <div class="sp"><span class="ic">🟢</span><div class="b"><b>크레아틴 모노하이드레이트 · 3~5g</b><div class="d">근력·근량에 가장 근거가 탄탄. 건강한 사람에게 간·신장 부담 거의 없음. 매일 아무 때나 물과 함께.</div></div></div>
+    <div class="sp"><span class="ic">🟢</span><div class="b"><b>유청 단백 · 필요 시 1~2스쿱</b><div class="d">식사로 부족할 때만. 농축된 음식이라 간과 무관.</div></div></div>
+    <div class="sp"><span class="ic">🟢</span><div class="b"><b>비타민 D3 · 1,000~2,000 IU</b><div class="d">한국인 상당수 부족. 근기능·뼈에 도움. 상한 4,000 IU 이내면 안전.</div></div></div>
+    <div class="sp"><span class="ic">🟢</span><div class="b"><b>오메가3 · EPA/DHA 1~2g</b><div class="d">관절·염증·심혈관. 무릎 관리에도 우호적.</div></div></div>
+    <div class="sp"><span class="ic">🟢</span><div class="b"><b>마그네슘 · 200~400mg</b><div class="d">근경련·수면·회복. 저녁에. 간엔 안전한 편.</div></div></div>
+  </div>
+  <div class="card">
+    <h2 class="red">⚠️ 간 부담 — 주의/회피</h2>
+    <p class="sm muted">최근 연구·사례에서 <span class="red">간 독성</span>이 보고된 성분들입니다. 고용량·장기 복용 시 특히 주의.</p>
+    <div class="sp"><span class="ic">🔴</span><div class="b"><b>고용량 녹차추출물(EGCG)</b><div class="d">지방연소 보조제에 흔함. 간 손상 사례 다수.</div></div></div>
+    <div class="sp"><span class="ic">🔴</span><div class="b"><b>고용량 강황·커큐민 (피페린 병용)</b><div class="d">최근 간독성 보고 증가.</div></div></div>
+    <div class="sp"><span class="ic">🔴</span><div class="b"><b>아슈와간다</b><div class="d">간 손상 사례 보고 있음.</div></div></div>
+    <div class="sp"><span class="ic">🔴</span><div class="b"><b>홍국·가르시니아·블랙코호시</b><div class="d">간 위험 보고.</div></div></div>
+    <div class="sp"><span class="ic">🔴</span><div class="b"><b>고용량 나이아신 · 프로호르몬 · 팻버너 복합제</b><div class="d">간 부담·성분 불투명. 근육엔 실익도 적음.</div></div></div>
+    <div class="co d" style="margin-bottom:0">간 질환이 있거나 약을 복용 중이면 <b>어떤 보조제든 시작 전 의사·약사 상담</b>을 권합니다. 새 보조제는 <b>한 번에 하나씩</b> 도입해 반응을 확인하는 게 안전합니다.</div>
+  </div>
+</section>
+
+<!-- ══════════ 회복·진행 ══════════ -->
+<section class="panel" id="p-recov">
+  <div class="card">
+    <h2>😴 회복 — 40대의 진짜 승부처</h2>
+    <div class="stats" style="grid-template-columns:1fr 1fr">
+      <div class="stat"><div class="k">7~9시간</div><div class="l">수면 — 하나만 지킨다면 이것</div></div>
+      <div class="stat"><div class="k">48~72h</div><div class="l">같은 부위 재자극 간격</div></div>
+    </div>
+    <ul class="c sm" style="margin-top:11px">
+      <li><b>월요일 완전 휴식</b>은 손해가 아니라 회복 자산이라고 봅니다.</li>
+      <li><b>음주 절제</b> — 근합성과 간 모두에 직접 부담.</li>
+      <li><b>몸의 신호:</b> 이틀 이상 이어지는 무릎 통증, 수행력 급락, 지속 피로 → 볼륨을 줄이거나 디로드를 당길 신호.</li>
+      <li><b>🪑 사무직이라면:</b> 오래 앉아 있으면 고관절 앞쪽이 짧아지고 무릎 주변이 뻣뻣해집니다. <b>1시간에 한 번은 일어나 2~3분 걷기</b>가 수요일 아침 하체 컨디션을 눈에 띄게 바꿔줍니다.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h2>📊 12주 로드맵</h2>
+    <table class="ft">
+      <thead><tr><th>주차</th><th>초점</th></tr></thead>
+      <tbody>
+        <tr><td class="f">1~2주</td><td class="xs muted">자세·중량 익히기, 무릎 반응 체크 (RIR 3)</td></tr>
+        <tr><td class="f">3~5주</td><td class="xs muted">점진적 과부하 본격화</td></tr>
+        <tr><td class="f">6주</td><td class="xs" style="color:var(--accent2)">디로드 — 세트 절반</td></tr>
+        <tr><td class="f">7~11주</td><td class="xs muted">볼륨·강도 상승 (무릎 이상 없으면 하체 세트 +1~2)</td></tr>
+        <tr><td class="f">12주</td><td class="xs" style="color:var(--accent2)">디로드 &amp; 점검 → 다음 사이클 설계</td></tr>
+      </tbody>
+    </table>
+    <h3>기록할 것</h3>
+    <ul class="c sm">
+      <li>매 세트 <b>무게 · 반복 · RIR</b> (앱이나 메모면 충분)</li>
+      <li>하체 날 <b>무릎 통증 여부</b> (0~10점)</li>
+      <li>주 1회 <b>아침 공복 체중</b> — 2주 추세로 칼로리 조정</li>
+      <li>4주마다 <b>거울 사진</b> — 같은 조건·각도로</li>
+    </ul>
+    <p class="xs muted" style="margin-top:9px">근육은 주 단위가 아니라 <b>월 단위</b>로 판단하는 걸 권합니다. 마른 편이라 초반 몇 달은 체감이 비교적 빠를 수 있어요.</p>
+  </div>
+  <div class="co a">
+    <b>시작 전 한 가지</b> — 왼쪽 무릎에 과거 부상이나 반복 부종, 걸을 때도 아픈 증상이 있다면 본격 시작 전 정형외과 확인을 권합니다. 이 문서는 일반 가이드이며 개인 상태에 맞춘 조정이 필요할 수 있습니다.
+  </div>
+</section>
+
+<div class="foot">
+  근거: 근비대 볼륨·빈도 메타분석, 국제스포츠영양학회 단백질 포지션 스탠드, 무릎 친화 대체 운동 가이드, 보조제 간독성 최신 연구.<br>
+  제작: Claude · 개인 상황에 맞게 조정해 사용하세요.
+</div>
+
+</div>
+
+<script>
+/* ── 탭 ── */
+var tabs=document.querySelectorAll('.tab');
+tabs.forEach(function(b){
+  b.addEventListener('click',function(){
+    tabs.forEach(function(x){x.classList.remove('on')});
+    b.classList.add('on');
+    document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('on')});
+    document.getElementById('p-'+b.dataset.t).classList.add('on');
+    window.scrollTo({top:0,behavior:'smooth'});
+    b.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'});
+  });
+});
+
+/* ── 요일 데이터 ── */
+var PLAN={
+ 1:{n:'월',i:'😴',rest:true,title:'완전 휴식',tag:'휴무',tagc:'n',
+    intro:'헬스장·수영장 모두 휴무일입니다. 40대에 주 1회 진짜 쉬는 날은 손해가 아니라 <b>회복 자산</b>이라고 봅니다.',
+    ex:[],
+    note:'몸이 근질거리면 가벼운 산책 20~30분 정도만. 스트레칭이나 폼롤러로 마무리하면 다음 날 컨디션이 좋아집니다. 단백질은 쉬는 날에도 <b>똑같이</b> 챙겨주세요 — 근육은 쉬는 동안 자랍니다.'},
+ 2:{n:'화',i:'💪',title:'상체 A — 힘 위주',tag:'저녁 🌙',tagc:'',
+    intro:'가슴·등·어깨를 낮은 반복(무거운 쪽)으로. <b>Rowing 머신 5분</b>으로 몸을 데운 뒤 부위별 가벼운 세트 1~2개 후 시작합니다.',
+    ex:[
+     {n:'벤치프레스',g:'barbell bench press form',e:'BENCH PRESS',s:'4 × 5~8',r:'RIR 2~3',m:'40~45kg 시작. 어깨가 불편하면 Chest press 머신으로 대체'},
+     {n:'버티컬 트랙션',g:'technogym vertical traction machine',e:'VERTICAL TRACTION',s:'4 × 8~10',r:'RIR 2',m:'랫풀다운 계열 머신. 등 폭 — 견갑을 아래로 내리며 당기기'},
+     {n:'숄더 프레스',g:'technogym shoulder press machine',e:'SHOULDER PRESS',s:'3 × 6~10',r:'RIR 2',m:'앉아서 위로 미는 머신'},
+     {n:'원암 덤벨 로우',g:'one arm dumbbell row form',e:'덤벨',s:'3 × 10~12/팔',r:'RIR 2',m:'벤치에 한 손 짚고 한쪽씩. <b>같은 무게로 부하가 2배</b>가 되고 좌우 균형도 잡힙니다'},
+     {n:'암 익스텐션',g:'technogym arm extension triceps machine',e:'ARM EXTENSION',s:'3 × 10~15',r:'RIR 1~2',m:'삼두 머신'},
+     {n:'덤벨 레터럴 레이즈',g:'dumbbell lateral raise form',e:'덤벨',s:'3 × 12~20',r:'RIR 1',m:'5~8kg으로 충분. 반동 없이 어깨 높이까지만'}],
+    note:'상체 날은 무릎 부담이 거의 없습니다. 벤치프레스만 프리웨이트이니 <b>안전바 위치를 먼저 확인</b>하시고, 불안하면 Chest press 머신으로 바꾸셔도 효과는 비슷합니다.'},
+ 3:{n:'수',i:'🦵',title:'하체 A — 무릎 친화',tag:'아침 ☀️ 필수',tagc:'g',
+    intro:'수요일 저녁이 안 되니 <b>아침 고정</b>입니다. 아침은 관절이 굳어 있어 <b class="green">웜업 10~15분이 가장 중요</b>합니다. <b>Rowing 머신 8~10분</b>(무릎 충격 없음) + 가벼운 Abductor 2세트로 둔근을 깨운 뒤 시작하세요.',
+    ex:[
+     {n:'레그 프레스',g:'leg press high foot placement',e:'LEG PRESS',s:'4 × 10~15',r:'RIR 2',m:'발을 발판 <b>위쪽</b>에 → 무릎 전단력↓. 통증 없는 깊이까지만',k:true},
+     {n:'덤벨 루마니안 데드리프트',g:'dumbbell romanian deadlift form',e:'덤벨/케틀벨',s:'4 × 8~12',r:'RIR 2',m:'한쪽 10~12kg 또는 케틀벨 16kg. <b>무릎은 살짝만 굽히고 엉덩이를 뒤로</b> — 무릎 부담 없이 햄스트링·둔근을 키우는 핵심 종목',k:true},
+     {n:'글루트',g:'technogym glute machine hip extension',e:'GLUTE',s:'3 × 10~12',r:'RIR 2',m:'둔근 주력. 무릎 굽힘 부하가 거의 없어 안전',k:true},
+     {n:'레그 익스텐션',g:'leg extension machine',e:'LEG EXTENSION',s:'3 × 12~20',r:'RIR 1~2',m:'가볍게, 부분 범위로. 아프면 그날은 빼도 됩니다',k:true},
+     {n:'카프 레이즈',g:'dumbbell standing calf raise',e:'덤벨/LEG PRESS',s:'4 × 12~20',r:'RIR 1',m:'덤벨 들고 까치발, 또는 레그프레스 발끝만 걸치고'},
+     {n:'복근',g:'technogym abdominal crunch machine',e:'ABDOMINAL CRUNCH',s:'3 × 12~15',r:'',m:'복근 머신. 없으면 윗몸일으키기 지지대'}],
+    note:'아침엔 저녁보다 <b>5~10% 가벼워도 정상</b>입니다. 무리해서 맞추지 마세요. <b>RDL은 첫 2주 자세 익히기에 집중</b>하세요 — 무릎을 굽히는 게 아니라 <b>엉덩이를 뒤로 빼는</b> 동작이고, 허리는 곧게 편 상태를 유지합니다. 무릎이 유독 뻑뻑한 날은 Leg extension을 빼고 <b>RDL·Glute 비중을 늘리셔도</b> 됩니다.'},
+ 4:{n:'목',i:'🏃',title:'러닝 5km (야외)',tag:'아침/저녁',tagc:'n',
+    intro:'하체 A(수)와 하체 B(토) 사이라 다리 회복 흐름을 끊지 않는 자리입니다. 지금 페이스(30분/5km)를 유지하면 충분합니다.',
+    ex:[
+     {n:'웜업 걷기·조깅',s:'5분',r:'',m:'야외는 바로 페이스가 올라가기 쉬움. 굳은 무릎에 좋지 않음'},
+     {n:'본 러닝',g:'running form knee friendly',e:'OUTDOOR',s:'5km / 약 30분',r:'',m:'평지 위주. 긴 내리막은 무릎에 최악 — 보폭 줄여 종종걸음으로',k:true},
+     {n:'쿨다운 걷기 + 스트레칭',s:'5~10분',r:'',m:'대퇴사두·햄스트링·종아리'}],
+    note:'<b>☀️ 한여름 주의</b> — 이른 아침이나 해진 뒤로. 한낮(11~16시)은 피하고 물·전해질 충분히. <b>폭염·장마로 못 뛰는 날은 헬스장 Rowing 머신 20~30분</b>으로 대체하면 됩니다(무릎 충격이 거의 없어 오히려 안전). <b>Stepper는 무릎 반복 굴곡</b>이 있어 왼쪽 무릎엔 신중하게 쓰시길 권합니다. <b>먹는 것</b>: 오늘은 300~350kcal가 더 빠져나갑니다. 밥 한 공기나 바나나+견과를 추가하세요.'},
+ 5:{n:'금',i:'💪',title:'상체 B — 근비대',tag:'저녁 🌙',tagc:'',
+    intro:'같은 상체지만 <b>높은 반복</b>으로 자극의 결을 바꿉니다. 펌핑 위주.',
+    ex:[
+     {n:'인클라인 덤벨 프레스',g:'incline dumbbell press form',e:'덤벨',s:'4 × 10~12',r:'RIR 2',m:'벤치를 30~45도로. 덤벨은 <b>가동범위가 넓어</b> 가슴 상부에 좋습니다'},
+     {n:'어시스트 풀업',g:'assisted pull up machine kneeling',e:'KNEELING CHIN DIP',s:'4 × 6~10',r:'RIR 2',m:'무릎 패드로 무게를 덜어줌. <b>보조를 줄이는 것 = 최고의 진행 지표</b>'},
+     {n:'펙토랄 (플라이)',g:'pec deck chest fly machine',e:'PECTORAL',s:'3 × 12~15',r:'RIR 1',m:'가슴 수축. 팔을 껴안듯 모으기'},
+     {n:'랫풀다운 (좁은 그립)',g:'close grip lat pulldown',e:'LAT PULLDOWN',s:'3 × 10~15',r:'RIR 1~2',m:'화요일과 그립을 다르게 — 자극 각도 변화'},
+     {n:'인클라인 덤벨 컬',g:'incline dumbbell curl form',e:'덤벨',s:'3 × 10~15',r:'RIR 1',m:'벤치에 기대 팔을 뒤로 늘어뜨리면 이두가 더 늘어납니다'},
+     {n:'리어 델트',g:'cable rear delt fly',e:'CROSSOVER CABLES',s:'3 × 15~20',r:'RIR 1',m:'케이블을 위쪽에 두고 팔을 뒤로 벌리기. 굽은 자세 교정에도 도움'}],
+    note:'<b>Kneeling chin dip</b>은 이 헬스장의 숨은 보석입니다. 풀업은 등 발달에 가장 좋은 운동 중 하나인데 보조가 붙어 있어 지금 실력에도 할 수 있어요. <b>파머스 캐리</b>(무거운 덤벨·케틀벨 들고 20~30m 걷기)를 마무리로 2세트 넣으면 코어와 자세에 좋습니다.'},
+ 6:{n:'토',i:'🦵',title:'하체 B — 둔근·햄스트링',tag:'아침/저녁',tagc:'g',
+    intro:'무릎 굽힘 부하가 적은 종목 위주로 둔근·햄스트링을 공략합니다. 웜업은 <b>Rowing 머신 5~8분</b> + 가벼운 Abductor 2세트.',
+    ex:[
+     {n:'글루트',g:'technogym glute machine hip extension',e:'GLUTE',s:'4 × 10~12',r:'RIR 2',m:'둔근 주력. 무릎에 가장 안전한 하체 운동',k:true},
+     {n:'케틀벨 스윙',g:'kettlebell swing form hip hinge',e:'케틀벨',s:'3 × 12~15',r:'RIR 2',m:'<b>3주차부터</b> — 첫 2주는 케틀벨 데드리프트로 힙 힌지를 먼저 익히세요. 무릎 부담 적고 둔근 폭발력에 좋습니다',k:true},
+     {n:'레그 컬',g:'leg curl machine',e:'LEG CURL',s:'4 × 10~15',r:'RIR 1~2',m:'햄스트링. 무릎 안전',k:true},
+     {n:'레그 프레스',g:'leg press machine',e:'LEG PRESS',s:'3 × 12~15',r:'RIR 2',m:'깊이는 무릎이 편한 만큼만',k:true},
+     {n:'어브덕터',g:'hip abduction machine',e:'ABDUCTOR',s:'3 × 15~20',r:'RIR 1',m:'무릎을 <b>바깥으로 벌리기</b>. 둔근 중부 — 무릎 정렬 안정에 직접 도움',k:true},
+     {n:'로워백',g:'technogym lower back extension machine',e:'LOWER BACK',s:'3 × 12~15',r:'RIR 2',m:'척추기립근. 오래 앉아 있는 사무직에게도 좋습니다'}],
+    note:'<b>여유 있으면 Adductor</b>(무릎을 안으로 모으기) 2~3세트를 추가하세요 — 고관절 안정성이 보강돼 무릎에 도움이 됩니다. <b>선택</b>: 유산소를 주 3회 하고 싶으면 아침에 수영 / 저녁에 하체 B로 나누면 됩니다.'},
+ 0:{n:'일',i:'🏊',title:'수영 1km (자유형)',tag:'회복성',tagc:'g',
+    intro:'한 주 내내 다리를 쓴 뒤 마무리하는 <b class="green">무릎 충격 0</b>의 회복성 유산소입니다. 러닝이나 Rowing 머신으로 바꿔도 됩니다.',
+    ex:[
+     {n:'웜업 자유형 천천히',s:'200m',r:'',m:'어깨 관절 풀기'},
+     {n:'본 스윔 자유형',g:'freestyle swimming technique',e:'POOL',s:'800m',r:'',m:'편안한 페이스. 무릎 부담 없음',k:true},
+     {n:'쿨다운 + 어깨 스트레칭',s:'5분',r:'',m:'자유형은 어깨를 많이 씀'}],
+    note:'화요일 상체 A까지 이틀 간격이라 어깨 회복은 넉넉합니다. 다만 어깨가 뻐근하면 강도를 낮춰주세요. 러닝 후 무릎이 붓거나 아픈 주에는 <b>목요일 러닝도 수영이나 Rowing 머신으로</b> 바꾸는 걸 우선 고려해 보세요. 오늘도 300~400kcal가 더 빠져나가니 <b>먹는 것을 조금 더</b> 챙기시면 좋겠습니다.'}
+};
+var ORDER=[1,2,3,4,5,6,0];
+
+/* 요일 버튼 렌더 */
+var todayIdx=new Date().getDay();
+var dayWrap=document.getElementById('days');
+ORDER.forEach(function(k){
+  var d=PLAN[k];
+  var b=document.createElement('button');
+  b.className='day'+(d.rest?' rest':'');
+  b.dataset.d=k;
+  b.innerHTML='<span class="dn">'+d.n+'</span><span class="di">'+d.i+'</span>'+
+              (k===todayIdx?'<span class="today">오늘</span>':'');
+  b.addEventListener('click',function(){show(k)});
+  dayWrap.appendChild(b);
+});
+
+function lk(e){
+  var kq=e.n.split('(')[0].split('/')[0].trim()+' 운동 자세';
+  return '<div class="lk">'+
+    '<a class="y" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query='+encodeURIComponent(kq)+'">📺 영상</a>'+
+    '<a target="_blank" rel="noopener" href="https://www.google.com/search?tbm=isch&q='+encodeURIComponent(e.g)+'">🖼️ 그림</a></div>';
+}
+function show(k){
+  var d=PLAN[k];
+  document.querySelectorAll('.day').forEach(function(x){
+    x.classList.toggle('on', x.dataset.d==String(k));
+  });
+  var h='<div class="card"><div class="dayhead"><span class="t">'+d.i+' '+d.title+'</span>'+
+        '<span class="tag '+(d.tagc||'')+'">'+d.tag+'</span></div>'+
+        '<p class="sm muted">'+d.intro+'</p>';
+  if(d.ex.length){
+    h+='<div style="margin-top:12px">';
+    d.ex.forEach(function(e){
+      h+='<div class="ex"><div class="top"><span class="nm">'+e.n+(e.e?'<span class="enx">'+e.e+'</span>':'')+'</span>'+
+         '<span class="sr">'+e.s+(e.r?'<span class="rir">'+e.r+'</span>':'')+'</span></div>'+
+         (e.m?'<div class="mt'+(e.k?' k':'')+'">'+(e.k?'🦵 ':'')+e.m+'</div>':'')+
+         (e.g?lk(e):'')+'</div>';
+    });
+    h+='</div>';
+  }
+  if(d.note) h+='<div class="co'+(d.rest?' a':' k')+'" style="margin-bottom:0">'+d.note+'</div>';
+  h+='</div>';
+  document.getElementById('daydetail').innerHTML=h;
+}
+show(PLAN[todayIdx]?todayIdx:1);
+</script>
+</body>
+</html>
