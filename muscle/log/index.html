@@ -239,11 +239,11 @@ function save(){ localStorage.setItem(LS_KEY, JSON.stringify(LOG)); }
 const HISTORY_FALLBACK = [
   { id:"20260726-upperM", date:"2026-07-26", session:"upperM", warmup:"로잉 머신 5분",
     entries:[
-      {n:"암 컬", w:15, reps:10, sets:2, note:"15kg×10 → 10kg×15 (하강 세트)"},
-      {n:"암 익스텐션", w:35, reps:10, sets:2, note:"35kg×10 → 30kg×10 (하강 세트)"},
-      {n:"체스트 프레스", w:50, reps:12, sets:3, note:"3세트 유지"},
-      {n:"랫풀다운", w:40, reps:12, sets:3, note:"40→35→30kg 하강 (각 12회)"},
-      {n:"숄더 프레스", w:30, reps:12, sets:3, note:"3세트 유지"},
+      {n:"암 컬", sets:[{w:15,reps:10},{w:10,reps:15}], note:"첫 세트 무거워 하강"},
+      {n:"암 익스텐션", sets:[{w:35,reps:10},{w:30,reps:10}], note:"첫 세트 무거워 하강"},
+      {n:"체스트 프레스", sets:[{w:50,reps:12},{w:50,reps:12},{w:50,reps:12}]},
+      {n:"랫풀다운", sets:[{w:40,reps:12},{w:35,reps:12},{w:30,reps:12}], note:"세트마다 하강"},
+      {n:"숄더 프레스", sets:[{w:30,reps:12},{w:30,reps:12},{w:30,reps:12}]},
     ],
     memo:"상체 첫날 — 머신 위주, 감 잡기 (RIR 3)." },
   { id:"seed-20260725", date:"2026-07-25", session:"lowerB", warmup:"Rowing 머신 — full power 5분",
@@ -272,34 +272,57 @@ async function boot(){
   buildExTable();
 }
 
-// 종목 최근 기록 찾기 (별칭 포함)
+// 한 종목 기록을 세트 배열 [{w,reps}]로 정규화 (신규 세트별 배열 / 구형 단일값 모두 지원)
+function setsOf(entry){
+  if (Array.isArray(entry.sets)) return entry.sets.map(s=>({w:+s.w, reps:+s.reps}));
+  const n = Math.max(1, +entry.sets || 1);
+  return Array.from({length:n}, ()=>({w:+entry.w, reps:+entry.reps}));
+}
+// 종목 최근 기록 찾기 (별칭 포함) → {date, name, sets:[{w,reps}]}
 function latestFor(ex){
   const names = [ex.n].concat(ex.alias||[]);
   let best=null;
   for (const s of LOG){
     for (const e of (s.entries||[])){
       if (names.includes(e.n)){
-        if (!best || s.date > best.date) best = {date:s.date, w:+e.w, reps:+e.reps, sets:+e.sets, name:e.n};
+        if (!best || s.date > best.date) best = {date:s.date, name:e.n, sets:setsOf(e)};
       }
     }
   }
   return best;
 }
 const fmtW = v => (Number.isInteger(v)? v : v.toFixed(1));
+const setSummary = sets => sets.map(s=>`${fmtW(s.w)}×${s.reps}`).join(" / ");
 
-// 추천 계산
+// 추천 계산 (세트별 드롭 인식)
 function recommend(ex){
   const last = latestFor(ex);
+  if (!last || !last.sets.length) return {cls:"new", big:`시작: ${ex.start}`, why:`RIR ${ex.rir} · 반복 ${ex.lo}~${ex.hi}회로 감 잡기`, last};
+  const sets = last.sets, ws = sets.map(s=>s.w), summ = setSummary(sets);
+
   if (ex.assist){
-    if (!last) return {cls:"new", big:`시작: ${ex.start}`, why:"보조 무게를 조금씩 줄이는 게 진행 지표", last};
-    if (last.reps >= ex.hi) return {cls:"up", big:`보조 ↓ ${fmtW(Math.max(0,last.w-ex.inc))}kg`, why:`지난 ${fmtW(last.w)}kg 보조로 ${last.reps}회 — 상한(${ex.hi}) 도달, 보조를 줄여 난이도↑`, last};
-    if (last.reps < ex.lo)  return {cls:"down", big:`보조 ↑ ${fmtW(last.w+ex.inc)}kg`, why:`지난 ${last.reps}회 — 하한(${ex.lo}) 미달, 보조를 늘려 반복 확보`, last};
-    return {cls:"hold", big:`보조 ${fmtW(last.w)}kg 유지`, why:`반복 +1 목표 (상한 ${ex.hi}회까지)`, last};
+    const minA = Math.min(...ws);                       // 보조가 가장 적은(가장 힘든) 세트
+    const dropped = Math.max(...ws) > minA;
+    const rAtMin = Math.min(...sets.filter(s=>s.w===minA).map(s=>s.reps));
+    if (dropped) return {cls:"hold", big:`보조 ${fmtW(minA)}kg로 전 세트`, why:`지난 ${summ} — 보조를 바꿔가며 함. 먼저 ${fmtW(minA)}kg 보조로 전 세트를 채운 뒤 줄이기`, last};
+    if (rAtMin >= ex.hi) return {cls:"up", big:`보조 ↓ ${fmtW(Math.max(0,minA-ex.inc))}kg`, why:`지난 ${summ} — 상한 도달, 보조를 줄여 난이도↑`, last};
+    if (rAtMin <  ex.lo) return {cls:"down", big:`보조 ↑ ${fmtW(minA+ex.inc)}kg`, why:`지난 ${summ} — 하한 미달, 보조를 늘려 반복 확보`, last};
+    return {cls:"hold", big:`보조 ${fmtW(minA)}kg 유지 · 반복 +1`, why:`지난 ${summ} — 상한 ${ex.hi}회까지 반복↑`, last};
   }
-  if (!last) return {cls:"new", big:`시작: ${ex.start}`, why:`RIR ${ex.rir} · 반복 ${ex.lo}~${ex.hi}회로 감 잡기`, last};
-  if (last.reps >= ex.hi) return {cls:"up",  big:`↑ ${fmtW(last.w+ex.inc)}kg × ${ex.lo}~${ex.hi}`, why:`지난 ${fmtW(last.w)}kg×${last.reps}회 — 상한 도달, +${ex.inc}kg 후 반복 하한부터`, last};
-  if (last.reps < ex.lo)  return {cls:"down", big:`↓ ${fmtW(Math.max(0,last.w-ex.inc))}kg × ${ex.lo}~${ex.hi}`, why:`지난 ${fmtW(last.w)}kg×${last.reps}회 — 하한(${ex.lo}) 미달, -${ex.inc}kg로 자세 우선`, last};
-  return {cls:"hold", big:`= ${fmtW(last.w)}kg 유지 · 반복 +1`, why:`지난 ${fmtW(last.w)}kg×${last.reps}회 — 범위 내, 세트당 반복 +1 (→${ex.hi}회)`, last};
+
+  const topW = Math.max(...ws);
+  const dropped = Math.min(...ws) < topW;               // 세트 중 무게를 내렸는가
+  const repsAtTop = Math.min(...sets.filter(s=>s.w===topW).map(s=>s.reps));
+
+  // 무게를 내린 경우: 자동 증량 금지 → 상단 무게를 "전 세트에서 버티기"부터
+  if (dropped){
+    return {cls:"hold", big:`${fmtW(topW)}kg로 전 세트 채우기`,
+      why:`지난 ${summ} — 첫 세트만 ${fmtW(topW)}kg(하강). 3세트 모두 ${fmtW(topW)}kg·목표 반복을 채운 뒤 +${ex.inc}kg`, last};
+  }
+  // 전 세트 같은 무게(안정): 표준 이중 점진법
+  if (repsAtTop >= ex.hi) return {cls:"up",  big:`↑ ${fmtW(topW+ex.inc)}kg × ${ex.lo}~${ex.hi}`, why:`지난 ${summ} — 전 세트 상한 도달, +${ex.inc}kg 후 반복 하한부터`, last};
+  if (repsAtTop <  ex.lo) return {cls:"down", big:`↓ ${fmtW(Math.max(0,topW-ex.inc))}kg × ${ex.lo}~${ex.hi}`, why:`지난 ${summ} — 하한(${ex.lo}) 미달, -${ex.inc}kg로 자세 우선`, last};
+  return {cls:"hold", big:`= ${fmtW(topW)}kg 유지 · 반복 +1`, why:`지난 ${summ} — 범위 내, 세트당 반복 +1 (→${ex.hi}회)`, last};
 }
 
 // ── 다음 추천 렌더 ──
@@ -341,7 +364,7 @@ function buildExTable(){
   box.innerHTML = `<table><thead><tr><th style="width:38%">종목</th><th>무게(kg)</th><th>반복</th><th>세트</th></tr></thead>
     <tbody>${S.ex.map((ex,i)=>{
       const last = latestFor(ex);
-      const ph = last? `지난 ${fmtW(last.w)}` : "";
+      const ph = last? `지난 ${fmtW(Math.max(...last.sets.map(s=>s.w)))}` : "";
       return `<tr class="exrow" data-i="${i}">
         <td class="exn">${ex.n}<div class="muted" style="font-size:.72rem">${ex.lo}~${ex.hi}회</div></td>
         <td><input type="number" step="0.5" inputmode="decimal" data-f="w" placeholder="${ph}"></td>
@@ -349,7 +372,7 @@ function buildExTable(){
         <td><input type="number" inputmode="numeric" data-f="sets" value="${ex.sets}"></td>
       </tr>`;
     }).join("")}</tbody></table>
-    <div class="note">비워둔 종목은 저장에서 제외됩니다.</div>`;
+    <div class="note">여기서는 전 세트 같은 무게 기준으로 빠르게 기록합니다. 세트마다 무게가 달랐다면(하강) 메모에 적거나 채팅으로 알려주세요. 비워둔 종목은 저장에서 제외됩니다.</div>`;
 }
 function todayStr(){ const d=new Date(); const off=d.getTimezoneOffset(); const l=new Date(d.getTime()-off*60000); return l.toISOString().slice(0,10); }
 function onDateChange(){
@@ -400,7 +423,11 @@ function renderHist(){
   box.innerHTML = LOG.map(s=>{
     const S = SESSIONS[s.session] || SESSIONS.other;
     const wd = WD[new Date(s.date+"T00:00:00").getDay()];
-    const rows = (s.entries||[]).map(e=>`<tr><td class="exn">${e.n}</td><td>${fmtW(+e.w)}kg</td><td>${e.reps}회</td><td>${e.sets}세트</td></tr>`).join("");
+    const rows = (s.entries||[]).map(e=>{
+      const st = setsOf(e), summ = st.map(x=>`${fmtW(x.w)}kg×${x.reps}`).join(" / ");
+      const drop = st.length>1 && Math.min(...st.map(x=>x.w)) < Math.max(...st.map(x=>x.w));
+      return `<tr><td class="exn">${esc(e.n)}</td><td>${summ}${drop?' <span class="pill">하강</span>':''}${e.note?`<div class="muted" style="font-size:.72rem">${esc(e.note)}</div>`:""}</td></tr>`;
+    }).join("");
     return `<div class="log-day">
       <div class="head" data-id="${s.id}">
         <b>${s.date} (${wd}) · ${S.emoji} ${S.name}</b>
@@ -408,7 +435,7 @@ function renderHist(){
       </div>
       <div class="body">
         ${s.warmup?`<div class="warm">🔥 웜업: ${esc(s.warmup)}</div>`:""}
-        ${rows?`<table><thead><tr><th>종목</th><th>무게</th><th>반복</th><th>세트</th></tr></thead><tbody>${rows}</tbody></table>`:""}
+        ${rows?`<table><thead><tr><th style="width:34%">종목</th><th>세트 (무게 × 반복)</th></tr></thead><tbody>${rows}</tbody></table>`:""}
         ${s.memo?`<div class="memo">📝 ${esc(s.memo)}</div>`:""}
       </div>
     </div>`;
@@ -429,8 +456,11 @@ function toMarkdown(){
     out += `\n## ${s.date} (${wd}) — ${S.name}\n\n`;
     if (s.warmup) out += `웜업: ${s.warmup}\n\n`;
     if ((s.entries||[]).length){
-      out += `| 종목 | 무게 | 반복 | 세트 | 비고 |\n|---|---|---|---|---|\n`;
-      for (const e of s.entries) out += `| ${e.n} | ${fmtW(+e.w)}kg | ${e.reps} | ${e.sets} | ${e.note||""} |\n`;
+      out += `| 종목 | 세트 (무게×반복) | 비고 |\n|---|---|---|\n`;
+      for (const e of s.entries){
+        const summ = setsOf(e).map(x=>`${fmtW(x.w)}kg×${x.reps}`).join(" / ");
+        out += `| ${e.n} | ${summ} | ${e.note||""} |\n`;
+      }
     }
     if (s.memo) out += `\n메모: ${s.memo}\n`;
     out += `\n---\n`;
