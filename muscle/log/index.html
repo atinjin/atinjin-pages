@@ -116,6 +116,7 @@ code{background:var(--card2);padding:1px 5px;border-radius:5px;font-size:.82em}
   <button class="tab on" data-t="rec">🎯 다음 추천</button>
   <button class="tab" data-t="add">➕ 기록 추가</button>
   <button class="tab" data-t="hist">📚 기록</button>
+  <button class="tab" data-t="food">🍚 식단</button>
   <button class="tab" data-t="data">💾 백업</button>
 </div></div>
 
@@ -154,6 +155,37 @@ code{background:var(--card2);padding:1px 5px;border-radius:5px;font-size:.82em}
     <h2>📚 운동 기록</h2>
     <p class="sub">최신 기록이 위로 옵니다. 항목을 눌러 펼치세요.</p>
     <div id="histBody"></div>
+  </div>
+</div>
+
+<!-- ── 식단 ── -->
+<div class="panel" id="p-food">
+  <div class="card">
+    <h2>🍚 식단 · 칼로리</h2>
+    <p class="sub">먹은 걸 기록하면 하루 열량·단백질을 목표와 비교해 보여줍니다. (증량 목표: 2,700kcal · 단백질 130~145g)</p>
+    <div class="row2">
+      <div><label>날짜</label><input type="date" id="nDate"></div>
+      <div><label>끼니</label><select id="nMeal">
+        <option value="아침">🌅 아침</option><option value="점심">🍱 점심</option>
+        <option value="저녁">🌙 저녁</option><option value="간식">🍎 간식</option>
+      </select></div>
+    </div>
+    <div class="row2" style="margin-top:10px">
+      <div style="flex:2"><label>음식</label><select id="nFood"></select></div>
+      <div><label>수량(배)</label><input type="number" id="nQty" step="0.1" value="1" inputmode="decimal"></div>
+    </div>
+    <div id="nCustom" style="display:none;margin-top:10px">
+      <div class="row2"><div><label>이름</label><input id="ncName" placeholder="직접 입력"></div>
+        <div><label>열량(kcal)</label><input id="ncKcal" type="number" inputmode="numeric"></div></div>
+      <div class="row2" style="margin-top:8px">
+        <div><label>단백질(g)</label><input id="ncP" type="number" inputmode="decimal"></div>
+        <div><label>탄수(g)</label><input id="ncC" type="number" inputmode="decimal"></div>
+        <div><label>지방(g)</label><input id="ncF" type="number" inputmode="decimal"></div></div>
+    </div>
+    <div class="btnrow"><button class="btn g" id="nAdd">추가</button></div>
+    <div class="note" id="nHint"></div>
+    <div id="nSummary" style="margin-top:14px"></div>
+    <div id="nList" style="margin-top:10px"></div>
   </div>
 </div>
 
@@ -597,13 +629,155 @@ function switchTab(t){
   document.querySelectorAll(".panel").forEach(p=> p.classList.toggle("on", p.id==="p-"+t));
   window.scrollTo({top:0});
 }
-function renderAll(){ renderRec(); renderHist(); }
+// ═══════════ 식단 · 칼로리 ═══════════
+const NUT_KEY = "muscle_nutrition_v1";
+const NUT_TARGET = { kcal:2700, p:137, c:375, f:70 };
+// 음식 참고표 (1 단위당 kcal·단백질·탄수·지방)
+const FOODS = [
+  {n:"참치회덮밥", u:"1그릇", kcal:650, p:30, c:90, f:12},
+  {n:"모밀(메밀국수)", u:"1인분", kcal:380, p:13, c:58, f:3},
+  {n:"삼겹살", u:"100g", kcal:350, p:17, c:0, f:31},
+  {n:"쌀밥", u:"1공기(210g)", kcal:300, p:6, c:66, f:1},
+  {n:"현미밥", u:"1공기(210g)", kcal:310, p:6, c:66, f:2},
+  {n:"계란", u:"1개", kcal:75, p:6, c:0.5, f:5},
+  {n:"견과류", u:"한 주먹(25g)", kcal:170, p:6, c:6, f:15},
+  {n:"아몬드브리즈", u:"190ml", kcal:60, p:1, c:8, f:2.5},
+  {n:"닭가슴살", u:"100g", kcal:110, p:23, c:0, f:1.5},
+  {n:"제육볶음", u:"1인분", kcal:500, p:28, c:20, f:32},
+  {n:"고등어구이", u:"1토막(100g)", kcal:180, p:20, c:0, f:11},
+  {n:"연어", u:"100g", kcal:200, p:20, c:0, f:13},
+  {n:"참치캔(기름뺀)", u:"1캔(100g)", kcal:110, p:26, c:0, f:1},
+  {n:"두부", u:"1/2모(150g)", kcal:120, p:15, c:3, f:7},
+  {n:"그릭요거트(무가당)", u:"100g", kcal:65, p:9, c:4, f:2},
+  {n:"우유", u:"200ml", kcal:125, p:6, c:10, f:6},
+  {n:"코티지치즈", u:"100g", kcal:98, p:11, c:3, f:4},
+  {n:"유청 단백", u:"1스쿱", kcal:120, p:24, c:3, f:1.5},
+  {n:"오트밀", u:"60g(건조)", kcal:230, p:8, c:40, f:4},
+  {n:"바나나", u:"1개", kcal:100, p:1, c:27, f:0},
+];
+let NUT = loadNut();
+function loadNut(){ try{ return JSON.parse(localStorage.getItem(NUT_KEY)); }catch(e){ return null; } }
+function saveNut(){ localStorage.setItem(NUT_KEY, JSON.stringify(NUT)); }
+function seedNut(){
+  if (NUT !== null) return;
+  const mk = (meal,f,qty)=>({ id:"seed-"+f.n+meal+Math.abs(hash(f.n+meal)), date:"2026-07-26", meal,
+    name:f.n, qty, kcal:f.kcal, p:f.p, c:f.c, f:f.f });
+  const F = n => FOODS.find(x=>x.n===n);
+  NUT = [
+    mk("점심", F("참치회덮밥"), 1),
+    mk("점심", F("모밀(메밀국수)"), 0.67),
+    mk("저녁", F("삼겹살"), 2.5),
+    mk("저녁", F("쌀밥"), 0.5),
+    mk("간식", F("계란"), 1),
+    mk("간식", F("견과류"), 0.5),
+    mk("간식", F("아몬드브리즈"), 1),
+  ];
+  saveNut();
+}
+function fillFoodSelect(){
+  const sel = document.getElementById("nFood");
+  sel.innerHTML = FOODS.map((f,i)=>`<option value="${i}">${f.n} · ${f.u} (${f.kcal}kcal·단${f.p})</option>`).join("")
+    + `<option value="custom">➕ 직접 입력</option>`;
+}
+function r0(v){ return Math.round(v); }
+function r1(v){ return Math.round(v*10)/10; }
+function addNut(){
+  const date = document.getElementById("nDate").value;
+  if (!date){ alert("날짜를 선택하세요."); return; }
+  const meal = document.getElementById("nMeal").value;
+  const sel = document.getElementById("nFood").value;
+  let item;
+  if (sel === "custom"){
+    const name = document.getElementById("ncName").value.trim();
+    const kcal = +document.getElementById("ncKcal").value;
+    if (!name || !kcal){ alert("이름과 열량을 입력하세요."); return; }
+    item = { name, qty:1, kcal, p:+document.getElementById("ncP").value||0,
+      c:+document.getElementById("ncC").value||0, f:+document.getElementById("ncF").value||0 };
+  } else {
+    const f = FOODS[+sel]; const qty = +document.getElementById("nQty").value || 1;
+    item = { name:f.n, qty, kcal:f.kcal, p:f.p, c:f.c, f:f.f };
+  }
+  item.id = "n" + Date.now() + "-" + Math.round(Math.random()*1e6);
+  item.date = date; item.meal = meal;
+  NUT.push(item); saveNut();
+  document.getElementById("ncName").value=""; document.getElementById("ncKcal").value="";
+  document.getElementById("ncP").value=""; document.getElementById("ncC").value=""; document.getElementById("ncF").value="";
+  document.getElementById("nQty").value="1";
+  renderFood();
+}
+function sumDay(date){
+  const t = {kcal:0,p:0,c:0,f:0};
+  for (const it of NUT) if (it.date===date){ t.kcal+=it.kcal*it.qty; t.p+=it.p*it.qty; t.c+=it.c*it.qty; t.f+=it.f*it.qty; }
+  return t;
+}
+function bar(label, val, target, over){
+  const pct = Math.min(100, Math.round(val/target*100));
+  const col = over ? (val>target?"var(--danger)":"var(--accent2)") : (val>=target?"var(--accent2)":"var(--accent)");
+  const warn = over && val>target;
+  return `<div style="margin:6px 0">
+    <div style="display:flex;justify-content:space-between;font-size:.8rem">
+      <span class="muted">${label}${warn?' ⚠️초과':''}</span><span><b>${r0(val)}</b> / ${target}</span></div>
+    <div style="height:8px;background:var(--card2);border-radius:99px;overflow:hidden;margin-top:3px">
+      <div style="height:100%;width:${pct}%;background:${col}"></div></div></div>`;
+}
+function renderFood(){
+  const dates = [...new Set(NUT.map(x=>x.date))].sort((a,b)=> a<b?1:-1);
+  const box = document.getElementById("nSummary");
+  const today = document.getElementById("nDate").value || (dates[0]||"");
+  const t = sumDay(today);
+  box.innerHTML = `<div class="card" style="margin:0;background:var(--card2)">
+    <h3 style="margin:0 0 6px;color:var(--ink)">📊 ${today||"오늘"} 합계</h3>
+    ${bar("열량 kcal", t.kcal, NUT_TARGET.kcal, false)}
+    ${bar("단백질 g", t.p, NUT_TARGET.p, false)}
+    ${bar("탄수 g", t.c, NUT_TARGET.c, false)}
+    ${bar("지방 g", t.f, NUT_TARGET.f, true)}
+    <div class="note" style="margin-top:6px">부족: 열량 ${Math.max(0,r0(NUT_TARGET.kcal-t.kcal))}kcal · 단백질 ${Math.max(0,r1(NUT_TARGET.p-t.p))}g</div>
+  </div>`;
+  const list = document.getElementById("nList");
+  if (!NUT.length){ list.innerHTML = `<div class="empty">아직 식단 기록이 없습니다.</div>`; return; }
+  list.innerHTML = dates.map(d=>{
+    const items = NUT.filter(x=>x.date===d);
+    const meals = ["아침","점심","저녁","간식"];
+    const rows = meals.filter(m=>items.some(x=>x.meal===m)).map(m=>{
+      const its = items.filter(x=>x.meal===m).map(it=>
+        `<tr><td>${esc(it.name)}${it.qty!==1?` <span class="muted">×${r1(it.qty)}</span>`:''}</td>
+         <td>${r0(it.kcal*it.qty)}kcal</td><td>단 ${r1(it.p*it.qty)}g</td>
+         <td><button class="del" data-ndel="${it.id}">✕</button></td></tr>`).join("");
+      return `<tr><td colspan="4" style="padding-top:8px"><b class="sm">${m}</b></td></tr>${its}`;
+    }).join("");
+    const dt = sumDay(d);
+    return `<div class="log-day"><div class="head"><b>${d}</b>
+      <span class="sm muted">${r0(dt.kcal)}kcal · 단 ${r0(dt.p)}g</span></div>
+      <div class="body"><table><tbody>${rows}</tbody></table></div></div>`;
+  }).join("");
+  list.querySelectorAll("[data-ndel]").forEach(b=> b.onclick=()=>{
+    NUT = NUT.filter(x=>x.id!==b.dataset.ndel); saveNut(); renderFood();
+  });
+}
+
+function renderAll(){ renderRec(); renderHist(); renderFood(); }
 
 // ── 초기화 ──
 fillSessionSelect();
 document.getElementById("fDate").value = todayStr();
 onDateChange();
 boot().then(refreshAuth);
+
+// 식단 초기화
+seedNut();
+fillFoodSelect();
+document.getElementById("nDate").value = todayStr();
+renderFood();
+document.getElementById("nAdd").addEventListener("click", addNut);
+document.getElementById("nDate").addEventListener("change", renderFood);
+document.getElementById("nFood").addEventListener("change", ()=>{
+  const custom = document.getElementById("nFood").value === "custom";
+  document.getElementById("nCustom").style.display = custom ? "block" : "none";
+  document.getElementById("nQty").parentElement.style.display = custom ? "none" : "block";
+  const f = FOODS[+document.getElementById("nFood").value];
+  document.getElementById("nHint").textContent = custom ? "" : (f ? `${f.n} ${f.u} = ${f.kcal}kcal · 단백질 ${f.p}g · 탄수 ${f.c}g · 지방 ${f.f}g` : "");
+});
+document.getElementById("nFood").dispatchEvent(new Event("change"));
 
 // 인증 버튼
 document.getElementById("authSend").addEventListener("click", async ()=>{
