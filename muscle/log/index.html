@@ -100,7 +100,16 @@ code{background:var(--card2);padding:1px 5px;border-radius:5px;font-size:.82em}
 <div class="hero">
   <a class="back" href="../">← 전체 프로그램으로</a>
   <h1>📝 운동 기록 & 중량 추천</h1>
-  <p>세트·무게·반복을 기록하면, 계획 대비 다음 세션의 무게·강도를 자동으로 추천합니다. 기록은 이 브라우저에 저장됩니다.</p>
+  <p>세트·무게·반복을 기록하면, 계획 대비 다음 세션의 무게·강도를 자동으로 추천합니다.</p>
+</div>
+
+<div id="authbar" class="card" style="margin:8px 0;padding:12px 14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+  <span id="authState" class="sm muted">연결 중…</span>
+  <span id="authForm" style="display:none;flex:1;min-width:220px;gap:8px;align-items:center;">
+    <input id="authEmail" type="email" inputmode="email" placeholder="이메일 주소" style="flex:1;min-width:140px">
+    <button class="btn sm" id="authSend">로그인 링크 받기</button>
+  </span>
+  <button class="btn ghost sm" id="authOut" style="display:none;">로그아웃</button>
 </div>
 
 <div class="tabbar"><div class="tabscroll" id="tabs">
@@ -159,6 +168,11 @@ code{background:var(--card2);padding:1px 5px;border-radius:5px;font-size:.82em}
       <button class="btn ghost sm" id="impBtn">⬆️ JSON 복원</button>
     </div>
     <input type="file" id="impFile" accept=".json,application/json" style="display:none">
+    <div id="dbBox" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)">
+      <p class="sub" style="margin:0 0 8px">☁️ <b>Supabase DB</b>에 로그인되어 있으면, 기록이 클라우드에 저장돼 모든 기기에서 실시간으로 공유됩니다.</p>
+      <button class="btn sm g" id="dbImport">📥 커밋된 기준 기록을 내 DB로 가져오기</button>
+      <div class="note" id="dbMsg"></div>
+    </div>
     <div class="note" id="dataMsg"></div>
     <details style="margin-top:10px"><summary>추천 로직이 궁금하다면</summary>
       <div class="note">
@@ -173,8 +187,14 @@ code{background:var(--card2);padding:1px 5px;border-radius:5px;font-size:.82em}
   </div>
 </div>
 
-<script>
-"use strict";
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+// 공개(publishable) 키 — 노출돼도 안전. 데이터는 Supabase RLS(본인만 접근)로 보호됩니다.
+const SUPA_URL = "https://nafxgkarhvytoxkgkked.supabase.co";
+const SUPA_KEY = "sb_publishable_bmxRyWaoV8IayX0tRaY_RA_iYOBnl8p";
+const sb = createClient(SUPA_URL, SUPA_KEY);
+let user = null, dbMode = false;
+
 const LS_KEY = "muscle_log_v1";
 
 // 세션 종목 정의 (계획 program.html 기준)
@@ -258,7 +278,10 @@ const HISTORY_FALLBACK = [
     memo:"운동 후 사우나 — 20~30분 후 입욕, 수분·전해질 보충." },
 ];
 
-async function boot(){
+const byDate = (a,b)=> a.date<b.date?1:a.date>b.date?-1:0;
+
+// 로그인 안 했을 때: 커밋된 history.json + 로컬 기록 (읽기 기준)
+async function loadLocal(){
   let committed = null;
   try{ const r = await fetch("history.json", {cache:"no-store"}); if (r.ok) committed = await r.json(); }catch(e){}
   const local = load() || [];
@@ -266,10 +289,82 @@ async function boot(){
   const map = new Map();
   for (const s of base) map.set(s.id, s);
   for (const s of local) if (!map.has(s.id)) map.set(s.id, s);
-  LOG = [...map.values()].sort((a,b)=> a.date<b.date?1:a.date>b.date?-1:0);
+  LOG = [...map.values()].sort(byDate);
   save();
+}
+async function boot(){
+  await loadLocal();
   renderAll();
   buildExTable();
+}
+
+// ── Supabase DB 계층 (로그인 상태에서 사용) ──
+async function dbLoad(){
+  const {data:ws, error:e1} = await sb.from("workouts").select("*").order("date",{ascending:false});
+  if (e1) throw e1;
+  const {data:st, error:e2} = await sb.from("sets").select("*");
+  if (e2) throw e2;
+  const byW = {};
+  for (const s of (st||[])) (byW[s.workout_id] ||= []).push(s);
+  LOG = (ws||[]).map(w=>({
+    id:w.id, date:w.date, session:w.session, warmup:w.warmup||"", memo:w.memo||"",
+    entries: groupSets(byW[w.id]||[])
+  }));
+}
+function groupSets(rows){
+  rows.sort((a,b)=> (a.set_no||0)-(b.set_no||0));
+  const m = new Map();
+  for (const r of rows){
+    if (!m.has(r.exercise)) m.set(r.exercise, {n:r.exercise, sets:[], note:r.note||""});
+    const e = m.get(r.exercise);
+    e.sets.push({w:+r.weight_kg, reps:+r.reps});
+    if (r.note && !e.note) e.note = r.note;
+  }
+  return [...m.values()];
+}
+async function dbInsertSession(s){
+  const {data:w, error} = await sb.from("workouts")
+    .insert({date:s.date, session:s.session, warmup:s.warmup||null, memo:s.memo||null})
+    .select().single();
+  if (error) throw error;
+  const rows = [];
+  for (const e of (s.entries||[])){
+    let i = 0;
+    for (const st of setsOf(e)) rows.push({workout_id:w.id, exercise:e.n, set_no:++i, weight_kg:st.w, reps:st.reps, note:e.note||null});
+  }
+  if (rows.length){ const {error:e2} = await sb.from("sets").insert(rows); if (e2) throw e2; }
+  return w.id;
+}
+async function dbDelete(id){
+  const {error} = await sb.from("workouts").delete().eq("id", id);
+  if (error) throw error;
+}
+
+// ── 인증 UI ──
+function renderAuth(){
+  const st = document.getElementById("authState");
+  const form = document.getElementById("authForm");
+  const out = document.getElementById("authOut");
+  const dbBox = document.getElementById("dbBox");
+  if (user){
+    st.textContent = "☁️ " + user.email + " — 클라우드 DB에 저장 중";
+    form.style.display = "none"; out.style.display = "";
+    if (dbBox) dbBox.style.display = "";
+  } else {
+    st.textContent = "로그인하면 클라우드 DB에 저장·공유됩니다 (미로그인 시 이 브라우저에만 저장).";
+    form.style.display = "flex"; out.style.display = "none";
+    if (dbBox) dbBox.style.display = "none";
+  }
+}
+async function refreshAuth(){
+  const {data:{session}} = await sb.auth.getSession();
+  user = session?.user || null;
+  dbMode = !!user;
+  renderAuth();
+  if (dbMode){
+    try{ await dbLoad(); renderAll(); buildExTable(); }
+    catch(e){ const el=document.getElementById("dbMsg"); if(el) el.textContent = "DB 읽기 오류: "+(e.message||e); }
+  }
 }
 
 // 한 종목 기록을 세트 배열 [{w,reps}]로 정규화 (신규 세트별 배열 / 구형 단일값 모두 지원)
@@ -400,11 +495,23 @@ function saveEntry(){
   });
   if (!S.cardio && entries.length===0 && !warmup && !memo){ alert("기록할 내용을 입력하세요."); return; }
   const id = date+"-"+key+"-"+Math.abs(hash(date+key+entries.length+warmup));
-  LOG.push({id, date, session:key, warmup, entries, memo});
-  LOG.sort((a,b)=> a.date<b.date?1:a.date>b.date?-1:0);
-  save();
-  document.getElementById("saveBtn").textContent = "저장됨 ✓";
-  setTimeout(()=>{ document.getElementById("saveBtn").textContent="저장하기"; }, 1200);
+  const sess = {id, date, session:key, warmup, entries, memo};
+  const btn = document.getElementById("saveBtn");
+  saveSession(sess, btn);
+}
+async function saveSession(sess, btn){
+  if (dbMode){
+    try{
+      btn.textContent = "저장 중…"; btn.disabled = true;
+      await dbInsertSession(sess);
+      await dbLoad();
+      btn.disabled = false;
+    }catch(e){ btn.disabled=false; btn.textContent="저장하기"; alert("DB 저장 오류: "+(e.message||e)); return; }
+  } else {
+    LOG.push(sess); LOG.sort(byDate); save();
+  }
+  btn.textContent = "저장됨 ✓";
+  setTimeout(()=>{ btn.textContent = "저장하기"; }, 1200);
   resetForm(true);
   renderAll();
   switchTab("hist");
@@ -440,9 +547,12 @@ function renderHist(){
       </div>
     </div>`;
   }).join("");
-  box.querySelectorAll("[data-del]").forEach(b=> b.onclick=(ev)=>{
+  box.querySelectorAll("[data-del]").forEach(b=> b.onclick=async (ev)=>{
     ev.stopPropagation();
-    if (confirm("이 기록을 삭제할까요?")){ LOG = LOG.filter(x=>x.id!==b.dataset.del); save(); renderAll(); }
+    if (!confirm("이 기록을 삭제할까요?")) return;
+    if (dbMode){ try{ await dbDelete(b.dataset.del); await dbLoad(); }catch(e){ alert("삭제 오류: "+(e.message||e)); return; } }
+    else { LOG = LOG.filter(x=>x.id!==b.dataset.del); save(); }
+    renderAll();
   });
 }
 function esc(s){ return (s||"").replace(/[&<>]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
@@ -493,7 +603,37 @@ function renderAll(){ renderRec(); renderHist(); }
 fillSessionSelect();
 document.getElementById("fDate").value = todayStr();
 onDateChange();
-boot();
+boot().then(refreshAuth);
+
+// 인증 버튼
+document.getElementById("authSend").addEventListener("click", async ()=>{
+  const email = document.getElementById("authEmail").value.trim();
+  if (!email){ alert("이메일 주소를 입력하세요."); return; }
+  document.getElementById("authState").textContent = "링크 보내는 중…";
+  const {error} = await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: location.href.split("#")[0] } });
+  document.getElementById("authState").textContent = error
+    ? ("오류: "+error.message)
+    : (email + " 로 로그인 링크를 보냈어요. 메일함의 링크를 누르면 이 페이지로 돌아와 로그인됩니다.");
+});
+document.getElementById("authOut").addEventListener("click", async ()=>{
+  await sb.auth.signOut(); user=null; dbMode=false; renderAuth(); await boot();
+});
+sb.auth.onAuthStateChange(()=>{ refreshAuth(); });
+
+// 커밋 기록 → 내 DB로 가져오기
+document.getElementById("dbImport").addEventListener("click", async ()=>{
+  if (!dbMode){ alert("먼저 로그인하세요."); return; }
+  let committed=null;
+  try{ const r=await fetch("history.json",{cache:"no-store"}); if(r.ok) committed=await r.json(); }catch(e){}
+  const src = Array.isArray(committed)? committed : HISTORY_FALLBACK;
+  const have = new Set(LOG.map(s=>s.date+"|"+s.session));
+  const todo = src.filter(s=> !have.has(s.date+"|"+s.session));
+  const dm = document.getElementById("dbMsg");
+  if (!todo.length){ dm.textContent = "가져올 새 기록이 없습니다 (이미 DB에 있음)."; return; }
+  dm.textContent = "가져오는 중… ("+todo.length+"건)";
+  try{ for (const s of todo) await dbInsertSession(s); await dbLoad(); renderAll(); dm.textContent = "완료: "+todo.length+"건을 DB에 추가했습니다."; }
+  catch(e){ dm.textContent = "오류: "+(e.message||e); }
+});
 
 document.getElementById("tabs").addEventListener("click", e=>{ const b=e.target.closest(".tab"); if(b) switchTab(b.dataset.t); });
 document.getElementById("fSession").addEventListener("change", buildExTable);
