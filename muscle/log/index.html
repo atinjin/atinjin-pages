@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>운동 기록 & 중량 추천 — 40대 근육 프로젝트</title>
+<style>
+:root{
+  --bg:#0f1216; --card:#171b21; --card2:#1e242c; --line:#2a323c;
+  --ink:#e8edf2; --muted:#96a3b0; --accent:#4ea1ff; --accent2:#38d39f;
+  --warn:#ffb454; --danger:#ff6b6b; --chip:#232b34; --shadow:rgba(0,0,0,.3);
+}
+@media (prefers-color-scheme: light){
+  :root{ --bg:#f4f6fa; --card:#fff; --card2:#f1f4f8; --line:#e3e8ef;
+    --ink:#16202e; --muted:#5c6b7d; --accent:#1f6fe0; --accent2:#0f9a70;
+    --warn:#b8760f; --danger:#d34141; --chip:#eef2f7; --shadow:rgba(16,24,40,.07);}
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo",Roboto,"Noto Sans KR",sans-serif;
+  line-height:1.6;-webkit-font-smoothing:antialiased;font-size:15px;}
+.wrap{max-width:840px;margin:0 auto;padding:0 14px calc(60px + env(safe-area-inset-bottom));}
+a{color:var(--accent)}
+
+.hero{padding:18px 4px 10px;}
+.hero .back{font-size:.8rem;color:var(--muted);text-decoration:none;}
+.hero h1{margin:8px 0 4px;font-size:1.3rem;letter-spacing:-.4px;line-height:1.3;}
+.hero p{margin:0;color:var(--muted);font-size:.84rem;}
+
+.tabbar{position:sticky;top:0;z-index:50;background:var(--bg);
+  padding:6px 0 8px;margin:0 -14px;border-bottom:1px solid var(--line);}
+.tabscroll{display:flex;gap:6px;overflow-x:auto;padding:0 14px;scrollbar-width:none;}
+.tabscroll::-webkit-scrollbar{display:none}
+.tab{flex:none;background:var(--card);border:1px solid var(--line);color:var(--muted);
+  border-radius:999px;padding:8px 15px;font-size:.85rem;font-weight:600;cursor:pointer;
+  white-space:nowrap;font-family:inherit;transition:all .15s;}
+.tab:active{transform:scale(.96)}
+.tab.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+
+.panel{display:none;animation:fade .2s ease}
+.panel.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:15px;margin:12px 0;box-shadow:0 1px 3px var(--shadow);}
+.card h2{font-size:1.02rem;margin:0 0 4px;letter-spacing:-.2px;display:flex;align-items:center;gap:7px;}
+.card .sub{color:var(--muted);font-size:.8rem;margin:0 0 12px;}
+.muted{color:var(--muted)}.sm{font-size:.83rem}
+
+label{display:block;font-size:.78rem;color:var(--muted);margin:0 0 4px;font-weight:600;}
+input,select,textarea,button{font-family:inherit;font-size:.9rem;color:var(--ink);}
+input,select,textarea{width:100%;background:var(--card2);border:1px solid var(--line);
+  border-radius:9px;padding:9px 10px;}
+textarea{resize:vertical;min-height:44px}
+.row2{display:flex;gap:9px}.row2>div{flex:1}
+.btn{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:11px 16px;
+  font-weight:700;cursor:pointer;transition:filter .15s}
+.btn:active{filter:brightness(.9)}
+.btn.g{background:var(--accent2)}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--muted)}
+.btn.sm{padding:7px 12px;font-size:.8rem;border-radius:8px}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th,td{text-align:left;padding:7px 6px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{color:var(--muted);font-weight:600;font-size:.76rem}
+td .exn{font-weight:600}
+.exrow input{padding:7px 6px;font-size:.85rem;text-align:center}
+.exrow .exn{font-size:.82rem}
+
+.rec{border-left:3px solid var(--line);padding:9px 11px;margin:8px 0;background:var(--card2);
+  border-radius:0 9px 9px 0;font-size:.86rem}
+.rec .big{font-weight:700;font-size:.95rem}
+.rec.up{border-color:var(--accent2)} .rec.up .big{color:var(--accent2)}
+.rec.down{border-color:var(--warn)} .rec.down .big{color:var(--warn)}
+.rec.hold{border-color:var(--accent)}
+.rec.new{border-color:var(--muted)}
+.rec .why{color:var(--muted);font-size:.78rem;margin-top:2px}
+.pill{display:inline-block;font-size:.7rem;padding:2px 8px;border-radius:999px;
+  background:var(--chip);color:var(--muted);border:1px solid var(--line);margin-left:6px}
+
+.log-day{border:1px solid var(--line);border-radius:12px;margin:10px 0;overflow:hidden}
+.log-day .head{background:var(--card2);padding:11px 13px;display:flex;justify-content:space-between;
+  align-items:center;gap:8px;cursor:pointer}
+.log-day .head b{font-size:.94rem}
+.log-day .body{padding:4px 13px 12px}
+.log-day .warm{font-size:.8rem;color:var(--muted);margin:8px 0}
+.log-day .memo{font-size:.8rem;color:var(--muted);margin-top:8px;white-space:pre-wrap}
+.del{background:none;border:none;color:var(--danger);font-size:.78rem;cursor:pointer;padding:4px}
+.empty{color:var(--muted);text-align:center;padding:24px 10px;font-size:.88rem}
+details summary{cursor:pointer;font-size:.82rem;color:var(--muted);padding:6px 0}
+.note{font-size:.76rem;color:var(--muted);margin-top:5px;line-height:1.5}
+code{background:var(--card2);padding:1px 5px;border-radius:5px;font-size:.82em}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="hero">
+  <a class="back" href="../">← 전체 프로그램으로</a>
+  <h1>📝 운동 기록 & 중량 추천</h1>
+  <p>세트·무게·반복을 기록하면, 계획 대비 다음 세션의 무게·강도를 자동으로 추천합니다. 기록은 이 브라우저에 저장됩니다.</p>
+</div>
+
+<div class="tabbar"><div class="tabscroll" id="tabs">
+  <button class="tab on" data-t="rec">🎯 다음 추천</button>
+  <button class="tab" data-t="add">➕ 기록 추가</button>
+  <button class="tab" data-t="hist">📚 기록</button>
+  <button class="tab" data-t="data">💾 백업</button>
+</div></div>
+
+<!-- ── 다음 추천 ── -->
+<div class="panel on" id="p-rec">
+  <div class="card">
+    <h2>🎯 다음 세션 추천</h2>
+    <p class="sub">각 종목의 <b>가장 최근 기록</b>을 계획 반복범위와 비교해 이중 점진법으로 계산합니다.
+      <span class="pill">↑ 증량</span><span class="pill">= 유지·반복↑</span><span class="pill">↓ 감량</span></p>
+    <div id="recBody"></div>
+  </div>
+</div>
+
+<!-- ── 기록 추가 ── -->
+<div class="panel" id="p-add">
+  <div class="card">
+    <h2>➕ 오늘 운동 기록</h2>
+    <p class="sub">날짜와 세션을 고르면 계획 종목이 자동으로 채워집니다. 실제 수행한 무게·반복·세트를 적으세요.</p>
+    <div class="row2">
+      <div><label>날짜</label><input type="date" id="fDate"></div>
+      <div><label>세션</label><select id="fSession"></select></div>
+    </div>
+    <div style="margin-top:11px"><label>웜업</label><input id="fWarm" placeholder="예: Rowing 머신 full power 5분"></div>
+    <div id="exTable" style="margin-top:12px"></div>
+    <div style="margin-top:11px"><label>메모</label><textarea id="fMemo" placeholder="컨디션·통증·다음 계획 등"></textarea></div>
+    <div class="btnrow">
+      <button class="btn g" id="saveBtn">저장하기</button>
+      <button class="btn ghost sm" id="resetForm">폼 비우기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 기록 ── -->
+<div class="panel" id="p-hist">
+  <div class="card">
+    <h2>📚 운동 기록</h2>
+    <p class="sub">최신 기록이 위로 옵니다. 항목을 눌러 펼치세요.</p>
+    <div id="histBody"></div>
+  </div>
+</div>
+
+<!-- ── 백업 ── -->
+<div class="panel" id="p-data">
+  <div class="card">
+    <h2>💾 백업 & 내보내기</h2>
+    <p class="sub">기록은 이 기기 브라우저에만 저장됩니다. 기기 변경·삭제에 대비해 가끔 백업하세요.</p>
+    <div class="btnrow">
+      <button class="btn sm" id="expMd">📄 Markdown 복사 (workout-log.md 형식)</button>
+      <button class="btn sm" id="expJson">⬇️ JSON 백업 저장</button>
+      <button class="btn ghost sm" id="impBtn">⬆️ JSON 복원</button>
+    </div>
+    <input type="file" id="impFile" accept=".json,application/json" style="display:none">
+    <div class="note" id="dataMsg"></div>
+    <details style="margin-top:10px"><summary>추천 로직이 궁금하다면</summary>
+      <div class="note">
+        <b>이중 점진법(double progression)</b>으로 계산합니다.<br>
+        · 모든 세트에서 <b>반복 상한</b>을 채웠다 → 다음엔 <b>중량 +1스텝</b>(머신 5kg / 덤벨 2kg / 케틀벨 4kg / 바벨 2.5kg), 반복은 하한부터 다시.<br>
+        · 반복이 <b>범위 안</b> → 같은 무게로 <b>세트당 반복 +1</b>을 목표(상한까지).<br>
+        · 반복이 <b>하한 미달</b> → 무게가 무거운 것 → <b>중량 -1스텝</b>.<br>
+        · 하체는 RIR 2 유지, 6~8주마다 디로드(세트 절반). 날카로운 무릎 통증은 즉시 중단.
+      </div>
+    </details>
+    <div class="note" style="margin-top:10px">⚠️ 이 도구는 계획 가이드이며 의학적 조언이 아닙니다. 통증 시 전문가 상담을 권합니다.</div>
+  </div>
+</div>
+
+<script>
+"use strict";
+const LS_KEY = "muscle_log_v1";
+
+// 세션 종목 정의 (계획 program.html 기준)
+const SESSIONS = {
+  upperA: { name:"상체 A", emoji:"💪", sub:"힘 위주 · 화", ex:[
+    {n:"벤치프레스", sets:4, lo:5, hi:8, inc:2.5, kind:"바벨", start:"40~45kg", rir:"2~3"},
+    {n:"버티컬 트랙션", sets:4, lo:8, hi:10, inc:5, kind:"머신", start:"40kg", rir:"1~2"},
+    {n:"숄더 프레스", sets:3, lo:6, hi:10, inc:5, kind:"머신", start:"가벼운 핀", rir:"2"},
+    {n:"원암 덤벨 로우", sets:3, lo:10, hi:12, inc:2, kind:"덤벨(한쪽)", start:"12~16kg", rir:"1~2"},
+    {n:"암 익스텐션", sets:3, lo:10, hi:15, inc:5, kind:"머신", start:"가벼운 핀", rir:"1"},
+    {n:"덤벨 레터럴 레이즈", sets:3, lo:12, hi:20, inc:2, kind:"덤벨(한쪽)", start:"5~8kg", rir:"1"},
+  ]},
+  lowerA: { name:"하체 A", emoji:"🦵", sub:"무릎 친화 · 수 아침", ex:[
+    {n:"레그 프레스 (발 높게)", sets:4, lo:10, hi:15, inc:5, kind:"머신", start:"빈무게~20kg", rir:"2", alias:["레그 프레스"]},
+    {n:"덤벨 RDL", sets:4, lo:8, hi:12, inc:2, kind:"덤벨(한쪽)", start:"10~12kg (또는 케틀벨 16kg)", rir:"2"},
+    {n:"글루트", sets:3, lo:10, hi:12, inc:5, kind:"머신", start:"가장 가벼운 핀", rir:"2"},
+    {n:"레그 익스텐션", sets:3, lo:12, hi:20, inc:5, kind:"머신", start:"가장 가벼운 핀", rir:"2", knee:true},
+    {n:"카프 레이즈", sets:4, lo:12, hi:20, inc:2, kind:"덤벨", start:"가벼운", rir:"1"},
+    {n:"복근 크런치", sets:3, lo:12, hi:15, inc:5, kind:"머신", start:"가벼운", rir:"1~2"},
+  ]},
+  upperB: { name:"상체 B", emoji:"💪", sub:"근비대 · 금", ex:[
+    {n:"인클라인 덤벨 프레스", sets:4, lo:10, hi:12, inc:2, kind:"덤벨(한쪽)", start:"10~12kg", rir:"2"},
+    {n:"어시스트 풀업 (닐링 친 딥)", sets:4, lo:6, hi:10, inc:5, kind:"보조", start:"보조 많이", rir:"2", assist:true},
+    {n:"펙토랄 플라이", sets:3, lo:12, hi:15, inc:5, kind:"머신", start:"가벼운 핀", rir:"1~2"},
+    {n:"랫풀다운 (좁은 그립)", sets:3, lo:10, hi:15, inc:5, kind:"머신", start:"35~40kg", rir:"2"},
+    {n:"인클라인 덤벨 컬", sets:3, lo:10, hi:15, inc:2, kind:"덤벨(한쪽)", start:"가벼운", rir:"1"},
+    {n:"리어 델트 (크로스오버)", sets:3, lo:15, hi:20, inc:2.5, kind:"케이블", start:"가벼운", rir:"1"},
+  ]},
+  lowerB: { name:"하체 B", emoji:"🦵", sub:"둔근·햄 · 토", ex:[
+    {n:"글루트", sets:4, lo:10, hi:12, inc:5, kind:"머신", start:"가장 가벼운 핀", rir:"2"},
+    {n:"케틀벨 스윙", sets:3, lo:12, hi:15, inc:4, kind:"케틀벨", start:"12~16kg", rir:"2",
+      alias:["케틀벨 데드리프트"], note:"1~2주차는 케틀벨 데드리프트로 힙 힌지 학습 → 폼이 익으면 3주차부터 스윙 전환."},
+    {n:"레그 컬", sets:4, lo:10, hi:15, inc:5, kind:"머신", start:"가장 가벼운 핀", rir:"1~2"},
+    {n:"레그 프레스", sets:3, lo:12, hi:15, inc:5, kind:"머신", start:"빈무게~20kg", rir:"2", alias:["레그 프레스 (발 높게)"]},
+    {n:"어브덕터", sets:3, lo:15, hi:20, inc:5, kind:"머신", start:"가볍게", rir:"1"},
+    {n:"로워백", sets:3, lo:12, hi:15, inc:5, kind:"머신", start:"가벼운 핀", rir:"2"},
+  ]},
+  running:{ name:"러닝 (유산소)", emoji:"🏃", sub:"목 · 야외 5km", ex:[], cardio:true },
+  swim:   { name:"수영 (유산소)", emoji:"🏊", sub:"일 · 자유형 1km", ex:[], cardio:true },
+  other:  { name:"기타 / 자유", emoji:"📝", sub:"", ex:[], cardio:true },
+};
+const WEEKDAY_MAP = { 2:"upperA", 3:"lowerA", 4:"running", 5:"upperB", 6:"lowerB", 0:"swim", 1:"other" };
+const WD = ["일","월","화","수","목","금","토"];
+
+// ── 상태 ──
+let LOG = load();
+function load(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)) || null; }catch(e){ return null; } }
+function save(){ localStorage.setItem(LS_KEY, JSON.stringify(LOG)); }
+
+// 최초 진입 시 어제(2026-07-25 토) 하체 B 시드
+function seedIfEmpty(){
+  if (LOG !== null) return;
+  LOG = [{
+    id: "seed-20260725", date:"2026-07-25", session:"lowerB",
+    warmup:"Rowing 머신 — full power 5분",
+    entries:[
+      {n:"글루트", w:40, reps:15, sets:4, note:"계획(10~12) 초과 → 다음 중량↑"},
+      {n:"케틀벨 데드리프트", w:16, reps:12, sets:3, note:"스윙 전 힙 힌지 학습"},
+      {n:"레그 컬", w:25, reps:12, sets:4, note:"계획 범위 내"},
+      {n:"레그 프레스", w:60, reps:12, sets:4, note:"계획보다 1세트 추가"},
+      {n:"어브덕터", w:40, reps:12, sets:3, note:"계획(15~20) 미달 → 다음 중량↓"},
+      {n:"로워백", w:40, reps:12, sets:3, note:"계획 범위 내"},
+    ],
+    memo:"운동 후 사우나 예정 — 20~30분 후 입욕, 수분·전해질 보충."
+  }];
+  save();
+}
+seedIfEmpty();
+
+// 종목 최근 기록 찾기 (별칭 포함)
+function latestFor(ex){
+  const names = [ex.n].concat(ex.alias||[]);
+  let best=null;
+  for (const s of LOG){
+    for (const e of (s.entries||[])){
+      if (names.includes(e.n)){
+        if (!best || s.date > best.date) best = {date:s.date, w:+e.w, reps:+e.reps, sets:+e.sets, name:e.n};
+      }
+    }
+  }
+  return best;
+}
+const fmtW = v => (Number.isInteger(v)? v : v.toFixed(1));
+
+// 추천 계산
+function recommend(ex){
+  const last = latestFor(ex);
+  if (ex.assist){
+    if (!last) return {cls:"new", big:`시작: ${ex.start}`, why:"보조 무게를 조금씩 줄이는 게 진행 지표", last};
+    if (last.reps >= ex.hi) return {cls:"up", big:`보조 ↓ ${fmtW(Math.max(0,last.w-ex.inc))}kg`, why:`지난 ${fmtW(last.w)}kg 보조로 ${last.reps}회 — 상한(${ex.hi}) 도달, 보조를 줄여 난이도↑`, last};
+    if (last.reps < ex.lo)  return {cls:"down", big:`보조 ↑ ${fmtW(last.w+ex.inc)}kg`, why:`지난 ${last.reps}회 — 하한(${ex.lo}) 미달, 보조를 늘려 반복 확보`, last};
+    return {cls:"hold", big:`보조 ${fmtW(last.w)}kg 유지`, why:`반복 +1 목표 (상한 ${ex.hi}회까지)`, last};
+  }
+  if (!last) return {cls:"new", big:`시작: ${ex.start}`, why:`RIR ${ex.rir} · 반복 ${ex.lo}~${ex.hi}회로 감 잡기`, last};
+  if (last.reps >= ex.hi) return {cls:"up",  big:`↑ ${fmtW(last.w+ex.inc)}kg × ${ex.lo}~${ex.hi}`, why:`지난 ${fmtW(last.w)}kg×${last.reps}회 — 상한 도달, +${ex.inc}kg 후 반복 하한부터`, last};
+  if (last.reps < ex.lo)  return {cls:"down", big:`↓ ${fmtW(Math.max(0,last.w-ex.inc))}kg × ${ex.lo}~${ex.hi}`, why:`지난 ${fmtW(last.w)}kg×${last.reps}회 — 하한(${ex.lo}) 미달, -${ex.inc}kg로 자세 우선`, last};
+  return {cls:"hold", big:`= ${fmtW(last.w)}kg 유지 · 반복 +1`, why:`지난 ${fmtW(last.w)}kg×${last.reps}회 — 범위 내, 세트당 반복 +1 (→${ex.hi}회)`, last};
+}
+
+// ── 다음 추천 렌더 ──
+function renderRec(){
+  const box = document.getElementById("recBody");
+  const order = ["lowerB","upperA","lowerA","upperB"];
+  box.innerHTML = order.map(key=>{
+    const S = SESSIONS[key];
+    const rows = S.ex.map(ex=>{
+      const r = recommend(ex);
+      return `<div class="rec ${r.cls}">
+        <div><span class="big">${ex.n}</span> <span class="pill">${ex.sets}세트 · ${ex.lo}~${ex.hi}회 · RIR ${ex.rir}</span></div>
+        <div>👉 <b>${r.big}</b></div>
+        <div class="why">${r.why}</div>
+        ${ex.note?`<div class="why">📌 ${ex.note}</div>`:""}
+        ${ex.knee?`<div class="why">🦵 무릎 앞쪽 부담 주의 — 가볍게·부분 범위, 아프면 생략</div>`:""}
+      </div>`;
+    }).join("");
+    return `<details ${key==="lowerB"?"open":""} style="margin:10px 0">
+      <summary style="font-size:.95rem;font-weight:700;color:var(--ink)">${S.emoji} ${S.name} <span class="pill">${S.sub}</span></summary>
+      ${rows}
+    </details>`;
+  }).join("");
+}
+
+// ── 기록 추가 폼 ──
+function fillSessionSelect(){
+  const sel = document.getElementById("fSession");
+  sel.innerHTML = Object.keys(SESSIONS).map(k=>`<option value="${k}">${SESSIONS[k].emoji} ${SESSIONS[k].name}</option>`).join("");
+}
+function buildExTable(){
+  const key = document.getElementById("fSession").value;
+  const S = SESSIONS[key];
+  const box = document.getElementById("exTable");
+  if (S.cardio && S.ex.length===0){
+    box.innerHTML = `<div class="note">유산소·자유 세션은 종목 표 없이 웜업/메모에 기록하세요. (예: 5km 28분, 심박 등)</div>`;
+    return;
+  }
+  box.innerHTML = `<table><thead><tr><th style="width:38%">종목</th><th>무게(kg)</th><th>반복</th><th>세트</th></tr></thead>
+    <tbody>${S.ex.map((ex,i)=>{
+      const last = latestFor(ex);
+      const ph = last? `지난 ${fmtW(last.w)}` : "";
+      return `<tr class="exrow" data-i="${i}">
+        <td class="exn">${ex.n}<div class="muted" style="font-size:.72rem">${ex.lo}~${ex.hi}회</div></td>
+        <td><input type="number" step="0.5" inputmode="decimal" data-f="w" placeholder="${ph}"></td>
+        <td><input type="number" inputmode="numeric" data-f="reps" placeholder="${ex.hi}"></td>
+        <td><input type="number" inputmode="numeric" data-f="sets" value="${ex.sets}"></td>
+      </tr>`;
+    }).join("")}</tbody></table>
+    <div class="note">비워둔 종목은 저장에서 제외됩니다.</div>`;
+}
+function todayStr(){ const d=new Date(); const off=d.getTimezoneOffset(); const l=new Date(d.getTime()-off*60000); return l.toISOString().slice(0,10); }
+function onDateChange(){
+  const v = document.getElementById("fDate").value;
+  if (!v) return;
+  const wd = new Date(v+"T00:00:00").getDay();
+  document.getElementById("fSession").value = WEEKDAY_MAP[wd] || "other";
+  buildExTable();
+}
+
+function saveEntry(){
+  const date = document.getElementById("fDate").value;
+  if (!date){ alert("날짜를 선택하세요."); return; }
+  const key = document.getElementById("fSession").value;
+  const S = SESSIONS[key];
+  const warmup = document.getElementById("fWarm").value.trim();
+  const memo = document.getElementById("fMemo").value.trim();
+  const entries = [];
+  document.querySelectorAll("#exTable .exrow").forEach(tr=>{
+    const i = +tr.dataset.i, ex = S.ex[i];
+    const w = tr.querySelector('[data-f="w"]').value;
+    const reps = tr.querySelector('[data-f="reps"]').value;
+    const sets = tr.querySelector('[data-f="sets"]').value;
+    if (w!=="" && reps!==""){ entries.push({n:ex.n, w:+w, reps:+reps, sets:+(sets||ex.sets)}); }
+  });
+  if (!S.cardio && entries.length===0 && !warmup && !memo){ alert("기록할 내용을 입력하세요."); return; }
+  const id = date+"-"+key+"-"+Math.abs(hash(date+key+entries.length+warmup));
+  LOG.push({id, date, session:key, warmup, entries, memo});
+  LOG.sort((a,b)=> a.date<b.date?1:a.date>b.date?-1:0);
+  save();
+  document.getElementById("saveBtn").textContent = "저장됨 ✓";
+  setTimeout(()=>{ document.getElementById("saveBtn").textContent="저장하기"; }, 1200);
+  resetForm(true);
+  renderAll();
+  switchTab("hist");
+}
+function hash(s){ let h=0; for(let i=0;i<s.length;i++){ h=(h<<5)-h+s.charCodeAt(i); h|=0; } return h; }
+function resetForm(keepDate){
+  if (!keepDate) document.getElementById("fDate").value = todayStr();
+  document.getElementById("fWarm").value=""; document.getElementById("fMemo").value="";
+  onDateChange();
+}
+
+// ── 기록 목록 ──
+function renderHist(){
+  const box = document.getElementById("histBody");
+  if (!LOG.length){ box.innerHTML = `<div class="empty">아직 기록이 없습니다. <b>➕ 기록 추가</b>에서 시작하세요.</div>`; return; }
+  box.innerHTML = LOG.map(s=>{
+    const S = SESSIONS[s.session] || SESSIONS.other;
+    const wd = WD[new Date(s.date+"T00:00:00").getDay()];
+    const rows = (s.entries||[]).map(e=>`<tr><td class="exn">${e.n}</td><td>${fmtW(+e.w)}kg</td><td>${e.reps}회</td><td>${e.sets}세트</td></tr>`).join("");
+    return `<div class="log-day">
+      <div class="head" data-id="${s.id}">
+        <b>${s.date} (${wd}) · ${S.emoji} ${S.name}</b>
+        <button class="del" data-del="${s.id}">삭제</button>
+      </div>
+      <div class="body">
+        ${s.warmup?`<div class="warm">🔥 웜업: ${esc(s.warmup)}</div>`:""}
+        ${rows?`<table><thead><tr><th>종목</th><th>무게</th><th>반복</th><th>세트</th></tr></thead><tbody>${rows}</tbody></table>`:""}
+        ${s.memo?`<div class="memo">📝 ${esc(s.memo)}</div>`:""}
+      </div>
+    </div>`;
+  }).join("");
+  box.querySelectorAll("[data-del]").forEach(b=> b.onclick=(ev)=>{
+    ev.stopPropagation();
+    if (confirm("이 기록을 삭제할까요?")){ LOG = LOG.filter(x=>x.id!==b.dataset.del); save(); renderAll(); }
+  });
+}
+function esc(s){ return (s||"").replace(/[&<>]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+
+// ── 백업 ──
+function toMarkdown(){
+  let out = "# 운동 기록\n\n날짜별로 실제 수행한 세트·무게·반복을 누적합니다.\n";
+  for (const s of LOG){
+    const S = SESSIONS[s.session] || SESSIONS.other;
+    const wd = WD[new Date(s.date+"T00:00:00").getDay()];
+    out += `\n## ${s.date} (${wd}) — ${S.name}\n\n`;
+    if (s.warmup) out += `웜업: ${s.warmup}\n\n`;
+    if ((s.entries||[]).length){
+      out += `| 종목 | 무게 | 반복 | 세트 | 비고 |\n|---|---|---|---|---|\n`;
+      for (const e of s.entries) out += `| ${e.n} | ${fmtW(+e.w)}kg | ${e.reps} | ${e.sets} | ${e.note||""} |\n`;
+    }
+    if (s.memo) out += `\n메모: ${s.memo}\n`;
+    out += `\n---\n`;
+  }
+  return out;
+}
+function copyMd(){
+  const md = toMarkdown();
+  navigator.clipboard?.writeText(md).then(
+    ()=> msg("Markdown이 클립보드에 복사됐습니다. workout-log.md에 붙여넣으세요."),
+    ()=> download("workout-log.md", md)
+  );
+}
+function download(name, text){
+  const b = new Blob([text], {type:"text/plain"}); const u = URL.createObjectURL(b);
+  const a = document.createElement("a"); a.href=u; a.download=name; a.click(); URL.revokeObjectURL(u);
+  msg("파일로 저장했습니다: "+name);
+}
+function msg(t){ document.getElementById("dataMsg").textContent = t; }
+
+// ── 탭 ──
+function switchTab(t){
+  document.querySelectorAll(".tab").forEach(b=> b.classList.toggle("on", b.dataset.t===t));
+  document.querySelectorAll(".panel").forEach(p=> p.classList.toggle("on", p.id==="p-"+t));
+  window.scrollTo({top:0});
+}
+function renderAll(){ renderRec(); renderHist(); }
+
+// ── 초기화 ──
+fillSessionSelect();
+document.getElementById("fDate").value = todayStr();
+onDateChange();
+renderAll();
+
+document.getElementById("tabs").addEventListener("click", e=>{ const b=e.target.closest(".tab"); if(b) switchTab(b.dataset.t); });
+document.getElementById("fSession").addEventListener("change", buildExTable);
+document.getElementById("fDate").addEventListener("change", onDateChange);
+document.getElementById("saveBtn").addEventListener("click", saveEntry);
+document.getElementById("resetForm").addEventListener("click", ()=>resetForm(false));
+document.getElementById("expMd").addEventListener("click", copyMd);
+document.getElementById("expJson").addEventListener("click", ()=> download("muscle-log-backup.json", JSON.stringify(LOG,null,2)));
+document.getElementById("impBtn").addEventListener("click", ()=> document.getElementById("impFile").click());
+document.getElementById("impFile").addEventListener("change", e=>{
+  const f = e.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = ()=>{ try{
+    const data = JSON.parse(r.result);
+    if (!Array.isArray(data)) throw 0;
+    if (confirm("불러온 백업으로 현재 기록을 대체할까요?")){ LOG = data; save(); renderAll(); msg("복원 완료 ("+data.length+"건)"); switchTab("hist"); }
+  }catch(_){ alert("올바른 JSON 백업 파일이 아닙니다."); } };
+  r.readAsText(f);
+});
+</script>
+</body>
+</html>
