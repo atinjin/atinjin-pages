@@ -152,7 +152,7 @@ code{background:var(--card2);padding:1px 5px;border-radius:5px;font-size:.82em}
 <div class="panel" id="p-data">
   <div class="card">
     <h2>💾 백업 & 내보내기</h2>
-    <p class="sub">기록은 이 기기 브라우저에만 저장됩니다. 기기 변경·삭제에 대비해 가끔 백업하세요.</p>
+    <p class="sub">커밋된 기준 기록(history.json)은 모든 기기에서 공통으로 보입니다. 이 기기에서 <b>새로 추가</b>한 기록은 이 브라우저에만 저장되니, 다른 기기와 공유하려면 아래 Markdown/JSON으로 내보내 커밋에 반영하세요.</p>
     <div class="btnrow">
       <button class="btn sm" id="expMd">📄 Markdown 복사 (workout-log.md 형식)</button>
       <button class="btn sm" id="expJson">⬇️ JSON 백업 저장</button>
@@ -199,7 +199,7 @@ const SESSIONS = {
     {n:"인클라인 덤벨 프레스", sets:4, lo:10, hi:12, inc:2, kind:"덤벨(한쪽)", start:"10~12kg", rir:"2"},
     {n:"어시스트 풀업 (닐링 친 딥)", sets:4, lo:6, hi:10, inc:5, kind:"보조", start:"보조 많이", rir:"2", assist:true},
     {n:"펙토랄 플라이", sets:3, lo:12, hi:15, inc:5, kind:"머신", start:"가벼운 핀", rir:"1~2"},
-    {n:"랫풀다운 (좁은 그립)", sets:3, lo:10, hi:15, inc:5, kind:"머신", start:"35~40kg", rir:"2"},
+    {n:"랫풀다운 (좁은 그립)", sets:3, lo:10, hi:15, inc:5, kind:"머신", start:"35~40kg", rir:"2", alias:["랫풀다운"]},
     {n:"인클라인 덤벨 컬", sets:3, lo:10, hi:15, inc:2, kind:"덤벨(한쪽)", start:"가벼운", rir:"1"},
     {n:"리어 델트 (크로스오버)", sets:3, lo:15, hi:20, inc:2.5, kind:"케이블", start:"가벼운", rir:"1"},
   ]},
@@ -212,6 +212,15 @@ const SESSIONS = {
     {n:"어브덕터", sets:3, lo:15, hi:20, inc:5, kind:"머신", start:"가볍게", rir:"1"},
     {n:"로워백", sets:3, lo:12, hi:15, inc:5, kind:"머신", start:"가벼운 핀", rir:"2"},
   ]},
+  upperM: { name:"상체 (머신 위주)", emoji:"🎛️", sub:"기구 중심", ex:[
+    {n:"체스트 프레스", sets:3, lo:10, hi:12, inc:5, kind:"머신", start:"가벼운 핀", rir:"2~3"},
+    {n:"랫풀다운", sets:3, lo:10, hi:15, inc:5, kind:"머신", start:"35~40kg", rir:"2", alias:["랫풀다운 (좁은 그립)"]},
+    {n:"버티컬 트랙션", sets:3, lo:8, hi:12, inc:5, kind:"머신", start:"40kg", rir:"2"},
+    {n:"숄더 프레스", sets:3, lo:8, hi:12, inc:5, kind:"머신", start:"가벼운 핀", rir:"2"},
+    {n:"로우", sets:3, lo:10, hi:12, inc:5, kind:"머신", start:"가벼운 핀", rir:"2"},
+    {n:"암 익스텐션", sets:3, lo:10, hi:15, inc:5, kind:"머신", start:"가벼운 핀", rir:"1~2"},
+    {n:"암 컬", sets:3, lo:10, hi:15, inc:5, kind:"머신", start:"가벼운 핀", rir:"1~2"},
+  ]},
   running:{ name:"러닝 (유산소)", emoji:"🏃", sub:"목 · 야외 5km", ex:[], cardio:true },
   swim:   { name:"수영 (유산소)", emoji:"🏊", sub:"일 · 자유형 1km", ex:[], cardio:true },
   other:  { name:"기타 / 자유", emoji:"📝", sub:"", ex:[], cardio:true },
@@ -220,16 +229,23 @@ const WEEKDAY_MAP = { 2:"upperA", 3:"lowerA", 4:"running", 5:"upperB", 6:"lowerB
 const WD = ["일","월","화","수","목","금","토"];
 
 // ── 상태 ──
-let LOG = load();
-function load(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)) || null; }catch(e){ return null; } }
+let LOG = [];
+function load(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)); }catch(e){ return null; } }
 function save(){ localStorage.setItem(LS_KEY, JSON.stringify(LOG)); }
 
-// 최초 진입 시 어제(2026-07-25 토) 하체 B 시드
-function seedIfEmpty(){
-  if (LOG !== null) return;
-  LOG = [{
-    id: "seed-20260725", date:"2026-07-25", session:"lowerB",
-    warmup:"Rowing 머신 — full power 5분",
+// repo에 커밋된 기준 기록(history.json)을 불러와 로컬 기록과 병합.
+//  - 같은 id는 커밋본이 우선(모든 기기 공통) / id가 새로우면 로컬 추가분 보존.
+//  - 오프라인 등으로 못 불러오면 아래 폴백을 사용.
+const HISTORY_FALLBACK = [
+  { id:"20260726-upperM", date:"2026-07-26", session:"upperM", warmup:"로잉 머신 5분",
+    entries:[
+      {n:"암 컬", w:15, reps:10, sets:2, note:"15kg×10 → 10kg×15 (하강 세트)"},
+      {n:"암 익스텐션", w:35, reps:10, sets:2, note:"35kg×10 → 30kg×10 (하강 세트)"},
+      {n:"체스트 프레스", w:50, reps:12, sets:3, note:"3세트 유지"},
+      {n:"랫풀다운", w:40, reps:12, sets:3, note:"40→35→30kg 하강 (각 12회)"},
+    ],
+    memo:"상체 첫날 — 머신 위주, 감 잡기 (RIR 3)." },
+  { id:"seed-20260725", date:"2026-07-25", session:"lowerB", warmup:"Rowing 머신 — full power 5분",
     entries:[
       {n:"글루트", w:40, reps:15, sets:4, note:"계획(10~12) 초과 → 다음 중량↑"},
       {n:"케틀벨 데드리프트", w:16, reps:12, sets:3, note:"스윙 전 힙 힌지 학습"},
@@ -238,11 +254,22 @@ function seedIfEmpty(){
       {n:"어브덕터", w:40, reps:12, sets:3, note:"계획(15~20) 미달 → 다음 중량↓"},
       {n:"로워백", w:40, reps:12, sets:3, note:"계획 범위 내"},
     ],
-    memo:"운동 후 사우나 예정 — 20~30분 후 입욕, 수분·전해질 보충."
-  }];
+    memo:"운동 후 사우나 — 20~30분 후 입욕, 수분·전해질 보충." },
+];
+
+async function boot(){
+  let committed = null;
+  try{ const r = await fetch("history.json", {cache:"no-store"}); if (r.ok) committed = await r.json(); }catch(e){}
+  const local = load() || [];
+  const base = Array.isArray(committed) ? committed : (local.length ? [] : HISTORY_FALLBACK);
+  const map = new Map();
+  for (const s of base) map.set(s.id, s);
+  for (const s of local) if (!map.has(s.id)) map.set(s.id, s);
+  LOG = [...map.values()].sort((a,b)=> a.date<b.date?1:a.date>b.date?-1:0);
   save();
+  renderAll();
+  buildExTable();
 }
-seedIfEmpty();
 
 // 종목 최근 기록 찾기 (별칭 포함)
 function latestFor(ex){
@@ -277,7 +304,7 @@ function recommend(ex){
 // ── 다음 추천 렌더 ──
 function renderRec(){
   const box = document.getElementById("recBody");
-  const order = ["lowerB","upperA","lowerA","upperB"];
+  const order = ["upperM","lowerB","upperA","lowerA","upperB"];
   box.innerHTML = order.map(key=>{
     const S = SESSIONS[key];
     const rows = S.ex.map(ex=>{
@@ -290,7 +317,7 @@ function renderRec(){
         ${ex.knee?`<div class="why">🦵 무릎 앞쪽 부담 주의 — 가볍게·부분 범위, 아프면 생략</div>`:""}
       </div>`;
     }).join("");
-    return `<details ${key==="lowerB"?"open":""} style="margin:10px 0">
+    return `<details ${["upperM","lowerB"].includes(key)?"open":""} style="margin:10px 0">
       <summary style="font-size:.95rem;font-weight:700;color:var(--ink)">${S.emoji} ${S.name} <span class="pill">${S.sub}</span></summary>
       ${rows}
     </details>`;
@@ -435,7 +462,7 @@ function renderAll(){ renderRec(); renderHist(); }
 fillSessionSelect();
 document.getElementById("fDate").value = todayStr();
 onDateChange();
-renderAll();
+boot();
 
 document.getElementById("tabs").addEventListener("click", e=>{ const b=e.target.closest(".tab"); if(b) switchTab(b.dataset.t); });
 document.getElementById("fSession").addEventListener("change", buildExTable);
