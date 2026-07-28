@@ -289,6 +289,17 @@ function save(){ localStorage.setItem(LS_KEY, JSON.stringify(LOG)); }
 //  - 같은 id는 커밋본이 우선(모든 기기 공통) / id가 새로우면 로컬 추가분 보존.
 //  - 오프라인 등으로 못 불러오면 아래 폴백을 사용.
 const HISTORY_FALLBACK = [
+  { id:"20260728-upperA", date:"2026-07-28", session:"upperA", warmup:"로잉 8분",
+    entries:[
+      {n:"벤치프레스", sets:[{w:30,reps:15},{w:30,reps:15},{w:30,reps:15}], note:"20kg×15 웜업 후 · 가볍게 고반복"},
+      {n:"버티컬 트랙션", sets:[{w:40,reps:15},{w:40,reps:15},{w:40,reps:15}]},
+      {n:"원암 덤벨 로우", sets:[{w:12,reps:12},{w:12,reps:12},{w:12,reps:12}], note:"한쪽"},
+      {n:"숄더 프레스", sets:[{w:35,reps:12},{w:35,reps:12},{w:40,reps:12}], note:"무게 올려가며"},
+      {n:"암 익스텐션", sets:[{w:20,reps:12},{w:20,reps:12},{w:20,reps:12}]},
+      {n:"덤벨 레터럴 레이즈", sets:[{w:4,reps:12},{w:4,reps:12},{w:4,reps:12}]},
+      {n:"복근 크런치", sets:[{w:0,reps:25},{w:0,reps:25}], note:"맨몸 마무리"},
+    ],
+    memo:"상체 A · 힘 위주. 운동 후 단백질 챙기기." },
   { id:"20260726-upperM", date:"2026-07-26", session:"upperM", warmup:"로잉 머신 5분",
     entries:[
       {n:"암 컬", sets:[{w:15,reps:10},{w:10,reps:15}], note:"첫 세트 무거워 하강"},
@@ -444,7 +455,7 @@ function recommend(ex){
   // 무게를 내린 경우: 자동 증량 금지 → 상단 무게를 "전 세트에서 버티기"부터
   if (dropped){
     return {cls:"hold", big:`${fmtW(topW)}kg로 전 세트 채우기`,
-      why:`지난 ${summ} — 첫 세트만 ${fmtW(topW)}kg(하강). 3세트 모두 ${fmtW(topW)}kg·목표 반복을 채운 뒤 +${ex.inc}kg`, last};
+      why:`지난 ${summ} — 상단 ${fmtW(topW)}kg를 아직 전 세트로는 못 채움. 3세트 모두 ${fmtW(topW)}kg·목표 반복을 채운 뒤 +${ex.inc}kg`, last};
   }
   // 전 세트 같은 무게(안정): 표준 이중 점진법
   if (repsAtTop >= ex.hi) return {cls:"up",  big:`↑ ${fmtW(topW+ex.inc)}kg × ${ex.lo}~${ex.hi}`, why:`지난 ${summ} — 전 세트 상한 도달, +${ex.inc}kg 후 반복 하한부터`, last};
