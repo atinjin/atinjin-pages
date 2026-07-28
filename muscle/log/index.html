@@ -665,25 +665,24 @@ const FOODS = [
   {n:"유청 단백", u:"1스쿱", kcal:120, p:24, c:3, f:1.5},
   {n:"오트밀", u:"60g(건조)", kcal:230, p:8, c:40, f:4},
   {n:"바나나", u:"1개", kcal:100, p:1, c:27, f:0},
+  {n:"유부초밥(토핑)", u:"1개", kcal:80, p:4.8, c:8.3, f:3.5},
+  {n:"연어포케(현미밥&샐러드)", u:"1개(351g)", kcal:627.8, p:26.4, c:61.7, f:9.9},
+  {n:"프로틴음료(고단백·저당)", u:"250mL", kcal:105, p:24, c:1, f:0.5},
 ];
-let NUT = loadNut();
+let NUT = [];
 function loadNut(){ try{ return JSON.parse(localStorage.getItem(NUT_KEY)); }catch(e){ return null; } }
 function saveNut(){ localStorage.setItem(NUT_KEY, JSON.stringify(NUT)); }
-function seedNut(){
-  if (NUT !== null) return;
-  const mk = (meal,f,qty)=>({ id:"seed-"+f.n+meal+Math.abs(hash(f.n+meal)), date:"2026-07-26", meal,
-    name:f.n, qty, kcal:f.kcal, p:f.p, c:f.c, f:f.f });
-  const F = n => FOODS.find(x=>x.n===n);
-  NUT = [
-    mk("점심", F("참치회덮밥"), 1),
-    mk("점심", F("모밀(메밀국수)"), 0.67),
-    mk("저녁", F("삼겹살"), 2.5),
-    mk("저녁", F("쌀밥"), 0.5),
-    mk("간식", F("계란"), 1),
-    mk("간식", F("견과류"), 0.5),
-    mk("간식", F("아몬드브리즈"), 1),
-  ];
+// 커밋된 nutrition-history.json(기준 기록) + 로컬 추가분을 id로 병합 — 운동 기록과 같은 방식
+async function bootNut(){
+  let committed = null;
+  try{ const r = await fetch("nutrition-history.json", {cache:"no-store"}); if (r.ok) committed = await r.json(); }catch(e){}
+  const local = loadNut() || [];
+  const map = new Map();
+  for (const it of (Array.isArray(committed)?committed:[])) map.set(it.id, it);
+  for (const it of local) if (!map.has(it.id)) map.set(it.id, it);
+  NUT = [...map.values()];
   saveNut();
+  renderFood();
 }
 function fillFoodSelect(){
   const sel = document.getElementById("nFood");
@@ -775,10 +774,9 @@ onDateChange();
 boot().then(refreshAuth);
 
 // 식단 초기화
-seedNut();
 fillFoodSelect();
 document.getElementById("nDate").value = todayStr();
-renderFood();
+bootNut();
 document.getElementById("nAdd").addEventListener("click", addNut);
 document.getElementById("nDate").addEventListener("change", renderFood);
 document.getElementById("nFood").addEventListener("change", ()=>{
