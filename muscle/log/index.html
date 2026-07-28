@@ -162,12 +162,14 @@ code{background:var(--card2);padding:1px 5px;border-radius:5px;font-size:.82em}
 <div class="panel" id="p-food">
   <div class="card">
     <h2>🍚 식단 · 칼로리</h2>
-    <p class="sub">먹은 걸 기록하면 하루 열량·단백질을 목표와 비교해 보여줍니다. (증량 목표: 2,700kcal · 단백질 130~145g)</p>
+    <p class="sub">먹은 걸 기록하면 하루 열량·단백질을 목표와 비교해 보여줍니다. (증량 목표: 2,700kcal · 단백질 130~145g)
+      산책·유산소로 소모한 열량은 <b>끼니를 "🚶 활동(소모)"</b>로 고르고 <b>➕ 직접 입력</b>에서 열량을 <b>음수(예: -144)</b>로 넣으면 합계에서 자동으로 빠집니다.</p>
     <div class="row2">
       <div><label>날짜</label><input type="date" id="nDate"></div>
       <div><label>끼니</label><select id="nMeal">
         <option value="아침">🌅 아침</option><option value="점심">🍱 점심</option>
         <option value="저녁">🌙 저녁</option><option value="간식">🍎 간식</option>
+        <option value="활동">🚶 활동(소모)</option>
       </select></div>
     </div>
     <div class="row2" style="margin-top:10px">
@@ -749,7 +751,7 @@ function renderFood(){
   if (!NUT.length){ list.innerHTML = `<div class="empty">아직 식단 기록이 없습니다.</div>`; return; }
   list.innerHTML = dates.map(d=>{
     const items = NUT.filter(x=>x.date===d);
-    const meals = ["아침","점심","저녁","간식"];
+    const meals = ["아침","점심","저녁","간식","활동"];
     const rows = meals.filter(m=>items.some(x=>x.meal===m)).map(m=>{
       const its = items.filter(x=>x.meal===m).map(it=>
         `<tr><td>${esc(it.name)}${it.qty!==1?` <span class="muted">×${r1(it.qty)}</span>`:''}</td>
