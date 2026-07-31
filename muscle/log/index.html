@@ -124,6 +124,7 @@ code{background:var(--card2);padding:1px 5px;border-radius:5px;font-size:.82em}
   <button class="tab" data-t="add">➕ 기록 추가</button>
   <button class="tab" data-t="hist">📚 기록</button>
   <button class="tab" data-t="food">🍚 식단</button>
+  <button class="tab" data-t="weight">⚖️ 체중</button>
   <button class="tab" data-t="data">💾 백업</button>
 </div></div>
 
@@ -195,6 +196,23 @@ code{background:var(--card2);padding:1px 5px;border-radius:5px;font-size:.82em}
     <div class="note" id="nHint"></div>
     <div id="nSummary" style="margin-top:14px"></div>
     <div id="nList" style="margin-top:10px"></div>
+  </div>
+</div>
+
+<!-- ── 체중 ── -->
+<div class="panel" id="p-weight">
+  <div class="card">
+    <h2>⚖️ 체중 추이</h2>
+    <p class="sub">몸무게를 기록하면 추세와 최근 변화 페이스를 보여줍니다. 목표: 월 +0.25~0.35kg (완만한 증량).</p>
+    <div class="row2">
+      <div><label>날짜</label><input type="date" id="wDate"></div>
+      <div><label>체중(kg)</label><input type="number" id="wKg" step="0.01" inputmode="decimal" placeholder="예: 65.71"></div>
+    </div>
+    <div class="btnrow"><button class="btn g" id="wAdd">기록 추가</button></div>
+    <div class="note" id="wMsg"></div>
+    <div id="wChart" style="margin-top:14px"></div>
+    <div id="wSummary" style="margin-top:12px"></div>
+    <div id="wList" style="margin-top:10px"></div>
   </div>
 </div>
 
@@ -670,6 +688,97 @@ function switchTab(t){
   document.querySelectorAll(".panel").forEach(p=> p.classList.toggle("on", p.id==="p-"+t));
   window.scrollTo({top:0});
 }
+
+// ═══════════ 체중 추이 ═══════════
+const WEIGHT_KEY = "muscle_weight_v1";
+const WEIGHT_TARGET_KG_PER_MONTH = 0.3; // 완만한 증량 목표 중앙값 (0.25~0.35)
+let WEIGHT = [];
+function loadWeight(){ try{ return JSON.parse(localStorage.getItem(WEIGHT_KEY)); }catch(e){ return null; } }
+function saveWeight(){ localStorage.setItem(WEIGHT_KEY, JSON.stringify(WEIGHT)); }
+async function bootWeight(){
+  let committed = null;
+  try{ const r = await fetch("weight-history.json", {cache:"no-store"}); if (r.ok) committed = await r.json(); }catch(e){}
+  const local = loadWeight() || [];
+  const map = new Map();
+  for (const w of (Array.isArray(committed)?committed:[])) map.set(w.date, w);
+  for (const w of local) map.set(w.date, w); // 로컬 기록이 같은 날짜면 최신으로 덮어씀
+  WEIGHT = [...map.values()].sort((a,b)=> a.date<b.date?-1:a.date>b.date?1:0);
+  saveWeight();
+  renderWeight();
+}
+function addWeight(){
+  const date = document.getElementById("wDate").value;
+  const kg = +document.getElementById("wKg").value;
+  if (!date || !kg){ alert("날짜와 체중을 입력하세요."); return; }
+  WEIGHT = WEIGHT.filter(w=> w.date!==date);
+  WEIGHT.push({date, kg});
+  WEIGHT.sort((a,b)=> a.date<b.date?-1:a.date>b.date?1:0);
+  saveWeight();
+  document.getElementById("wKg").value = "";
+  document.getElementById("wMsg").textContent = date+" · "+kg+"kg 저장됨";
+  renderWeight();
+}
+function daysBetween(a,b){ return Math.round((new Date(b+"T00:00:00") - new Date(a+"T00:00:00")) / 86400000); }
+function renderWeightChart(){
+  const box = document.getElementById("wChart");
+  if (WEIGHT.length < 2){ box.innerHTML = ""; return; }
+  const W=680, H=180, padL=34, padR=10, padT=14, padB=22;
+  const kgs = WEIGHT.map(w=>w.kg);
+  const minK = Math.min(...kgs), maxK = Math.max(...kgs);
+  const lo = Math.floor(minK-1), hi = Math.ceil(maxK+1);
+  const t0 = new Date(WEIGHT[0].date+"T00:00:00").getTime();
+  const t1 = new Date(WEIGHT[WEIGHT.length-1].date+"T00:00:00").getTime();
+  const span = Math.max(1, t1-t0);
+  const x = d => padL + (new Date(d+"T00:00:00").getTime()-t0)/span*(W-padL-padR);
+  const y = k => padT + (1-(k-lo)/(hi-lo))*(H-padT-padB);
+  const pts = WEIGHT.map(w=> `${x(w.date).toFixed(1)},${y(w.kg).toFixed(1)}`).join(" ");
+  const last = WEIGHT[WEIGHT.length-1];
+  box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block">
+    <line x1="${padL}" y1="${y(lo)}" x2="${W-padR}" y2="${y(lo)}" stroke="var(--line)" stroke-width="1"/>
+    <line x1="${padL}" y1="${y(hi)}" x2="${W-padR}" y2="${y(hi)}" stroke="var(--line)" stroke-width="1"/>
+    <text x="${padL-6}" y="${y(lo)+4}" font-size="10" fill="var(--muted)" text-anchor="end">${lo}</text>
+    <text x="${padL-6}" y="${y(hi)+4}" font-size="10" fill="var(--muted)" text-anchor="end">${hi}</text>
+    <polyline points="${pts}" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
+    ${WEIGHT.map(w=>`<circle cx="${x(w.date).toFixed(1)}" cy="${y(w.kg).toFixed(1)}" r="3" fill="var(--accent2)"/>`).join("")}
+    <text x="${x(last.date).toFixed(1)}" y="${y(last.kg)-8}" font-size="11" fill="var(--ink)" text-anchor="end" font-weight="700">${last.kg}kg</text>
+  </svg>`;
+}
+function renderWeightSummary(){
+  const box = document.getElementById("wSummary");
+  if (!WEIGHT.length){ box.innerHTML = ""; return; }
+  const last = WEIGHT[WEIGHT.length-1];
+  const first = WEIGHT[0];
+  const totalDays = Math.max(1, daysBetween(first.date, last.date));
+  const totalChange = last.kg - first.kg;
+  // 최근 14일 변화
+  const cutoff = new Date(last.date+"T00:00:00").getTime() - 14*86400000;
+  const recent = WEIGHT.filter(w=> new Date(w.date+"T00:00:00").getTime() >= cutoff);
+  const recentChange = recent.length>=2 ? last.kg - recent[0].kg : null;
+  const recentDays = recent.length>=2 ? Math.max(1, daysBetween(recent[0].date, last.date)) : null;
+  const monthlyPace = recentChange!=null ? recentChange / recentDays * 30 : null;
+  box.innerHTML = `
+    <div class="rec ${totalChange<0?'down':'up'}">
+      <div><span class="big">전체 ${totalChange>=0?'+':''}${totalChange.toFixed(2)}kg</span> <span class="pill">${first.date} → ${last.date} (${totalDays}일)</span></div>
+      <div class="why">${first.kg}kg → ${last.kg}kg</div>
+    </div>
+    ${recentChange!=null ? `<div class="rec ${monthlyPace>WEIGHT_TARGET_KG_PER_MONTH*1.5?'up':monthlyPace<0?'down':'hold'}">
+      <div><span class="big">최근 14일 ${recentChange>=0?'+':''}${recentChange.toFixed(2)}kg</span> <span class="pill">월 환산 ${monthlyPace>=0?'+':''}${monthlyPace.toFixed(2)}kg/월</span></div>
+      <div class="why">목표(월 +0.25~0.35kg) 대비 ${monthlyPace>WEIGHT_TARGET_KG_PER_MONTH*1.5?'빠름 — 지방 증가 가능성, 2~3주 더 지켜보고 열량 조정 고려':monthlyPace<0?'감소 중 — 열량을 더 채워야 할 수 있음':'적정 범위'}</div>
+    </div>` : `<div class="note">14일 이상 데이터가 쌓이면 월 환산 페이스를 보여드립니다.</div>`}
+  `;
+}
+function renderWeightList(){
+  const box = document.getElementById("wList");
+  if (!WEIGHT.length){ box.innerHTML = `<div class="empty">아직 체중 기록이 없습니다.</div>`; return; }
+  const rows = [...WEIGHT].reverse().map(w=>
+    `<tr><td>${w.date}</td><td><b>${w.kg}</b>kg</td><td><button class="del" data-wdel="${w.date}">삭제</button></td></tr>`).join("");
+  box.innerHTML = `<table><thead><tr><th>날짜</th><th>체중</th><th></th></tr></thead><tbody>${rows}</tbody></table>`;
+  box.querySelectorAll("[data-wdel]").forEach(b=> b.onclick=()=>{
+    if (confirm(b.dataset.wdel+" 기록을 삭제할까요?")){ WEIGHT = WEIGHT.filter(w=>w.date!==b.dataset.wdel); saveWeight(); renderWeight(); }
+  });
+}
+function renderWeight(){ renderWeightChart(); renderWeightSummary(); renderWeightList(); }
+
 // ═══════════ 식단 · 칼로리 ═══════════
 const NUT_KEY = "muscle_nutrition_v1";
 const NUT_TARGET = { kcal:2700, p:137, c:375, f:70 };
@@ -820,6 +929,11 @@ fillSessionSelect();
 document.getElementById("fDate").value = todayStr();
 onDateChange();
 boot().then(refreshAuth);
+
+// 체중 초기화
+document.getElementById("wDate").value = todayStr();
+bootWeight();
+document.getElementById("wAdd").addEventListener("click", addWeight);
 
 // 식단 초기화
 fillFoodSelect();
