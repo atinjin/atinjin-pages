@@ -27,7 +27,7 @@ html{scroll-behavior:smooth}
 body{margin:0;background:var(--bg);color:var(--ink);
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo",Roboto,"Noto Sans KR",sans-serif;
   line-height:1.62;-webkit-font-smoothing:antialiased;font-size:15px;}
-.wrap{max-width:840px;margin:0 auto;padding:0 14px calc(60px + env(safe-area-inset-bottom));}
+.wrap{max-width:840px;margin:0 auto;padding:calc(14px + env(safe-area-inset-top)) 14px calc(60px + env(safe-area-inset-bottom));}
 
 /* ── header ── */
 .hero{padding:22px 4px 16px;}
@@ -39,7 +39,7 @@ body{margin:0;background:var(--bg);color:var(--ink);
 .chip.g{border-color:var(--accent2);color:var(--accent2);}
 
 /* ── tabs ── */
-.tabbar{position:sticky;top:0;z-index:50;background:var(--bg);
+.tabbar{position:sticky;top:env(safe-area-inset-top);z-index:50;background:var(--bg);
   padding:6px 0 8px;margin:0 -14px;border-bottom:1px solid var(--line);}
 .tabscroll{display:flex;gap:6px;overflow-x:auto;padding:0 14px;
   scrollbar-width:none;-ms-overflow-style:none;}
