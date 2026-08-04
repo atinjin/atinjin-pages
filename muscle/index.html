@@ -117,6 +117,16 @@ ul.c li:last-child{margin-bottom:0}
 .mvbar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
 .mvchip{font-size:.72rem;background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:3px 10px;color:var(--muted)}
 .mvchip.warn{background:rgba(255,152,0,.12);border-color:var(--warn);color:var(--warn);font-weight:700}
+.exthumb,.mcthumb{cursor:zoom-in}
+.imgmodal{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;
+  padding:20px;z-index:999}
+.imgmodal.on{display:flex}
+.imgmodal-inner{background:var(--card2);border-radius:14px;max-width:min(480px,92vw);max-height:92vh;
+  overflow:auto;position:relative;padding:16px;box-shadow:0 10px 40px rgba(0,0,0,.4)}
+.imgmodal-inner img{width:100%;border-radius:10px;display:block}
+.imgmodal-desc{margin-top:12px;font-size:.88rem;line-height:1.6;color:var(--ink)}
+.imgmodal-close{position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:50%;
+  border:1px solid var(--line);background:var(--chip);color:var(--ink);font-size:1rem;cursor:pointer;z-index:1}
 .ex .sr{font-size:.82rem;color:var(--accent);font-weight:700;white-space:nowrap}
 .ex .mt{font-size:.78rem;color:var(--muted);margin-top:4px;line-height:1.45}
 .ex .mt.k{color:var(--accent2)}
@@ -818,6 +828,14 @@ ul.c li:last-child{margin-bottom:0}
 
 </div>
 
+<div id="imgModal" class="imgmodal" aria-hidden="true">
+  <div class="imgmodal-inner">
+    <button type="button" class="imgmodal-close" aria-label="닫기">✕</button>
+    <img id="imgModalImg" src="" alt="">
+    <div id="imgModalDesc" class="imgmodal-desc"></div>
+  </div>
+</div>
+
 <script>
 /* ── 탭 ── */
 var tabs=document.querySelectorAll('.tab');
@@ -998,6 +1016,47 @@ function show(k){
   document.getElementById('daydetail').innerHTML=h;
 }
 show(PLAN[todayIdx]?todayIdx:1);
+
+/* ── 운동 이미지 클릭 → 모달(큰 이미지 + 자세 설명) ── */
+var imgModal=document.getElementById('imgModal');
+var imgModalImg=document.getElementById('imgModalImg');
+var imgModalDesc=document.getElementById('imgModalDesc');
+function openImgModal(src,alt,descHtml){
+  imgModalImg.src=src; imgModalImg.alt=alt;
+  imgModalDesc.innerHTML=descHtml||'';
+  imgModal.classList.add('on'); imgModal.setAttribute('aria-hidden','false');
+}
+function closeImgModal(){
+  imgModal.classList.remove('on'); imgModal.setAttribute('aria-hidden','true');
+}
+document.addEventListener('click',function(ev){
+  var img=ev.target.closest('.exthumb,.mcthumb');
+  if(img){
+    var desc='';
+    var exCard=img.closest('.ex');
+    var mcCard=img.closest('.mc');
+    if(exCard){
+      var mt=exCard.querySelector('.mt');
+      desc=mt?mt.innerHTML:'';
+    }else if(mcCard){
+      var rows=mcCard.querySelectorAll('.row');
+      for(var i=0;i<rows.length;i++){
+        var lb=rows[i].querySelector('.lb');
+        if(lb && lb.textContent.trim()==='동작'){
+          var vv=rows[i].querySelector('.vv');
+          desc=vv?vv.innerHTML:'';
+          break;
+        }
+      }
+    }
+    openImgModal(img.src,img.alt,desc);
+    return;
+  }
+  if(ev.target===imgModal || ev.target.closest('.imgmodal-close')){
+    closeImgModal();
+  }
+});
+document.addEventListener('keydown',function(ev){ if(ev.key==='Escape') closeImgModal(); });
 </script>
 </body>
 </html>

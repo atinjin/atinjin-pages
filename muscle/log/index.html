@@ -90,6 +90,16 @@ td .exn{font-weight:600}
 .mvchip{font-size:.72rem;background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:3px 10px;color:var(--muted)}
 .mvchip.warn{background:rgba(255,152,0,.12);border-color:var(--warn);color:var(--warn);font-weight:700}
 .pill.mgpill{background:transparent;border-color:var(--accent2);color:var(--accent2)}
+.exthumb,.recthumb{cursor:zoom-in}
+.imgmodal{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;
+  padding:20px;z-index:999}
+.imgmodal.on{display:flex}
+.imgmodal-inner{background:var(--card2);border-radius:14px;max-width:min(480px,92vw);max-height:92vh;
+  overflow:auto;position:relative;padding:16px;box-shadow:0 10px 40px rgba(0,0,0,.4)}
+.imgmodal-inner img{width:100%;border-radius:10px;display:block}
+.imgmodal-desc{margin-top:12px;font-size:.88rem;line-height:1.6;color:var(--ink)}
+.imgmodal-close{position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:50%;
+  border:1px solid var(--line);background:var(--chip);color:var(--ink);font-size:1rem;cursor:pointer;z-index:1}
 
 .rec{border-left:3px solid var(--line);padding:9px 11px;margin:8px 0;background:var(--card2);
   border-radius:0 9px 9px 0;font-size:.86rem}
@@ -261,6 +271,14 @@ code{background:var(--card2);padding:1px 5px;border-radius:5px;font-size:.82em}
       </div>
     </details>
     <div class="note" style="margin-top:10px">⚠️ 이 도구는 계획 가이드이며 의학적 조언이 아닙니다. 통증 시 전문가 상담을 권합니다.</div>
+  </div>
+</div>
+
+<div id="imgModal" class="imgmodal" aria-hidden="true">
+  <div class="imgmodal-inner">
+    <button type="button" class="imgmodal-close" aria-label="닫기">✕</button>
+    <img id="imgModalImg" src="" alt="">
+    <div id="imgModalDesc" class="imgmodal-desc"></div>
   </div>
 </div>
 
@@ -585,6 +603,39 @@ const EX_IMG_BY_NAME = {
   "암 컬":"arm-extension-triceps.jpg",
 };
 
+// ── 종목별 올바른 자세 설명 (이미지 모달에 표시) ──
+const EX_DESC_BY_NAME = {
+  "벤치프레스":"가슴 앞에서 바를 내렸다가 밀어올리기. 어깨는 뒤로 젖히고 견갑을 모아 고정합니다.",
+  "딥스":"가슴 하부·삼두 자극. 체중으로 시작, 익숙해지면 벨트로 중량 추가. 어깨 불편하면 어시스트 딥 머신으로 대체.",
+  "바벨컬":"팔꿈치를 몸통에 고정하고 반동 없이 컬. 상체를 흔들지 않기.",
+  "버티컬 트랙션":"랫풀다운 계열 머신. 등 폭 자극 — 견갑을 아래로 내리며 당기기.",
+  "숄더 프레스":"앉아서 위로 미는 머신. 팔꿈치를 완전히 펴지 말고 살짝 남기기.",
+  "원암 덤벨 로우":"벤치에 한 손 짚고 한쪽씩. 팔꿈치를 몸통 가까이 당기며 견갑 모으기.",
+  "암 익스텐션":"삼두 머신. 팔꿈치 위치 고정하고 펴기.",
+  "덤벨 레터럴 레이즈":"5~8kg으로 충분. 반동 없이 어깨 높이까지만 올리기.",
+  "레그 프레스 (발 높게)":"발을 발판 위쪽에 두면 무릎 전단력↓, 둔근·햄스트링이 더 쓰입니다. 통증 없는 깊이까지만.",
+  "덤벨 RDL":"한쪽 10~12kg 또는 케틀벨 16kg. 무릎은 살짝만 굽히고 엉덩이를 뒤로 빼기.",
+  "글루트":"둔근 주력 머신. 무릎 굽힘 부하가 거의 없어 안전합니다.",
+  "데드리프트":"엉덩이를 뒤로 빼며 바를 정강이 가까이 유지 — 무릎보다 고관절이 주도하는 힌지 동작. 빈 바부터 폼을 먼저 잡으세요.",
+  "카프 레이즈":"덤벨 들고 까치발, 또는 레그프레스에 발끝만 걸치고 밀어올리기.",
+  "복근 크런치":"복근 머신. 없으면 윗몸일으키기 지지대로 대체.",
+  "인클라인 덤벨 프레스":"벤치를 30~45도로. 덤벨은 가동범위가 넓어 가슴 상부 자극에 좋습니다.",
+  "어시스트 풀업 (닐링 친 딥)":"무릎 패드로 무게를 덜어줌. 보조를 줄이는 것 자체가 최고의 진행 지표입니다.",
+  "펙토랄 플라이":"가슴을 수축하듯 팔을 껴안기.",
+  "랫풀다운 (좁은 그립)":"화요일(버티컬 트랙션)과 그립을 다르게 잡아 자극 각도를 바꿉니다.",
+  "인클라인 덤벨 컬":"벤치에 기대 팔을 뒤로 늘어뜨리면 이두가 더 늘어납니다.",
+  "리어 델트 (크로스오버)":"케이블을 위쪽에 두고 팔을 뒤로 벌리기. 굽은 자세 교정에도 도움.",
+  "케틀벨 스윙":"힙 힌지로 케틀벨을 앞으로 스윙 — 팔이 아니라 엉덩이 힘으로 밀어냅니다.",
+  "레그 컬":"엎드리거나 앉아서 다리를 굽혀 당기기. 무릎에 안전한 햄스트링 운동.",
+  "레그 프레스":"깊이는 무릎이 편한 만큼만.",
+  "어브덕터":"무릎을 바깥으로 벌리기. 둔근 중부(고관절 외전근) 자극 — 무릎 정렬 안정에 도움.",
+  "로우백 머신":"척추기립근 자극. 오래 앉아 있는 사무직에게도 좋습니다.",
+  "체스트 프레스":"앉아서 정면으로 밀기. 팔꿈치 완전히 펴지 않기.",
+  "랫풀다운":"위에서 아래로 당기기. 상체는 살짝만 뒤로 기울이기.",
+  "로우":"앉아서 손잡이를 몸 쪽으로 당기기. 등을 곧게 펴고 견갑 모으기.",
+  "암 컬":"이두 머신. 팔꿈치 위치 고정하고 컬.",
+};
+
 // ── 근육별 태그 · 세션당 볼륨 집계(15세트+ 경고) ──
 const MUSCLE_LABELS = {
   chest:"가슴", back:"등", shoulder:"어깨", sideDelt:"어깨(측면)", rearDelt:"어깨(후면)",
@@ -621,7 +672,7 @@ function renderRec(){
         ${ex.note?`<div class="why">📌 ${ex.note}</div>`:""}
         ${ex.knee?`<div class="why">🦵 무릎 앞쪽 부담 주의 — 가볍게·부분 범위, 아프면 생략</div>`:""}`;
       return `<div class="rec ${r.cls}">${img?
-        `<div class="recrow"><img class="recthumb" src="../img/ex/${img}" alt="${ex.n}" loading="lazy"><div class="recbody">${body}</div></div>`
+        `<div class="recrow"><img class="recthumb" src="../img/ex/${img}" alt="${ex.n}" data-ex="${ex.n}" loading="lazy"><div class="recbody">${body}</div></div>`
         : body}</div>`;
     }).join("");
     return `<details ${["upperM","lowerB"].includes(key)?"open":""} style="margin:10px 0">
@@ -652,7 +703,7 @@ function buildExTable(){
     const ph = r.last? fmtW(Math.max(...r.last.sets.map(s=>s.w))) : "";
     return `<div class="exadd exrow" data-i="${i}">
       <div class="exhead">
-        ${img?`<img class="exthumb" src="../img/ex/${img}" alt="${ex.n}" loading="lazy">`:""}
+        ${img?`<img class="exthumb" src="../img/ex/${img}" alt="${ex.n}" data-ex="${ex.n}" loading="lazy">`:""}
         <div class="exbody">
           <div class="exn">${ex.n}${ex.m?`<span class="mg">${MUSCLE_LABELS[ex.m]}</span>`:""} <span class="muted" style="font-size:.72rem">${ex.lo}~${ex.hi}회 · RIR ${ex.rir}</span></div>
           <div class="exline">${lastLine}</div>
@@ -1129,6 +1180,29 @@ document.getElementById("impFile").addEventListener("change", e=>{
   }catch(_){ alert("올바른 JSON 백업 파일이 아닙니다."); } };
   r.readAsText(f);
 });
+
+/* ── 운동 이미지 클릭 → 모달(큰 이미지 + 자세 설명) ── */
+const imgModal=document.getElementById('imgModal');
+const imgModalImg=document.getElementById('imgModalImg');
+const imgModalDesc=document.getElementById('imgModalDesc');
+function openImgModal(src,alt,descHtml){
+  imgModalImg.src=src; imgModalImg.alt=alt;
+  imgModalDesc.innerHTML=descHtml||'';
+  imgModal.classList.add('on'); imgModal.setAttribute('aria-hidden','false');
+}
+function closeImgModal(){
+  imgModal.classList.remove('on'); imgModal.setAttribute('aria-hidden','true');
+}
+document.addEventListener('click',ev=>{
+  const img=ev.target.closest('.exthumb,.recthumb');
+  if(img){
+    const desc=EX_DESC_BY_NAME[img.dataset.ex]||'';
+    openImgModal(img.src,img.alt,desc);
+    return;
+  }
+  if(ev.target===imgModal || ev.target.closest('.imgmodal-close')) closeImgModal();
+});
+document.addEventListener('keydown',ev=>{ if(ev.key==='Escape') closeImgModal(); });
 </script>
 </body>
 </html>
