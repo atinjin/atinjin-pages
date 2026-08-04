@@ -84,6 +84,9 @@ td .exn{font-weight:600}
 .rec.hold{border-color:var(--accent)}
 .rec.new{border-color:var(--muted)}
 .rec .why{color:var(--muted);font-size:.78rem;margin-top:2px}
+.rec .recrow{display:flex;gap:10px;align-items:flex-start}
+.rec .recthumb{width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid var(--line);flex:none;background:var(--chip)}
+.rec .recbody{flex:1;min-width:0}
 .pill{display:inline-block;font-size:.7rem;padding:2px 8px;border-radius:999px;
   background:var(--chip);color:var(--muted);border:1px solid var(--line);margin-left:6px}
 
@@ -522,6 +525,37 @@ function recommend(ex){
   return {cls:"hold", big:`= ${fmtW(topW)}kg 유지 · 반복 +1`, why:`지난 ${summ} — 범위 내, 세트당 반복 +1 (→${ex.hi}회)`, last};
 }
 
+// ── 운동별 썸네일(muscle/img/ex/) — muscle/index.html의 스케줄·머신찾기 탭과 같은 이미지 재사용 ──
+const EX_IMG_BY_NAME = {
+  "벤치프레스":"bench-press.jpg",
+  "버티컬 트랙션":"vertical-traction.jpg",
+  "숄더 프레스":"shoulder-press.jpg",
+  "원암 덤벨 로우":"one-arm-dumbbell-row.jpg",
+  "암 익스텐션":"arm-extension-triceps.jpg",
+  "덤벨 레터럴 레이즈":"dumbbell-lateral-raise.jpg",
+  "레그 프레스 (발 높게)":"leg-press-high-foot.jpg",
+  "덤벨 RDL":"dumbbell-romanian-deadlift.jpg",
+  "글루트":"glute-machine.jpg",
+  "레그 익스텐션":"leg-extension.jpg",
+  "카프 레이즈":"standing-calf-raise.jpg",
+  "복근 크런치":"abdominal-crunch.jpg",
+  "인클라인 덤벨 프레스":"incline-dumbbell-press.jpg",
+  "어시스트 풀업 (닐링 친 딥)":"assisted-pull-up.jpg",
+  "펙토랄 플라이":"pec-deck-fly.jpg",
+  "랫풀다운 (좁은 그립)":"close-grip-lat-pulldown.jpg",
+  "인클라인 덤벨 컬":"incline-dumbbell-curl.jpg",
+  "리어 델트 (크로스오버)":"cable-rear-delt-fly.jpg",
+  "케틀벨 스윙":"kettlebell-swing.jpg",
+  "레그 컬":"leg-curl.jpg",
+  "레그 프레스":"leg-press.jpg",
+  "어브덕터":"hip-abduction.jpg",
+  "로우백 머신":"lower-back-extension.jpg",
+  "체스트 프레스":"chest-press.jpg",
+  "랫풀다운":"close-grip-lat-pulldown.jpg",
+  "로우":"low-row.jpg",
+  "암 컬":"arm-extension-triceps.jpg",
+};
+
 // ── 다음 추천 렌더 ──
 function renderRec(){
   const box = document.getElementById("recBody");
@@ -530,13 +564,15 @@ function renderRec(){
     const S = SESSIONS[key];
     const rows = S.ex.map(ex=>{
       const r = recommend(ex);
-      return `<div class="rec ${r.cls}">
-        <div><span class="big">${ex.n}</span> <span class="pill">${ex.sets}세트 · ${ex.lo}~${ex.hi}회 · RIR ${ex.rir}</span></div>
+      const img = EX_IMG_BY_NAME[ex.n];
+      const body = `<div><span class="big">${ex.n}</span> <span class="pill">${ex.sets}세트 · ${ex.lo}~${ex.hi}회 · RIR ${ex.rir}</span></div>
         <div>👉 <b>${r.big}</b></div>
         <div class="why">${r.why}</div>
         ${ex.note?`<div class="why">📌 ${ex.note}</div>`:""}
-        ${ex.knee?`<div class="why">🦵 무릎 앞쪽 부담 주의 — 가볍게·부분 범위, 아프면 생략</div>`:""}
-      </div>`;
+        ${ex.knee?`<div class="why">🦵 무릎 앞쪽 부담 주의 — 가볍게·부분 범위, 아프면 생략</div>`:""}`;
+      return `<div class="rec ${r.cls}">${img?
+        `<div class="recrow"><img class="recthumb" src="../img/ex/${img}" alt="${ex.n}" loading="lazy"><div class="recbody">${body}</div></div>`
+        : body}</div>`;
     }).join("");
     return `<details ${["upperM","lowerB"].includes(key)?"open":""} style="margin:10px 0">
       <summary style="font-size:.95rem;font-weight:700;color:var(--ink)">${S.emoji} ${S.name} <span class="pill">${S.sub}</span></summary>
