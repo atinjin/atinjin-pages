@@ -85,6 +85,11 @@ td .exn{font-weight:600}
 .exadd .exinputs{display:flex;gap:6px}
 .exadd .exfield{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
 .exadd .exfield label{font-size:.68rem;color:var(--muted)}
+.exadd .exn .mg{font-size:.63rem;background:var(--card2);border:1px solid var(--accent2);border-radius:4px;padding:1px 5px;color:var(--accent2);font-weight:700;margin-left:5px;vertical-align:middle;white-space:nowrap}
+.mvbar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px}
+.mvchip{font-size:.72rem;background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:3px 10px;color:var(--muted)}
+.mvchip.warn{background:rgba(255,152,0,.12);border-color:var(--warn);color:var(--warn);font-weight:700}
+.pill.mgpill{background:transparent;border-color:var(--accent2);color:var(--accent2)}
 
 .rec{border-left:3px solid var(--line);padding:9px 11px;margin:8px 0;background:var(--card2);
   border-radius:0 9px 9px 0;font-size:.86rem}
@@ -272,48 +277,48 @@ const LS_KEY = "muscle_log_v1";
 // 세션 종목 정의 (계획 program.html 기준)
 const SESSIONS = {
   upperA: { name:"상체 A", emoji:"💪", sub:"힘 위주 · 화", ex:[
-    {n:"벤치프레스", sets:4, lo:5, hi:8, inc:2.5, kind:"바벨", start:"40~45kg", rir:"2~3"},
-    {n:"딥스", sets:3, lo:8, hi:12, inc:2, kind:"체중(+벨트)", start:"체중, 익숙해지면 벨트로 추가", rir:"2"},
-    {n:"버티컬 트랙션", sets:4, lo:8, hi:10, inc:5, kind:"머신", start:"40kg", rir:"1~2"},
-    {n:"숄더 프레스", sets:3, lo:6, hi:10, inc:5, kind:"머신", start:"가벼운 핀", rir:"2"},
-    {n:"원암 덤벨 로우", sets:3, lo:10, hi:12, inc:2, kind:"덤벨(한쪽)", start:"12~16kg", rir:"1~2"},
-    {n:"바벨컬", sets:3, lo:10, hi:15, inc:2.5, kind:"바벨", start:"가벼운 무게", rir:"1"},
-    {n:"암 익스텐션", sets:3, lo:10, hi:15, inc:5, kind:"머신", start:"가벼운 핀", rir:"1"},
-    {n:"덤벨 레터럴 레이즈", sets:3, lo:12, hi:20, inc:2, kind:"덤벨(한쪽)", start:"5~8kg", rir:"1"},
+    {n:"벤치프레스", sets:4, m:"chest", lo:5, hi:8, inc:2.5, kind:"바벨", start:"40~45kg", rir:"2~3"},
+    {n:"딥스", sets:3, m:"chest", lo:8, hi:12, inc:2, kind:"체중(+벨트)", start:"체중, 익숙해지면 벨트로 추가", rir:"2"},
+    {n:"버티컬 트랙션", sets:4, m:"back", lo:8, hi:10, inc:5, kind:"머신", start:"40kg", rir:"1~2"},
+    {n:"숄더 프레스", sets:3, m:"shoulder", lo:6, hi:10, inc:5, kind:"머신", start:"가벼운 핀", rir:"2"},
+    {n:"원암 덤벨 로우", sets:3, m:"back", lo:10, hi:12, inc:2, kind:"덤벨(한쪽)", start:"12~16kg", rir:"1~2"},
+    {n:"바벨컬", sets:3, m:"biceps", lo:10, hi:15, inc:2.5, kind:"바벨", start:"가벼운 무게", rir:"1"},
+    {n:"암 익스텐션", sets:3, m:"triceps", lo:10, hi:15, inc:5, kind:"머신", start:"가벼운 핀", rir:"1"},
+    {n:"덤벨 레터럴 레이즈", sets:3, m:"sideDelt", lo:12, hi:20, inc:2, kind:"덤벨(한쪽)", start:"5~8kg", rir:"1"},
   ]},
   lowerA: { name:"하체 A", emoji:"🦵", sub:"무릎 친화 · 수 아침", ex:[
-    {n:"레그 프레스 (발 높게)", sets:4, lo:10, hi:15, inc:5, kind:"머신", start:"빈무게~20kg", rir:"2", alias:["레그 프레스"]},
-    {n:"덤벨 RDL", sets:4, lo:8, hi:12, inc:2, kind:"덤벨(한쪽)", start:"10~12kg (또는 케틀벨 16kg)", rir:"2"},
-    {n:"글루트", sets:3, lo:10, hi:12, inc:5, kind:"머신", start:"가장 가벼운 핀", rir:"2"},
-    {n:"레그 익스텐션", sets:3, lo:12, hi:20, inc:5, kind:"머신", start:"가장 가벼운 핀", rir:"2", knee:true},
-    {n:"카프 레이즈", sets:4, lo:12, hi:20, inc:2, kind:"덤벨", start:"가벼운", rir:"1"},
-    {n:"복근 크런치", sets:3, lo:12, hi:15, inc:5, kind:"머신", start:"가벼운", rir:"1~2"},
+    {n:"레그 프레스 (발 높게)", sets:4, m:"quad", lo:10, hi:15, inc:5, kind:"머신", start:"빈무게~20kg", rir:"2", alias:["레그 프레스"]},
+    {n:"덤벨 RDL", sets:4, m:"hamstring", lo:8, hi:12, inc:2, kind:"덤벨(한쪽)", start:"10~12kg (또는 케틀벨 16kg)", rir:"2"},
+    {n:"글루트", sets:3, m:"glute", lo:10, hi:12, inc:5, kind:"머신", start:"가장 가벼운 핀", rir:"2"},
+    {n:"데드리프트", sets:4, m:"hamstring", lo:6, hi:10, inc:5, kind:"바벨", start:"빈 바(20kg)", rir:"2~3", note:"레그 익스텐션 대체 — 무릎보다 고관절이 주도하는 힌지 동작"},
+    {n:"카프 레이즈", sets:4, m:"calf", lo:12, hi:20, inc:2, kind:"덤벨", start:"가벼운", rir:"1"},
+    {n:"복근 크런치", sets:3, m:"abs", lo:12, hi:15, inc:5, kind:"머신", start:"가벼운", rir:"1~2"},
   ]},
   upperB: { name:"상체 B", emoji:"💪", sub:"근비대 · 금", ex:[
-    {n:"인클라인 덤벨 프레스", sets:4, lo:10, hi:12, inc:2, kind:"덤벨(한쪽)", start:"10~12kg", rir:"2"},
-    {n:"어시스트 풀업 (닐링 친 딥)", sets:4, lo:6, hi:10, inc:5, kind:"보조", start:"보조 많이", rir:"2", assist:true},
-    {n:"펙토랄 플라이", sets:3, lo:12, hi:15, inc:5, kind:"머신", start:"가벼운 핀", rir:"1~2"},
-    {n:"랫풀다운 (좁은 그립)", sets:3, lo:10, hi:15, inc:5, kind:"머신", start:"35~40kg", rir:"2", alias:["랫풀다운"]},
-    {n:"인클라인 덤벨 컬", sets:3, lo:10, hi:15, inc:2, kind:"덤벨(한쪽)", start:"가벼운", rir:"1"},
-    {n:"리어 델트 (크로스오버)", sets:3, lo:15, hi:20, inc:2.5, kind:"케이블", start:"가벼운", rir:"1"},
+    {n:"인클라인 덤벨 프레스", sets:4, m:"chest", lo:10, hi:12, inc:2, kind:"덤벨(한쪽)", start:"10~12kg", rir:"2"},
+    {n:"어시스트 풀업 (닐링 친 딥)", sets:4, m:"back", lo:6, hi:10, inc:5, kind:"보조", start:"보조 많이", rir:"2", assist:true},
+    {n:"펙토랄 플라이", sets:3, m:"chest", lo:12, hi:15, inc:5, kind:"머신", start:"가벼운 핀", rir:"1~2"},
+    {n:"랫풀다운 (좁은 그립)", sets:3, m:"back", lo:10, hi:15, inc:5, kind:"머신", start:"35~40kg", rir:"2", alias:["랫풀다운"]},
+    {n:"인클라인 덤벨 컬", sets:3, m:"biceps", lo:10, hi:15, inc:2, kind:"덤벨(한쪽)", start:"가벼운", rir:"1"},
+    {n:"리어 델트 (크로스오버)", sets:3, m:"rearDelt", lo:15, hi:20, inc:2.5, kind:"케이블", start:"가벼운", rir:"1"},
   ]},
   lowerB: { name:"하체 B", emoji:"🦵", sub:"둔근·햄 · 토", ex:[
-    {n:"글루트", sets:4, lo:10, hi:12, inc:5, kind:"머신", start:"가장 가벼운 핀", rir:"2"},
-    {n:"케틀벨 스윙", sets:3, lo:12, hi:15, inc:4, kind:"케틀벨", start:"12~16kg", rir:"2",
+    {n:"글루트", sets:4, m:"glute", lo:10, hi:12, inc:5, kind:"머신", start:"가장 가벼운 핀", rir:"2"},
+    {n:"케틀벨 스윙", sets:3, m:"hamstring", lo:12, hi:15, inc:4, kind:"케틀벨", start:"12~16kg", rir:"2",
       alias:["케틀벨 데드리프트"], note:"1~2주차는 케틀벨 데드리프트로 힙 힌지 학습 → 폼이 익으면 3주차부터 스윙 전환."},
-    {n:"레그 컬", sets:4, lo:10, hi:15, inc:5, kind:"머신", start:"가장 가벼운 핀", rir:"1~2"},
-    {n:"레그 프레스", sets:3, lo:12, hi:15, inc:5, kind:"머신", start:"빈무게~20kg", rir:"2", alias:["레그 프레스 (발 높게)"]},
-    {n:"어브덕터", sets:3, lo:15, hi:20, inc:5, kind:"머신", start:"가볍게", rir:"1"},
-    {n:"로우백 머신", sets:3, lo:12, hi:15, inc:5, kind:"머신", start:"가벼운 핀", rir:"2", alias:["로워백"]},
+    {n:"레그 컬", sets:4, m:"hamstring", lo:10, hi:15, inc:5, kind:"머신", start:"가장 가벼운 핀", rir:"1~2"},
+    {n:"레그 프레스", sets:3, m:"quad", lo:12, hi:15, inc:5, kind:"머신", start:"빈무게~20kg", rir:"2", alias:["레그 프레스 (발 높게)"]},
+    {n:"어브덕터", sets:3, m:"hipAbductor", lo:15, hi:20, inc:5, kind:"머신", start:"가볍게", rir:"1"},
+    {n:"로우백 머신", sets:3, m:"lowerBack", lo:12, hi:15, inc:5, kind:"머신", start:"가벼운 핀", rir:"2", alias:["로워백"]},
   ]},
   upperM: { name:"상체 (머신 위주)", emoji:"🎛️", sub:"기구 중심", ex:[
-    {n:"체스트 프레스", sets:3, lo:10, hi:12, inc:5, kind:"머신", start:"가벼운 핀", rir:"2~3"},
-    {n:"랫풀다운", sets:3, lo:10, hi:15, inc:5, kind:"머신", start:"35~40kg", rir:"2", alias:["랫풀다운 (좁은 그립)"]},
-    {n:"버티컬 트랙션", sets:3, lo:8, hi:12, inc:5, kind:"머신", start:"40kg", rir:"2"},
-    {n:"숄더 프레스", sets:3, lo:8, hi:12, inc:5, kind:"머신", start:"가벼운 핀", rir:"2"},
-    {n:"로우", sets:3, lo:10, hi:12, inc:5, kind:"머신", start:"가벼운 핀", rir:"2"},
-    {n:"암 익스텐션", sets:3, lo:10, hi:15, inc:5, kind:"머신", start:"가벼운 핀", rir:"1~2"},
-    {n:"암 컬", sets:3, lo:10, hi:15, inc:5, kind:"머신", start:"가벼운 핀", rir:"1~2"},
+    {n:"체스트 프레스", sets:3, m:"chest", lo:10, hi:12, inc:5, kind:"머신", start:"가벼운 핀", rir:"2~3"},
+    {n:"랫풀다운", sets:3, m:"back", lo:10, hi:15, inc:5, kind:"머신", start:"35~40kg", rir:"2", alias:["랫풀다운 (좁은 그립)"]},
+    {n:"버티컬 트랙션", sets:3, m:"back", lo:8, hi:12, inc:5, kind:"머신", start:"40kg", rir:"2"},
+    {n:"숄더 프레스", sets:3, m:"shoulder", lo:8, hi:12, inc:5, kind:"머신", start:"가벼운 핀", rir:"2"},
+    {n:"로우", sets:3, m:"back", lo:10, hi:12, inc:5, kind:"머신", start:"가벼운 핀", rir:"2"},
+    {n:"암 익스텐션", sets:3, m:"triceps", lo:10, hi:15, inc:5, kind:"머신", start:"가벼운 핀", rir:"1~2"},
+    {n:"암 컬", sets:3, m:"biceps", lo:10, hi:15, inc:5, kind:"머신", start:"가벼운 핀", rir:"1~2"},
   ]},
   running:{ name:"러닝 (유산소)", emoji:"🏃", sub:"목 · 야외 5km", ex:[], cardio:true },
   swim:   { name:"수영 (유산소)", emoji:"🏊", sub:"일 · 자유형 1km", ex:[], cardio:true },
@@ -560,7 +565,7 @@ const EX_IMG_BY_NAME = {
   "레그 프레스 (발 높게)":"leg-press-high-foot.jpg",
   "덤벨 RDL":"dumbbell-romanian-deadlift.jpg",
   "글루트":"glute-machine.jpg",
-  "레그 익스텐션":"leg-extension.jpg",
+  "데드리프트":"deadlift.jpg",
   "카프 레이즈":"standing-calf-raise.jpg",
   "복근 크런치":"abdominal-crunch.jpg",
   "인클라인 덤벨 프레스":"incline-dumbbell-press.jpg",
@@ -580,6 +585,27 @@ const EX_IMG_BY_NAME = {
   "암 컬":"arm-extension-triceps.jpg",
 };
 
+// ── 근육별 태그 · 세션당 볼륨 집계(15세트+ 경고) ──
+const MUSCLE_LABELS = {
+  chest:"가슴", back:"등", shoulder:"어깨", sideDelt:"어깨(측면)", rearDelt:"어깨(후면)",
+  biceps:"이두", triceps:"삼두", quad:"대퇴사두", hamstring:"햄스트링", glute:"둔근",
+  hipAbductor:"고관절(외전)", calf:"종아리", abs:"복근", lowerBack:"하부요추",
+};
+function muscleVolume(ex){
+  const vol = {};
+  ex.forEach(e=>{ if(!e.m) return; vol[e.m] = (vol[e.m]||0) + (e.sets||0); });
+  return vol;
+}
+function muscleVolumeHtml(ex){
+  const vol = muscleVolume(ex);
+  const keys = Object.keys(vol);
+  if (!keys.length) return "";
+  return `<div class="mvbar">${keys.map(k=>{
+    const over = vol[k] >= 15;
+    return `<span class="mvchip${over?" warn":""}">${over?"⚠️ ":""}${MUSCLE_LABELS[k]} ${vol[k]}세트</span>`;
+  }).join("")}</div>`;
+}
+
 // ── 다음 추천 렌더 ──
 function renderRec(){
   const box = document.getElementById("recBody");
@@ -589,7 +615,7 @@ function renderRec(){
     const rows = S.ex.map(ex=>{
       const r = recommend(ex);
       const img = EX_IMG_BY_NAME[ex.n];
-      const body = `<div><span class="big">${ex.n}</span> <span class="pill">${ex.sets}세트 · ${ex.lo}~${ex.hi}회 · RIR ${ex.rir}</span></div>
+      const body = `<div><span class="big">${ex.n}</span>${ex.m?`<span class="pill mgpill">${MUSCLE_LABELS[ex.m]}</span>`:""} <span class="pill">${ex.sets}세트 · ${ex.lo}~${ex.hi}회 · RIR ${ex.rir}</span></div>
         <div>👉 <b>${r.big}</b></div>
         <div class="why">${r.why}</div>
         ${ex.note?`<div class="why">📌 ${ex.note}</div>`:""}
@@ -600,6 +626,7 @@ function renderRec(){
     }).join("");
     return `<details ${["upperM","lowerB"].includes(key)?"open":""} style="margin:10px 0">
       <summary style="font-size:.95rem;font-weight:700;color:var(--ink)">${S.emoji} ${S.name} <span class="pill">${S.sub}</span></summary>
+      ${muscleVolumeHtml(S.ex)}
       ${rows}
     </details>`;
   }).join("");
@@ -618,7 +645,7 @@ function buildExTable(){
     box.innerHTML = `<div class="note">유산소·자유 세션은 종목 표 없이 웜업/메모에 기록하세요. (예: 5km 28분, 심박 등)</div>`;
     return;
   }
-  box.innerHTML = S.ex.map((ex,i)=>{
+  box.innerHTML = muscleVolumeHtml(S.ex) + S.ex.map((ex,i)=>{
     const r = recommend(ex);
     const img = EX_IMG_BY_NAME[ex.n];
     const lastLine = r.last? `📚 지난 기록(${r.last.date}) ${setSummary(r.last.sets)}` : "📚 지난 기록 없음";
@@ -627,7 +654,7 @@ function buildExTable(){
       <div class="exhead">
         ${img?`<img class="exthumb" src="../img/ex/${img}" alt="${ex.n}" loading="lazy">`:""}
         <div class="exbody">
-          <div class="exn">${ex.n} <span class="muted" style="font-size:.72rem">${ex.lo}~${ex.hi}회 · RIR ${ex.rir}</span></div>
+          <div class="exn">${ex.n}${ex.m?`<span class="mg">${MUSCLE_LABELS[ex.m]}</span>`:""} <span class="muted" style="font-size:.72rem">${ex.lo}~${ex.hi}회 · RIR ${ex.rir}</span></div>
           <div class="exline">${lastLine}</div>
           <div class="exrec">👉 이번 추천: <b>${r.big}</b></div>
         </div>
