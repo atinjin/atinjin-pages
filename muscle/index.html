@@ -118,6 +118,10 @@ ul.c li:last-child{margin-bottom:0}
 .ex .mt.k{color:var(--accent2)}
 .ex .rir{display:inline-block;font-size:.68rem;background:var(--chip);
   border:1px solid var(--line);border-radius:5px;padding:1px 6px;margin-left:6px;color:var(--muted)}
+.exrow{display:flex;gap:10px;align-items:flex-start;margin-top:2px}
+.exthumb{width:74px;height:74px;object-fit:cover;border-radius:9px;border:1px solid var(--line);
+  flex:none;background:var(--chip)}
+.exbody{flex:1;min-width:0}
 
 /* ── food table ── */
 .ft{width:100%;border-collapse:collapse;font-size:.83rem}
@@ -899,11 +903,36 @@ ORDER.forEach(function(k){
   dayWrap.appendChild(b);
 });
 
+var EX_IMG={
+  'barbell bench press form':'bench-press.jpg',
+  'technogym vertical traction machine':'vertical-traction.jpg',
+  'technogym shoulder press machine':'shoulder-press.jpg',
+  'one arm dumbbell row form':'one-arm-dumbbell-row.jpg',
+  'technogym arm extension triceps machine':'arm-extension-triceps.jpg',
+  'dumbbell lateral raise form':'dumbbell-lateral-raise.jpg',
+  'leg press high foot placement':'leg-press-high-foot.jpg',
+  'dumbbell romanian deadlift form':'dumbbell-romanian-deadlift.jpg',
+  'technogym glute machine hip extension':'glute-machine.jpg',
+  'leg extension machine':'leg-extension.jpg',
+  'dumbbell standing calf raise':'standing-calf-raise.jpg',
+  'technogym abdominal crunch machine':'abdominal-crunch.jpg',
+  'running form knee friendly':'running-form.jpg',
+  'incline dumbbell press form':'incline-dumbbell-press.jpg',
+  'assisted pull up machine kneeling':'assisted-pull-up.jpg',
+  'pec deck chest fly machine':'pec-deck-fly.jpg',
+  'close grip lat pulldown':'close-grip-lat-pulldown.jpg',
+  'incline dumbbell curl form':'incline-dumbbell-curl.jpg',
+  'cable rear delt fly':'cable-rear-delt-fly.jpg',
+  'kettlebell swing form hip hinge':'kettlebell-swing.jpg',
+  'leg curl machine':'leg-curl.jpg',
+  'leg press machine':'leg-press.jpg',
+  'hip abduction machine':'hip-abduction.jpg',
+  'technogym lower back extension machine':'lower-back-extension.jpg'
+};
 function lk(e){
   var kq=e.n.split('(')[0].split('/')[0].trim()+' 운동 자세';
   return '<div class="lk">'+
-    '<a class="y" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query='+encodeURIComponent(kq)+'">📺 영상</a>'+
-    '<a target="_blank" rel="noopener" href="https://www.google.com/search?tbm=isch&q='+encodeURIComponent(e.g)+'">🖼️ 그림</a></div>';
+    '<a class="y" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query='+encodeURIComponent(kq)+'">📺 영상</a></div>';
 }
 function show(k){
   var d=PLAN[k];
@@ -916,10 +945,14 @@ function show(k){
   if(d.ex.length){
     h+='<div style="margin-top:12px">';
     d.ex.forEach(function(e){
-      h+='<div class="ex"><div class="top"><span class="nm">'+e.n+(e.e?'<span class="enx">'+e.e+'</span>':'')+'</span>'+
+      var img=e.g&&EX_IMG[e.g];
+      var body='<div class="top"><span class="nm">'+e.n+(e.e?'<span class="enx">'+e.e+'</span>':'')+'</span>'+
          '<span class="sr">'+e.s+(e.r?'<span class="rir">'+e.r+'</span>':'')+'</span></div>'+
          (e.m?'<div class="mt'+(e.k?' k':'')+'">'+(e.k?'🦵 ':'')+e.m+'</div>':'')+
-         (e.g?lk(e):'')+'</div>';
+         (e.g?lk(e):'');
+      h+='<div class="ex">'+(img?
+        '<div class="exrow"><img class="exthumb" src="img/ex/'+img+'" alt="'+e.n+'" loading="lazy">'+
+        '<div class="exbody">'+body+'</div></div>' : body)+'</div>';
     });
     h+='</div>';
   }
