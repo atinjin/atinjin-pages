@@ -75,6 +75,16 @@ th{color:var(--muted);font-weight:600;font-size:.76rem}
 td .exn{font-weight:600}
 .exrow input{padding:7px 6px;font-size:.85rem;text-align:center}
 .exrow .exn{font-size:.82rem}
+.exadd{background:var(--card2);border:1px solid var(--line);border-radius:11px;padding:11px 12px;margin-bottom:8px}
+.exadd .exhead{display:flex;gap:10px;align-items:flex-start;margin-bottom:9px}
+.exadd .exthumb{width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid var(--line);flex:none;background:var(--chip)}
+.exadd .exbody{flex:1;min-width:0}
+.exadd .exn{font-weight:600;font-size:.88rem}
+.exadd .exline{font-size:.76rem;color:var(--muted);margin-top:3px}
+.exadd .exrec{font-size:.79rem;margin-top:3px;color:var(--accent2)}
+.exadd .exinputs{display:flex;gap:6px}
+.exadd .exfield{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
+.exadd .exfield label{font-size:.68rem;color:var(--muted)}
 
 .rec{border-left:3px solid var(--line);padding:9px 11px;margin:8px 0;background:var(--card2);
   border-radius:0 9px 9px 0;font-size:.86rem}
@@ -594,18 +604,27 @@ function buildExTable(){
     box.innerHTML = `<div class="note">유산소·자유 세션은 종목 표 없이 웜업/메모에 기록하세요. (예: 5km 28분, 심박 등)</div>`;
     return;
   }
-  box.innerHTML = `<table><thead><tr><th style="width:38%">종목</th><th>무게(kg)</th><th>반복</th><th>세트</th></tr></thead>
-    <tbody>${S.ex.map((ex,i)=>{
-      const last = latestFor(ex);
-      const ph = last? `지난 ${fmtW(Math.max(...last.sets.map(s=>s.w)))}` : "";
-      return `<tr class="exrow" data-i="${i}">
-        <td class="exn">${ex.n}<div class="muted" style="font-size:.72rem">${ex.lo}~${ex.hi}회</div></td>
-        <td><input type="number" step="0.5" inputmode="decimal" data-f="w" placeholder="${ph}"></td>
-        <td><input type="number" inputmode="numeric" data-f="reps" placeholder="${ex.hi}"></td>
-        <td><input type="number" inputmode="numeric" data-f="sets" value="${ex.sets}"></td>
-      </tr>`;
-    }).join("")}</tbody></table>
-    <div class="note">여기서는 전 세트 같은 무게 기준으로 빠르게 기록합니다. 세트마다 무게가 달랐다면(하강) 메모에 적거나 채팅으로 알려주세요. 비워둔 종목은 저장에서 제외됩니다.</div>`;
+  box.innerHTML = S.ex.map((ex,i)=>{
+    const r = recommend(ex);
+    const img = EX_IMG_BY_NAME[ex.n];
+    const lastLine = r.last? `📚 지난 기록(${r.last.date}) ${setSummary(r.last.sets)}` : "📚 지난 기록 없음";
+    const ph = r.last? fmtW(Math.max(...r.last.sets.map(s=>s.w))) : "";
+    return `<div class="exadd exrow" data-i="${i}">
+      <div class="exhead">
+        ${img?`<img class="exthumb" src="../img/ex/${img}" alt="${ex.n}" loading="lazy">`:""}
+        <div class="exbody">
+          <div class="exn">${ex.n} <span class="muted" style="font-size:.72rem">${ex.lo}~${ex.hi}회 · RIR ${ex.rir}</span></div>
+          <div class="exline">${lastLine}</div>
+          <div class="exrec">👉 이번 추천: <b>${r.big}</b></div>
+        </div>
+      </div>
+      <div class="exinputs">
+        <div class="exfield"><label>무게(kg)</label><input type="number" step="0.5" inputmode="decimal" data-f="w" placeholder="${ph}"></div>
+        <div class="exfield"><label>반복</label><input type="number" inputmode="numeric" data-f="reps" placeholder="${ex.hi}"></div>
+        <div class="exfield"><label>세트</label><input type="number" inputmode="numeric" data-f="sets" value="${ex.sets}"></div>
+      </div>
+    </div>`;
+  }).join("") + `<div class="note">여기서는 전 세트 같은 무게 기준으로 빠르게 기록합니다. 세트마다 무게가 달랐다면(하강) 메모에 적거나 채팅으로 알려주세요. 비워둔 종목은 저장에서 제외됩니다.</div>`;
 }
 function todayStr(){ const d=new Date(); const off=d.getTimezoneOffset(); const l=new Date(d.getTime()-off*60000); return l.toISOString().slice(0,10); }
 function onDateChange(){
