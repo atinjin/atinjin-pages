@@ -113,6 +113,10 @@ ul.c li:last-child{margin-bottom:0}
 .ex .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
 .ex .nm{font-weight:600;font-size:.93rem;flex:1}
 .ex .enx{font-size:.63rem;background:var(--chip);border:1px solid var(--line);border-radius:4px;padding:1px 5px;color:var(--accent);font-weight:700;margin-left:5px;vertical-align:middle;white-space:nowrap}
+.ex .mg{font-size:.63rem;background:var(--card2);border:1px solid var(--accent2);border-radius:4px;padding:1px 5px;color:var(--accent2);font-weight:700;margin-left:5px;vertical-align:middle;white-space:nowrap}
+.mvbar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.mvchip{font-size:.72rem;background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:3px 10px;color:var(--muted)}
+.mvchip.warn{background:rgba(255,152,0,.12);border-color:var(--warn);color:var(--warn);font-weight:700}
 .ex .sr{font-size:.82rem;color:var(--accent);font-weight:700;white-space:nowrap}
 .ex .mt{font-size:.78rem;color:var(--muted);margin-top:4px;line-height:1.45}
 .ex .mt.k{color:var(--accent2)}
@@ -613,7 +617,7 @@ ul.c li:last-child{margin-bottom:0}
       </tbody>
     </table>
     <div class="co k">
-      <b>왜 이렇게 하나</b> — 큰 근육(복합관절 운동)은 한 번에 더 많은 근섬유·호르몬 반응·칼로리 소모를 이끌어내 <b>전체 근육량 증가에 기여도가 가장 큽니다</b>. 초반엔 이 큰 종목들의 무게·반복을 착실히 늘리는 데 회복 자원을 집중하고, 소근육 고립 운동은 유지 수준(2세트)으로만 가져가는 게 벌크업 효율이 높습니다. 레그 익스텐션·어브덕터·로우백 머신은 무릎 안전·고관절 안정 목적이라 예외로 그대로 유지합니다.
+      <b>왜 이렇게 하나</b> — 큰 근육(복합관절 운동)은 한 번에 더 많은 근섬유·호르몬 반응·칼로리 소모를 이끌어내 <b>전체 근육량 증가에 기여도가 가장 큽니다</b>. 초반엔 이 큰 종목들의 무게·반복을 착실히 늘리는 데 회복 자원을 집중하고, 소근육 고립 운동은 유지 수준(2세트)으로만 가져가는 게 벌크업 효율이 높습니다. 어브덕터·로우백 머신은 무릎 안전·고관절 안정 목적이라 예외로 그대로 유지합니다.
     </div>
   </div>
 
@@ -837,24 +841,24 @@ var PLAN={
  2:{n:'화',i:'💪',title:'상체 A — 힘 위주',tag:'저녁 🌙',tagc:'',
     intro:'가슴·등·어깨를 낮은 반복(무거운 쪽)으로. <b>Rowing 머신 5분</b>으로 몸을 데운 뒤 부위별 가벼운 세트 1~2개 후 시작합니다.',
     ex:[
-     {n:'벤치프레스',g:'barbell bench press form',e:'BENCH PRESS',s:'4 × 5~8',r:'RIR 2~3',m:'40~45kg 시작. 어깨가 불편하면 Chest press 머신으로 대체'},
-     {n:'딥스',g:'dips exercise chest triceps',e:'DIPS',s:'3 × 8~12',r:'RIR 2',m:'가슴 하부·삼두 자극. 체중으로 시작, 익숙해지면 중량 벨트로 추가. 어깨 불편하면 어시스트 딥 머신으로 대체'},
-     {n:'버티컬 트랙션',g:'technogym vertical traction machine',e:'VERTICAL TRACTION',s:'4 × 8~10',r:'RIR 2',m:'랫풀다운 계열 머신. 등 폭 — 견갑을 아래로 내리며 당기기'},
-     {n:'숄더 프레스',g:'technogym shoulder press machine',e:'SHOULDER PRESS',s:'3 × 6~10',r:'RIR 2',m:'앉아서 위로 미는 머신'},
-     {n:'원암 덤벨 로우',g:'one arm dumbbell row form',e:'덤벨',s:'3 × 10~12/팔',r:'RIR 2',m:'벤치에 한 손 짚고 한쪽씩. <b>같은 무게로 부하가 2배</b>가 되고 좌우 균형도 잡힙니다'},
-     {n:'바벨컬',g:'barbell curl form',e:'BARBELL CURL',s:'3 × 10~15',r:'RIR 1',m:'이두 — 금요일 인클라인 덤벨 컬과 합쳐 주 2회 자극. <b>1~2개월차엔 2세트로 축소</b>'},
-     {n:'암 익스텐션',g:'technogym arm extension triceps machine',e:'ARM EXTENSION',s:'3 × 10~15',r:'RIR 1~2',m:'삼두 머신. <b>1~2개월차엔 2세트로 축소</b> — 벤치·트랙션에 힘 우선 투자'},
-     {n:'덤벨 레터럴 레이즈',g:'dumbbell lateral raise form',e:'덤벨',s:'3 × 12~20',r:'RIR 1',m:'5~8kg으로 충분. 반동 없이 어깨 높이까지만. <b>1~2개월차엔 2세트로 축소</b>'}],
+     {n:'벤치프레스',g:'barbell bench press form',e:'BENCH PRESS',mg:'chest',s:'4 × 5~8',r:'RIR 2~3',m:'40~45kg 시작. 어깨가 불편하면 Chest press 머신으로 대체'},
+     {n:'딥스',g:'dips exercise chest triceps',e:'DIPS',mg:'chest',s:'3 × 8~12',r:'RIR 2',m:'가슴 하부·삼두 자극. 체중으로 시작, 익숙해지면 중량 벨트로 추가. 어깨 불편하면 어시스트 딥 머신으로 대체'},
+     {n:'버티컬 트랙션',g:'technogym vertical traction machine',e:'VERTICAL TRACTION',mg:'back',s:'4 × 8~10',r:'RIR 2',m:'랫풀다운 계열 머신. 등 폭 — 견갑을 아래로 내리며 당기기'},
+     {n:'숄더 프레스',g:'technogym shoulder press machine',e:'SHOULDER PRESS',mg:'shoulder',s:'3 × 6~10',r:'RIR 2',m:'앉아서 위로 미는 머신'},
+     {n:'원암 덤벨 로우',g:'one arm dumbbell row form',e:'덤벨',mg:'back',s:'3 × 10~12/팔',r:'RIR 2',m:'벤치에 한 손 짚고 한쪽씩. <b>같은 무게로 부하가 2배</b>가 되고 좌우 균형도 잡힙니다'},
+     {n:'바벨컬',g:'barbell curl form',e:'BARBELL CURL',mg:'biceps',s:'3 × 10~15',r:'RIR 1',m:'이두 — 금요일 인클라인 덤벨 컬과 합쳐 주 2회 자극. <b>1~2개월차엔 2세트로 축소</b>'},
+     {n:'암 익스텐션',g:'technogym arm extension triceps machine',e:'ARM EXTENSION',mg:'triceps',s:'3 × 10~15',r:'RIR 1~2',m:'삼두 머신. <b>1~2개월차엔 2세트로 축소</b> — 벤치·트랙션에 힘 우선 투자'},
+     {n:'덤벨 레터럴 레이즈',g:'dumbbell lateral raise form',e:'덤벨',mg:'sideDelt',s:'3 × 12~20',r:'RIR 1',m:'5~8kg으로 충분. 반동 없이 어깨 높이까지만. <b>1~2개월차엔 2세트로 축소</b>'}],
     note:'상체 날은 무릎 부담이 거의 없습니다. 벤치프레스만 프리웨이트이니 <b>안전바 위치를 먼저 확인</b>하시고, 불안하면 Chest press 머신으로 바꾸셔도 효과는 비슷합니다.'},
  3:{n:'수',i:'🦵',title:'하체 A — 무릎 친화',tag:'아침 ☀️ 필수',tagc:'g',
     intro:'수요일 저녁이 안 되니 <b>아침 고정</b>입니다. 아침은 관절이 굳어 있어 <b class="green">웜업 10~15분이 가장 중요</b>합니다. <b>Rowing 머신 8~10분</b>(무릎 충격 없음) + 가벼운 Abductor 2세트로 둔근을 깨운 뒤 시작하세요.',
     ex:[
-     {n:'레그 프레스',g:'leg press high foot placement',e:'LEG PRESS',s:'4 × 10~15',r:'RIR 2',m:'발을 발판 <b>위쪽</b>에 → 무릎 전단력↓. 통증 없는 깊이까지만',k:true},
-     {n:'덤벨 루마니안 데드리프트',g:'dumbbell romanian deadlift form',e:'덤벨/케틀벨',s:'4 × 8~12',r:'RIR 2',m:'한쪽 10~12kg 또는 케틀벨 16kg. <b>무릎은 살짝만 굽히고 엉덩이를 뒤로</b> — 무릎 부담 없이 햄스트링·둔근을 키우는 핵심 종목',k:true},
-     {n:'글루트',g:'technogym glute machine hip extension',e:'GLUTE',s:'3 × 10~12',r:'RIR 2',m:'둔근 주력. 무릎 굽힘 부하가 거의 없어 안전',k:true},
-     {n:'레그 익스텐션',g:'leg extension machine',e:'LEG EXTENSION',s:'3 × 12~20',r:'RIR 1~2',m:'가볍게, 부분 범위로. 아프면 그날은 빼도 됩니다',k:true},
-     {n:'카프 레이즈',g:'dumbbell standing calf raise',e:'덤벨/LEG PRESS',s:'4 × 12~20',r:'RIR 1',m:'덤벨 들고 까치발, 또는 레그프레스 발끝만 걸치고. <b>1~2개월차엔 2세트로 축소</b> — 레그프레스·RDL·글루트에 힘 우선 투자'},
-     {n:'복근',g:'technogym abdominal crunch machine',e:'ABDOMINAL CRUNCH',s:'3 × 12~15',r:'',m:'복근 머신. 없으면 윗몸일으키기 지지대'}],
+     {n:'레그 프레스',g:'leg press high foot placement',e:'LEG PRESS',mg:'quad',s:'4 × 10~15',r:'RIR 2',m:'발을 발판 <b>위쪽</b>에 → 무릎 전단력↓. 통증 없는 깊이까지만',k:true},
+     {n:'덤벨 루마니안 데드리프트',g:'dumbbell romanian deadlift form',e:'덤벨/케틀벨',mg:'hamstring',s:'4 × 8~12',r:'RIR 2',m:'한쪽 10~12kg 또는 케틀벨 16kg. <b>무릎은 살짝만 굽히고 엉덩이를 뒤로</b> — 무릎 부담 없이 햄스트링·둔근을 키우는 핵심 종목',k:true},
+     {n:'글루트',g:'technogym glute machine hip extension',e:'GLUTE',mg:'glute',s:'3 × 10~12',r:'RIR 2',m:'둔근 주력. 무릎 굽힘 부하가 거의 없어 안전',k:true},
+     {n:'데드리프트',g:'barbell deadlift form',e:'DEADLIFT',mg:'hamstring',s:'4 × 6~10',r:'RIR 2~3',m:'엉덩이를 뒤로 빼며 바를 정강이 가까이 유지 — <b>무릎보다 고관절이 주도</b>하는 힌지 동작이라 레그 익스텐션보다 무릎 부담이 적습니다. 빈 바(20kg)부터 폼 먼저, 통증 있으면 즉시 중단',k:true},
+     {n:'카프 레이즈',g:'dumbbell standing calf raise',e:'덤벨/LEG PRESS',mg:'calf',s:'4 × 12~20',r:'RIR 1',m:'덤벨 들고 까치발, 또는 레그프레스 발끝만 걸치고. <b>1~2개월차엔 2세트로 축소</b> — 레그프레스·RDL·글루트에 힘 우선 투자'},
+     {n:'복근',g:'technogym abdominal crunch machine',e:'ABDOMINAL CRUNCH',mg:'abs',s:'3 × 12~15',r:'',m:'복근 머신. 없으면 윗몸일으키기 지지대'}],
     note:'아침엔 저녁보다 <b>5~10% 가벼워도 정상</b>입니다. 무리해서 맞추지 마세요. <b>RDL은 첫 2주 자세 익히기에 집중</b>하세요 — 무릎을 굽히는 게 아니라 <b>엉덩이를 뒤로 빼는</b> 동작이고, 허리는 곧게 편 상태를 유지합니다. 무릎이 유독 뻑뻑한 날은 Leg extension을 빼고 <b>RDL·Glute 비중을 늘리셔도</b> 됩니다.'},
  4:{n:'목',i:'🏃',title:'러닝 5km (야외)',tag:'아침/저녁',tagc:'n',
     intro:'하체 A(수)와 하체 B(토) 사이라 다리 회복 흐름을 끊지 않는 자리입니다. 지금 페이스(30분/5km)를 유지하면 충분합니다.',
@@ -866,22 +870,22 @@ var PLAN={
  5:{n:'금',i:'💪',title:'상체 B — 근비대',tag:'저녁 🌙',tagc:'',
     intro:'같은 상체지만 <b>높은 반복</b>으로 자극의 결을 바꿉니다. 펌핑 위주.',
     ex:[
-     {n:'인클라인 덤벨 프레스',g:'incline dumbbell press form',e:'덤벨',s:'4 × 10~12',r:'RIR 2',m:'벤치를 30~45도로. 덤벨은 <b>가동범위가 넓어</b> 가슴 상부에 좋습니다'},
-     {n:'어시스트 풀업',g:'assisted pull up machine kneeling',e:'KNEELING CHIN DIP',s:'4 × 6~10',r:'RIR 2',m:'무릎 패드로 무게를 덜어줌. <b>보조를 줄이는 것 = 최고의 진행 지표</b>'},
-     {n:'펙토랄 (플라이)',g:'pec deck chest fly machine',e:'PECTORAL',s:'3 × 12~15',r:'RIR 1',m:'가슴 수축. 팔을 껴안듯 모으기'},
-     {n:'랫풀다운 (좁은 그립)',g:'close grip lat pulldown',e:'LAT PULLDOWN',s:'3 × 10~15',r:'RIR 1~2',m:'화요일과 그립을 다르게 — 자극 각도 변화'},
-     {n:'인클라인 덤벨 컬',g:'incline dumbbell curl form',e:'덤벨',s:'3 × 10~15',r:'RIR 1',m:'벤치에 기대 팔을 뒤로 늘어뜨리면 이두가 더 늘어납니다. <b>1~2개월차엔 2세트로 축소</b>'},
-     {n:'리어 델트',g:'cable rear delt fly',e:'CROSSOVER CABLES',s:'3 × 15~20',r:'RIR 1',m:'케이블을 위쪽에 두고 팔을 뒤로 벌리기. 굽은 자세 교정에도 도움. <b>1~2개월차엔 2세트로 축소</b>'}],
+     {n:'인클라인 덤벨 프레스',g:'incline dumbbell press form',e:'덤벨',mg:'chest',s:'4 × 10~12',r:'RIR 2',m:'벤치를 30~45도로. 덤벨은 <b>가동범위가 넓어</b> 가슴 상부에 좋습니다'},
+     {n:'어시스트 풀업',g:'assisted pull up machine kneeling',e:'KNEELING CHIN DIP',mg:'back',s:'4 × 6~10',r:'RIR 2',m:'무릎 패드로 무게를 덜어줌. <b>보조를 줄이는 것 = 최고의 진행 지표</b>'},
+     {n:'펙토랄 (플라이)',g:'pec deck chest fly machine',e:'PECTORAL',mg:'chest',s:'3 × 12~15',r:'RIR 1',m:'가슴 수축. 팔을 껴안듯 모으기'},
+     {n:'랫풀다운 (좁은 그립)',g:'close grip lat pulldown',e:'LAT PULLDOWN',mg:'back',s:'3 × 10~15',r:'RIR 1~2',m:'화요일과 그립을 다르게 — 자극 각도 변화'},
+     {n:'인클라인 덤벨 컬',g:'incline dumbbell curl form',e:'덤벨',mg:'biceps',s:'3 × 10~15',r:'RIR 1',m:'벤치에 기대 팔을 뒤로 늘어뜨리면 이두가 더 늘어납니다. <b>1~2개월차엔 2세트로 축소</b>'},
+     {n:'리어 델트',g:'cable rear delt fly',e:'CROSSOVER CABLES',mg:'rearDelt',s:'3 × 15~20',r:'RIR 1',m:'케이블을 위쪽에 두고 팔을 뒤로 벌리기. 굽은 자세 교정에도 도움. <b>1~2개월차엔 2세트로 축소</b>'}],
     note:'<b>Kneeling chin dip</b>은 이 헬스장의 숨은 보석입니다. 풀업은 등 발달에 가장 좋은 운동 중 하나인데 보조가 붙어 있어 지금 실력에도 할 수 있어요. <b>파머스 캐리</b>(무거운 덤벨·케틀벨 들고 20~30m 걷기)를 마무리로 2세트 넣으면 코어와 자세에 좋습니다.'},
  6:{n:'토',i:'🦵',title:'하체 B — 둔근·햄스트링',tag:'아침/저녁',tagc:'g',
     intro:'무릎 굽힘 부하가 적은 종목 위주로 둔근·햄스트링을 공략합니다. 웜업은 <b>Rowing 머신 5~8분</b> + 가벼운 Abductor 2세트.',
     ex:[
-     {n:'글루트',g:'technogym glute machine hip extension',e:'GLUTE',s:'4 × 10~12',r:'RIR 2',m:'둔근 주력. 무릎에 가장 안전한 하체 운동',k:true},
-     {n:'케틀벨 스윙',g:'kettlebell swing form hip hinge',e:'케틀벨',s:'3 × 12~15',r:'RIR 2',m:'<b>3주차부터</b> — 첫 2주는 케틀벨 데드리프트로 힙 힌지를 먼저 익히세요. 무릎 부담 적고 둔근 폭발력에 좋습니다',k:true},
-     {n:'레그 컬',g:'leg curl machine',e:'LEG CURL',s:'4 × 10~15',r:'RIR 1~2',m:'햄스트링. 무릎 안전',k:true},
-     {n:'레그 프레스',g:'leg press machine',e:'LEG PRESS',s:'3 × 12~15',r:'RIR 2',m:'깊이는 무릎이 편한 만큼만',k:true},
-     {n:'어브덕터',g:'hip abduction machine',e:'ABDUCTOR',s:'3 × 15~20',r:'RIR 1',m:'무릎을 <b>바깥으로 벌리기</b>. 둔근 중부 — 무릎 정렬 안정에 직접 도움',k:true},
-     {n:'로우백 머신',g:'technogym lower back extension machine',e:'LOWER BACK',s:'3 × 12~15',r:'RIR 2',m:'척추기립근. 오래 앉아 있는 사무직에게도 좋습니다'}],
+     {n:'글루트',g:'technogym glute machine hip extension',e:'GLUTE',mg:'glute',s:'4 × 10~12',r:'RIR 2',m:'둔근 주력. 무릎에 가장 안전한 하체 운동',k:true},
+     {n:'케틀벨 스윙',g:'kettlebell swing form hip hinge',e:'케틀벨',mg:'hamstring',s:'3 × 12~15',r:'RIR 2',m:'<b>3주차부터</b> — 첫 2주는 케틀벨 데드리프트로 힙 힌지를 먼저 익히세요. 무릎 부담 적고 둔근 폭발력에 좋습니다',k:true},
+     {n:'레그 컬',g:'leg curl machine',e:'LEG CURL',mg:'hamstring',s:'4 × 10~15',r:'RIR 1~2',m:'햄스트링. 무릎 안전',k:true},
+     {n:'레그 프레스',g:'leg press machine',e:'LEG PRESS',mg:'quad',s:'3 × 12~15',r:'RIR 2',m:'깊이는 무릎이 편한 만큼만',k:true},
+     {n:'어브덕터',g:'hip abduction machine',e:'ABDUCTOR',mg:'hipAbductor',s:'3 × 15~20',r:'RIR 1',m:'무릎을 <b>바깥으로 벌리기</b>. 둔근 중부 — 무릎 정렬 안정에 직접 도움',k:true},
+     {n:'로우백 머신',g:'technogym lower back extension machine',e:'LOWER BACK',mg:'lowerBack',s:'3 × 12~15',r:'RIR 2',m:'척추기립근. 오래 앉아 있는 사무직에게도 좋습니다'}],
     note:'<b>여유 있으면 Adductor</b>(무릎을 안으로 모으기) 2~3세트를 추가하세요 — 고관절 안정성이 보강돼 무릎에 도움이 됩니다. <b>선택</b>: 유산소를 주 3회 하고 싶으면 아침에 수영 / 저녁에 하체 B로 나누면 됩니다.'},
  0:{n:'일',i:'🏊',title:'수영 1km (자유형)',tag:'회복성',tagc:'g',
     intro:'한 주 내내 다리를 쓴 뒤 마무리하는 <b class="green">무릎 충격 0</b>의 회복성 유산소입니다. 러닝이나 Rowing 머신으로 바꿔도 됩니다.',
@@ -911,6 +915,7 @@ var EX_IMG={
   'barbell bench press form':'bench-press.jpg',
   'dips exercise chest triceps':'dips.jpg',
   'barbell curl form':'barbell-curl.jpg',
+  'barbell deadlift form':'deadlift.jpg',
   'technogym vertical traction machine':'vertical-traction.jpg',
   'technogym shoulder press machine':'shoulder-press.jpg',
   'one arm dumbbell row form':'one-arm-dumbbell-row.jpg',
@@ -935,6 +940,30 @@ var EX_IMG={
   'hip abduction machine':'hip-abduction.jpg',
   'technogym lower back extension machine':'lower-back-extension.jpg'
 };
+var MUSCLE_LABELS={
+  chest:'가슴', back:'등', shoulder:'어깨', sideDelt:'어깨(측면)', rearDelt:'어깨(후면)',
+  biceps:'이두', triceps:'삼두', quad:'대퇴사두', hamstring:'햄스트링', glute:'둔근',
+  hipAbductor:'고관절(외전)', calf:'종아리', abs:'복근', lowerBack:'하부요추'
+};
+function muscleVolume(ex){
+  var vol={};
+  ex.forEach(function(e){
+    if(!e.mg) return;
+    var n=parseInt(e.s,10)||0;
+    vol[e.mg]=(vol[e.mg]||0)+n;
+  });
+  return vol;
+}
+function muscleVolumeHtml(ex){
+  var vol=muscleVolume(ex);
+  var keys=Object.keys(vol);
+  if(!keys.length) return '';
+  var chips=keys.map(function(k){
+    var over=vol[k]>=15;
+    return '<span class="mvchip'+(over?' warn':'')+'">'+(over?'⚠️ ':'')+MUSCLE_LABELS[k]+' '+vol[k]+'세트</span>';
+  }).join('');
+  return '<div class="mvbar">'+chips+'</div>';
+}
 function lk(e){
   var kq=e.n.split('(')[0].split('/')[0].trim()+' 운동 자세';
   return '<div class="lk">'+
@@ -949,10 +978,12 @@ function show(k){
         '<span class="tag '+(d.tagc||'')+'">'+d.tag+'</span></div>'+
         '<p class="sm muted">'+d.intro+'</p>';
   if(d.ex.length){
+    h+=muscleVolumeHtml(d.ex);
     h+='<div style="margin-top:12px">';
     d.ex.forEach(function(e){
       var img=e.g&&EX_IMG[e.g];
-      var body='<div class="top"><span class="nm">'+e.n+(e.e?'<span class="enx">'+e.e+'</span>':'')+'</span>'+
+      var body='<div class="top"><span class="nm">'+e.n+(e.e?'<span class="enx">'+e.e+'</span>':'')+
+         (e.mg?'<span class="mg">'+MUSCLE_LABELS[e.mg]+'</span>':'')+'</span>'+
          '<span class="sr">'+e.s+(e.r?'<span class="rir">'+e.r+'</span>':'')+'</span></div>'+
          (e.m?'<div class="mt'+(e.k?' k':'')+'">'+(e.k?'🦵 ':'')+e.m+'</div>':'')+
          (e.g?lk(e):'');
