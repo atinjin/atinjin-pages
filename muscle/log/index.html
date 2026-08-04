@@ -331,6 +331,16 @@ function save(){ localStorage.setItem(LS_KEY, JSON.stringify(LOG)); }
 //  - 같은 id는 커밋본이 우선(모든 기기 공통) / id가 새로우면 로컬 추가분 보존.
 //  - 오프라인 등으로 못 불러오면 아래 폴백을 사용.
 const HISTORY_FALLBACK = [
+  { id:"20260804-upperA", date:"2026-08-04", session:"upperA", warmup:"",
+    entries:[
+      {n:"벤치프레스", sets:[{w:40,reps:12},{w:40,reps:12},{w:40,reps:12}]},
+      {n:"딥스", sets:[{w:-14,reps:10},{w:-14,reps:10},{w:-14,reps:10}], note:"어시스트(체중-14kg), 첫 시도 — 다음엔 어시스트를 줄여가는 방향으로 추천"},
+      {n:"랫풀다운", sets:[{w:45,reps:12},{w:45,reps:12},{w:45,reps:12}], note:"버티컬 트랙션 대신"},
+      {n:"숄더프레스", sets:[{w:40,reps:12},{w:40,reps:12},{w:40,reps:12}]},
+      {n:"바벨컬", sets:[{w:12,reps:10},{w:12,reps:10},{w:12,reps:10}], note:"신규 종목(화요일 추가, 이두 주 2회 자극 목적) 첫 기록"},
+      {n:"덤벨 레터럴 레이즈", sets:[{w:4,reps:12},{w:4,reps:12},{w:4,reps:12}]},
+    ],
+    memo:"상체A · 랫풀다운은 버티컬 트랙션 대체, 딥스·바벨컬 신규. 원암 덤벨 로우·암 익스텐션은 광배/삼두 중복이라 생략." },
   { id:"20260801-lowerB", date:"2026-08-01", session:"lowerB", warmup:"Rowing 5~8분 + 어브덕터 가볍게 2세트",
     entries:[
       {n:"글루트", sets:[{w:45,reps:12},{w:45,reps:12},{w:45,reps:12},{w:45,reps:12}]},
