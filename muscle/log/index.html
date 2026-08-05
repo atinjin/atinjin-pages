@@ -90,6 +90,20 @@ td .exn{font-weight:600}
 .mvchip{font-size:.72rem;background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:3px 10px;color:var(--muted)}
 .mvchip.warn{background:rgba(255,152,0,.12);border-color:var(--warn);color:var(--warn);font-weight:700}
 .pill.mgpill{background:transparent;border-color:var(--accent2);color:var(--accent2)}
+.revcard{background:var(--card2);border:1px solid var(--line);border-radius:11px;padding:14px;margin-bottom:12px}
+.revhead{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.revperiod{font-weight:700;font-size:.92rem}
+.revverdict{font-size:.75rem;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--chip);color:var(--muted);border:1px solid var(--line)}
+.revverdict.warn{background:rgba(255,152,0,.12);border-color:var(--warn);color:var(--warn)}
+.revverdict.good{background:rgba(56,211,159,.12);border-color:var(--accent2);color:var(--accent2)}
+.revstats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:10px}
+.revstat{background:var(--chip);border-radius:8px;padding:8px 10px}
+.revstat .lb{display:block;font-size:.68rem;color:var(--muted);margin-bottom:2px}
+.revstat .vv{font-size:.86rem;font-weight:700}
+.revdetail{margin-top:10px;font-size:.85rem;line-height:1.7}
+.revdetail h4{font-size:.86rem;margin:12px 0 4px}
+.revdetail table{width:100%;border-collapse:collapse;font-size:.82rem;margin:6px 0}
+.revdetail th,.revdetail td{text-align:left;padding:5px 6px;border-bottom:1px solid var(--line)}
 .exthumb,.recthumb{cursor:zoom-in}
 .imgmodal{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;
   padding:20px;z-index:999}
@@ -153,6 +167,7 @@ code{background:var(--card2);padding:1px 5px;border-radius:5px;font-size:.82em}
   <button class="tab" data-t="hist">📚 기록</button>
   <button class="tab" data-t="food">🍚 식단</button>
   <button class="tab" data-t="weight">⚖️ 체중</button>
+  <button class="tab" data-t="review">📊 평가</button>
   <button class="tab" data-t="data">💾 백업</button>
 </div></div>
 
@@ -241,6 +256,16 @@ code{background:var(--card2);padding:1px 5px;border-radius:5px;font-size:.82em}
     <div id="wChart" style="margin-top:14px"></div>
     <div id="wSummary" style="margin-top:12px"></div>
     <div id="wList" style="margin-top:10px"></div>
+  </div>
+</div>
+
+<!-- ── 벌크업 평가 (2주 단위) ── -->
+<div class="panel" id="p-review">
+  <div class="card">
+    <h2>📊 벌크업 계획 평가</h2>
+    <p class="sub">2주 단위로 운동·영양·체중 실행을 실제 기록 기반으로 평가합니다. 계획 대비 실행 격차를 짚어내는 게 목적입니다.</p>
+    <div id="reviewBody"></div>
+    <div class="note" id="reviewMsg"></div>
   </div>
 </div>
 
@@ -1123,6 +1148,55 @@ function renderFood(){
   });
 }
 
+// ═══════════ 벌크업 평가 (2주 단위, reviews.json) ═══════════
+const REVIEWS_FALLBACK = [
+  { id:"review-2026-08-05", periodStart:"2026-07-25", periodEnd:"2026-08-05",
+    verdict:"훈련 양호 · 영양이 병목", verdictCls:"warn",
+    metrics:{ sessions:8, avgKcal:1947, kcalTarget:2700, avgProtein:110.8, proteinTarget:130,
+      weightStart:65.21, weightEnd:65.71, weightDelta:0.5 },
+    html:`<h4>🏋️ 운동 실행 — 좋음</h4>
+      <p><b>빈도</b>: 12일간 8세션 (상체A×2·하체A×2·상체B×1·하체B×2·상체M×1) — 계획된 주 4회를 거의 그대로 지킴.</p>
+      <p><b>점진적 과부하</b>: 글루트 40→45→50kg, 레그프레스 60→80kg 등 대부분 종목에서 실제 증량 확인. 벤치프레스는 30kg×15→40kg×12로 1주일 만에 +10kg(꽤 빠른 점프, 15회는 목표 반복(5~8회)보다 높아 초기 무게가 가벼웠던 것으로 보임). 카프레이즈는 앱 추천(12kg 유지)보다 훨씬 공격적으로(16~20kg) 진행.</p>
+      <h4>🍚 영양 실행 — 병목</h4>
+      <table><thead><tr><th></th><th>평균</th><th>목표(최소)</th></tr></thead><tbody>
+      <tr><td>칼로리</td><td>1,947kcal</td><td>2,700kcal</td></tr>
+      <tr><td>단백질</td><td>110.8g</td><td>130g</td></tr>
+      </tbody></table>
+      <p>10일 중 칼로리 목표를 채운 날이 하루도 없음(평균 약 750kcal/일 부족). 단백질도 10일 중 하루(7/31)만 달성. 지방은 대부분 목표 달성 — 지방 위주로는 채워지는데 총 칼로리·단백질이 안 따라가는 패턴.</p>
+      <h4>⚖️ 체중 — 데이터 공백</h4>
+      <p>7/20~7/31 사이 65.08→65.71kg로 반등(+0.6kg/11일, 벌크업 전환 시점과 일치하는 좋은 신호). 다만 8/1 이후 체중 기록이 없어 최근 추세 확인 불가.</p>
+      <h4>📌 종합</h4>
+      <p>운동은 계획대로 실행되지만 영양이 발목을 잡는 상태 — 이 훈련 볼륨이면 칼로리·단백질만 채워져도 체중이 더 뚜렷하게 늘어야 함. 제안: ① 하루 700kcal 더 채우기, ② 단백질 20g/일 추가, ③ 체중 기록 재개.</p>` }
+];
+let REVIEWS = [];
+async function loadReviews(){
+  let committed = null;
+  try{ const r = await fetch("reviews.json", {cache:"no-store"}); if (r.ok) committed = await r.json(); }catch(e){}
+  REVIEWS = Array.isArray(committed) ? committed : REVIEWS_FALLBACK;
+  renderReviews();
+}
+function renderReviews(){
+  const box = document.getElementById("reviewBody");
+  if (!REVIEWS.length){ box.innerHTML = `<div class="note">아직 평가가 없습니다. 2주마다 추가됩니다.</div>`; return; }
+  const sorted = [...REVIEWS].sort((a,b)=> b.periodEnd.localeCompare(a.periodEnd));
+  box.innerHTML = sorted.map(rv=>{
+    const m = rv.metrics||{};
+    return `<div class="revcard">
+      <div class="revhead">
+        <span class="revperiod">${rv.periodStart} ~ ${rv.periodEnd}</span>
+        <span class="revverdict ${rv.verdictCls||''}">${rv.verdict}</span>
+      </div>
+      <div class="revstats">
+        <div class="revstat"><span class="lb">세션</span><span class="vv">${m.sessions}회</span></div>
+        <div class="revstat"><span class="lb">체중 변화</span><span class="vv">${m.weightStart}→${m.weightEnd}kg</span></div>
+        <div class="revstat"><span class="lb">평균 칼로리</span><span class="vv">${m.avgKcal} / ${m.kcalTarget}</span></div>
+        <div class="revstat"><span class="lb">평균 단백질</span><span class="vv">${m.avgProtein}g / ${m.proteinTarget}g</span></div>
+      </div>
+      <details><summary>상세 평가 보기</summary><div class="revdetail">${rv.html}</div></details>
+    </div>`;
+  }).join("");
+}
+
 function renderAll(){ renderRec(); renderHist(); renderFood(); }
 
 // ── 초기화 ──
@@ -1135,6 +1209,9 @@ boot().then(refreshAuth);
 document.getElementById("wDate").value = todayStr();
 bootWeight();
 document.getElementById("wAdd").addEventListener("click", addWeight);
+
+// 평가 초기화
+loadReviews();
 
 // 식단 초기화
 fillFoodSelect();
