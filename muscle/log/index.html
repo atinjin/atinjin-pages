@@ -388,6 +388,16 @@ function save(){ localStorage.setItem(LS_KEY, JSON.stringify(LOG)); }
 //  - 같은 id는 커밋본이 우선(모든 기기 공통) / id가 새로우면 로컬 추가분 보존.
 //  - 오프라인 등으로 못 불러오면 아래 폴백을 사용.
 const HISTORY_FALLBACK = [
+  { id:"20260808-lowerB", date:"2026-08-08", session:"lowerB", warmup:"",
+    entries:[
+      {n:"케틀벨 스윙", sets:[{w:12,reps:15},{w:16,reps:15},{w:16,reps:15},{w:16,reps:15}], note:"첫 시도 — 지금까지는 케틀벨 데드리프트만 함. 폼 위주로 가볍게 진행"},
+      {n:"스미스 머신 RDL", sets:[{w:30,reps:12},{w:30,reps:12},{w:30,reps:12},{w:30,reps:12}], note:"첫 시도 — 레그 컬 대체"},
+      {n:"글루트", sets:[{w:55,reps:12},{w:55,reps:12},{w:55,reps:12}]},
+      {n:"고블릿 스쿼트", sets:[{w:16,reps:12},{w:16,reps:12},{w:16,reps:12}], note:"첫 시도 — 레그 프레스 대체"},
+      {n:"로우백 머신", sets:[{w:55,reps:12},{w:55,reps:12},{w:55,reps:12}], note:"손으로 다리 받쳐서 밀어야 움직임 — 순수 허리 힘으로는 과중량, 다음엔 40~45kg 권장"},
+      {n:"사이드 라잉 힙 어브덕션", sets:[{w:0,reps:20},{w:0,reps:20},{w:0,reps:20}], note:"어브덕터 머신 고장으로 대체"},
+    ],
+    memo:"하체B · 케틀벨 스윙·스미스 머신 RDL·고블릿 스쿼트 모두 첫 도입. 어브덕터 머신 고장으로 사이드 라잉 힙 어브덕션 대체. 로우백 머신 55kg는 손 도움 필요해 과중량 — 다음엔 감량." },
   { id:"20260807-upperB", date:"2026-08-07", session:"upperB", warmup:"",
     entries:[
       {n:"인클라인 바벨 프레스", sets:[{w:30,reps:15},{w:35,reps:12},{w:40,reps:7},{w:35,reps:12}], note:"첫 시도 — 적정 중량 테스트, 인클라인 덤벨 프레스 대신. 35kg 근처가 적정 작업 중량으로 보임"},
