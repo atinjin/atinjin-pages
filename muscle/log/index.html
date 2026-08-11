@@ -388,6 +388,19 @@ function save(){ localStorage.setItem(LS_KEY, JSON.stringify(LOG)); }
 //  - 같은 id는 커밋본이 우선(모든 기기 공통) / id가 새로우면 로컬 추가분 보존.
 //  - 오프라인 등으로 못 불러오면 아래 폴백을 사용.
 const HISTORY_FALLBACK = [
+  { id:"20260811-upperA", date:"2026-08-11", session:"upperA", warmup:"",
+    entries:[
+      {n:"벤치프레스", sets:[{w:40,reps:10},{w:45,reps:10},{w:45,reps:10},{w:45,reps:10}], note:"첫 세트 웜업 후 45kg로 진행 — 추천(42.5kg)보다 더 올림"},
+      {n:"딥스", sets:[{w:-14,reps:11},{w:-14,reps:11},{w:-14,reps:11},{w:-14,reps:11}]},
+      {n:"버티컬 트랙션", sets:[{w:45,reps:10},{w:45,reps:10},{w:45,reps:10}]},
+      {n:"암 컬 머신", sets:[{w:15,reps:12},{w:15,reps:12},{w:15,reps:12}], note:"바벨컬 대체 — 이두 중복이라 오늘만 교체"},
+      {n:"숄더 프레스", sets:[{w:45,reps:12},{w:45,reps:10},{w:40,reps:6}], note:"45kg에서 이미 상한 초과 — 다음엔 50kg"},
+      {n:"원암 덤벨 로우", sets:[{w:14,reps:12},{w:14,reps:12},{w:14,reps:12}], note:"전 세트 상한 도달, 다음엔 16kg"},
+      {n:"암 익스텐션", sets:[{w:25,reps:12},{w:25,reps:12},{w:25,reps:12}], note:"추천(20kg 유지)보다 5kg 더 올림"},
+      {n:"덤벨 레터럴 레이즈", sets:[{w:4,reps:13},{w:4,reps:13},{w:4,reps:13}]},
+      {n:"행잉 레그레이즈", sets:[{w:0,reps:20},{w:0,reps:20},{w:0,reps:20}], note:"복근 마무리로 추가"},
+    ],
+    memo:"상체A · 벤치프레스·숄더프레스·원암로우·암익스텐션 모두 추천보다 공격적으로 증량. 바벨컬은 암 컬 머신으로 오늘만 대체(이두 중복 방지). 행잉 레그레이즈 추가." },
   { id:"20260808-lowerB", date:"2026-08-08", session:"lowerB", warmup:"",
     entries:[
       {n:"케틀벨 스윙", sets:[{w:12,reps:15},{w:16,reps:15},{w:16,reps:15},{w:16,reps:15}], note:"첫 시도 — 지금까지는 케틀벨 데드리프트만 함. 폼 위주로 가볍게 진행"},
