@@ -388,6 +388,16 @@ function save(){ localStorage.setItem(LS_KEY, JSON.stringify(LOG)); }
 //  - 같은 id는 커밋본이 우선(모든 기기 공통) / id가 새로우면 로컬 추가분 보존.
 //  - 오프라인 등으로 못 불러오면 아래 폴백을 사용.
 const HISTORY_FALLBACK = [
+  { id:"20260813-lowerA", date:"2026-08-13", session:"lowerA", warmup:"",
+    entries:[
+      {n:"스미스 머신 스쿼트", sets:[{w:30,reps:12},{w:40,reps:12},{w:40,reps:12}], note:"첫 시도 — 처음엔 데드리프트로 잘못 기록했다가 정정"},
+      {n:"스미스 머신 RDL", sets:[{w:35,reps:12},{w:35,reps:12},{w:35,reps:12},{w:35,reps:12}]},
+      {n:"글루트", sets:[{w:55,reps:12},{w:55,reps:12},{w:55,reps:12}]},
+      {n:"스미스 머신 힙 쓰러스트", sets:[{w:20,reps:12},{w:30,reps:12},{w:40,reps:12},{w:40,reps:12}], note:"첫 시도 — 신규 추가"},
+      {n:"카프 레이즈", sets:[{w:20,reps:16},{w:20,reps:16},{w:20,reps:16},{w:20,reps:16}]},
+      {n:"행잉 레그레이즈", sets:[{w:0,reps:20},{w:0,reps:20},{w:0,reps:20}], note:"복근 마무리"},
+    ],
+    memo:"하체A · 8/12에 생략된 세션 보충(빠진 다음날 바로 메꾸는 원칙 적용). 스미스 머신 위주로 진행 — 스쿼트·RDL·힙 쓰러스트. 힙 쓰러스트 신규 도입." },
   { id:"20260811-upperA", date:"2026-08-11", session:"upperA", warmup:"",
     entries:[
       {n:"벤치프레스", sets:[{w:40,reps:10},{w:45,reps:10},{w:45,reps:10},{w:45,reps:10}], note:"첫 세트 웜업 후 45kg로 진행 — 추천(42.5kg)보다 더 올림"},
