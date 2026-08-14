@@ -151,5 +151,22 @@ class TestSummaries(unittest.TestCase):
         self.assertEqual(f["open_pain"][0]["site"], "어깨")
 
 
+class TestReport(unittest.TestCase):
+    def test_build_report_sections(self):
+        r = analyze.build_report("2026-08-14")
+        for header in ["오늘 기준", "주간 볼륨", "세션 빈도", "종목별 추세",
+                       "영양", "체중", "컨디션"]:
+            self.assertIn(header, r)
+        self.assertIn("lowerA", r)        # 8/13 기록 반영
+        self.assertIn("스미스 머신 힙 쓰러스트", r)  # unknown 종목 노출
+
+    def test_cli_runs(self):
+        import subprocess, sys as _sys
+        p = subprocess.run([_sys.executable, "analyze.py", "--date", "2026-08-14"],
+                           capture_output=True, text=True)
+        self.assertEqual(p.returncode, 0, p.stderr)
+        self.assertIn("주간 볼륨", p.stdout)
+
+
 if __name__ == "__main__":
     unittest.main()

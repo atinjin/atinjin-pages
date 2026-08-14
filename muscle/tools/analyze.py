@@ -318,6 +318,92 @@ def condition_flags(conds, ref):
     return {"recent": week, "open_pain": open_pain}
 
 
+MUSCLE_KO = {   # 출력용 한국어 라벨 (MUSCLE_LABELS는 UI 상수라 파싱하지 않고 여기 유지)
+    "chest": "가슴", "back": "등", "shoulder": "어깨", "sideDelt": "어깨(측면)",
+    "rearDelt": "어깨(후면)", "biceps": "이두", "triceps": "삼두", "quad": "대퇴사두",
+    "hamstring": "햄스트링", "glute": "둔근", "hipAbductor": "고관절(외전)",
+    "calf": "종아리", "abs": "복근", "lowerBack": "하부요추",
+}
+KO_WD = ["월", "화", "수", "목", "금", "토", "일"]  # date.weekday() 순서
+
+
+def build_report(ref):
+    sessions, weekday_map = load_sessions()
+    log = load_history()
+    L = []
+    d = _date.fromisoformat(ref)
+    js_wd = (d.weekday() + 1) % 7            # JS getDay(): 일=0
+    default_key = weekday_map.get(js_wd, "other")
+    default = sessions[default_key]["name"]
+    L.append(f"# 오늘 기준: {ref} ({KO_WD[d.weekday()]}) — 요일 기본 세션: {default} ({default_key})")
+
+    L.append("\n## 주간 볼륨 (최근 7일, ACSM: 부위별 10세트↑·2일↑)")
+    vol = weekly_volume(log, sessions, ref)
+    for m, v in sorted(vol["by_muscle"].items(), key=lambda kv: -kv[1]["sets"]):
+        flag = "✅" if v["sets"] >= 10 and v["days"] >= 2 else ("⚠️ 세트 부족" if v["sets"] < 10 else "⚠️ 빈도 부족")
+        L.append(f"- {MUSCLE_KO.get(m, m)}: {v['sets']}세트 / {v['days']}일 {flag}")
+    if vol["unknown"]:
+        L.append(f"- ❓ SESSIONS에 없는 종목(볼륨 미집계, AI가 수동 판단): {', '.join(vol['unknown'])}")
+
+    L.append("\n## 세션 빈도 (최근 7일)")
+    freq = session_frequency(log, ref)
+    for dt, k in freq["recent"]:
+        L.append(f"- {dt}: {sessions[k]['name']} ({k})")
+    if freq["missing"]:
+        L.append(f"- 🚨 7일간 없음: {', '.join(freq['missing'])} → 빠진 세션은 가장 빠른 기회에 보충 (v14)")
+
+    L.append("\n## 종목별 추세 & 베이스라인 (이중 점진법)")
+    for key in WEIGHT_SESSIONS + ["upperM"]:
+        L.append(f"\n### {sessions[key]['name']} ({key})")
+        for t in exercise_trends(log, sessions, key):
+            marks = []
+            if t["pattern"] == "drop":
+                marks.append("드롭")
+            if t["pattern"] == "ramp":
+                marks.append("램프업(마지막 무게 기준 판정)")
+            if t["stalled"]:
+                marks.append("🔴 3회 정체")
+            hist = " ← ".join(
+                f"{r['date'][5:]}: " + " / ".join(f"{_fmt_w(s['w'])}×{s['reps']}" for s in r["sets"])
+                for r in t["records"]) or "기록 없음"
+            L.append(f"- {t['n']} [{t['baseline']['cls']}] {t['baseline']['text']}"
+                     + (f"  ⚑ {', '.join(marks)}" if marks else ""))
+            L.append(f"    최근: {hist}")
+
+    L.append("\n## 영양 (최근 3일, 최소 충족: 2700kcal·단백질 130g·지방 55g)")
+    ns = nutrition_summary(load_nutrition(), ref)
+    for day in ns["days"]:
+        L.append(f"- {day['date']}: {day['kcal']}kcal ({'✅' if day['ok_kcal'] else '⚠️'}) · "
+                 f"단백질 {day['p']}g ({'✅' if day['ok_p'] else '⚠️'}) · 지방 {day['f']}g")
+    L.append(f"- 연속 미달일: {ns['consec_shortfall']}일"
+             + (" → 2일↑이면 증량 보류, 3일↑이면 볼륨 조정 검토 (프로토콜 6절)" if ns["consec_shortfall"] >= 2 else ""))
+
+    L.append("\n## 체중 (목표 +0.3kg/월)")
+    wsum = weight_summary(load_weight(), ref)
+    if wsum:
+        pace = f"{wsum['monthly_pace']:+.2f}kg/월" if wsum["monthly_pace"] is not None else "계산 불가"
+        L.append(f"- 최근 {wsum['last']['date']}: {wsum['last']['kg']}kg · 페이스 {pace}")
+        if wsum["stale_days"] > 7:
+            L.append(f"- ⚠️ 체중 기록 {wsum['stale_days']}일째 없음 — 측정 권장")
+    else:
+        L.append("- 기록 없음")
+
+    L.append("\n## 컨디션 (최근 7일)")
+    cf = condition_flags(load_condition(), ref)
+    if cf["open_pain"]:
+        for p in cf["open_pain"]:
+            L.append(f"- 🩹 {p['date']} {p['site']} {p['level']}" + (f" — {p.get('note', '')}" if p.get("note") else ""))
+        L.append("- → 체크인에서 위 통증의 현재 상태를 콕 집어 확인할 것")
+    elif not cf["recent"]:
+        L.append("- 기록 없음")
+    else:
+        L.append("- 특이사항 없음")
+    return "\n".join(L)
+
+
 if __name__ == "__main__":
-    s, w = load_sessions()
-    print(f"세션 {len(s)}개, 요일 매핑 {len(w)}개 파싱 완료")
+    import argparse
+    ap = argparse.ArgumentParser(description="FORGE40 추천 전 분석 리포트")
+    ap.add_argument("--date", default=_date.today().isoformat(), help="기준일 YYYY-MM-DD (기본: 오늘)")
+    args = ap.parse_args()
+    print(build_report(args.date))
