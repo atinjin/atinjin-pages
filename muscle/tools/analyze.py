@@ -130,6 +130,7 @@ def weekly_volume(log, sessions, ref):
     idx = exercise_index(sessions)
     by_muscle = {}
     unknown = []
+    dates_by_muscle = {}
     for sess in recent(log, ref, 7):
         touched = set()
         for e in sess.get("entries", []):
@@ -143,7 +144,9 @@ def weekly_volume(log, sessions, ref):
             rec["sets"] += len(_sets_of(e))
             touched.add(m)
         for m in touched:
-            by_muscle[m]["days"] += 1
+            dates_by_muscle.setdefault(m, set()).add(sess["date"])
+    for m, dates in dates_by_muscle.items():
+        by_muscle[m]["days"] = len(dates)      # 세션 레코드 수가 아닌 고유 날짜 수 (F3)
     return {"by_muscle": by_muscle, "unknown": unknown}
 
 
@@ -159,13 +162,18 @@ def _fmt_w(v):
     return str(int(v)) if float(v).is_integer() else f"{v:.1f}"
 
 
-def pattern_of(sets):
+def pattern_of(sets, assist=False):
     """세트 패턴 분류: "uniform" | "ramp" | "drop".
     - uniform: 모든 무게가 같음
     - ramp: 세트 순서상 비내림 (무게가 증가 또는 유지)
     - drop: 이전 세트보다 가벼워진 세트 존재
+    assist=True(어시스트 종목)면 무게를 부호 반전해서 판정한다 — 어시스트는
+    무게가 클수록 도움이 커서(=더 쉬워서) baseline()의 최소 보조 무게 기준과
+    방향이 반대이기 때문(F4).
     """
     ws = [s["w"] for s in sets]
+    if assist:
+        ws = [-w for w in ws]
     if len(set(ws)) <= 1:
         return "uniform"
     return "ramp" if all(a <= b for a, b in zip(ws, ws[1:])) else "drop"
@@ -250,7 +258,7 @@ def exercise_trends(log, sessions, session_key):
         out.append({
             "n": ex["n"],
             "records": records,
-            "pattern": pattern_of(last_sets) if last_sets else None,
+            "pattern": pattern_of(last_sets, assist=ex.get("assist", False)) if last_sets else None,
             "stalled": is_stalled(records),
             "baseline": baseline(ex, last_sets),
         })
@@ -265,9 +273,10 @@ def nutrition_summary(nut, ref):
     by_day = {}
     for x in nut:
         d = by_day.setdefault(x["date"], {"kcal": 0, "p": 0.0, "f": 0.0})
-        d["kcal"] += x.get("kcal", 0)
-        d["p"] += x.get("p", 0)
-        d["f"] += x.get("f", 0)
+        qty = x.get("qty", 1)          # 레코드는 인분당 값 — qty 배수 적용 (F1, index.html sumDay()와 동일)
+        d["kcal"] += x.get("kcal", 0) * qty
+        d["p"] += x.get("p", 0) * qty
+        d["f"] += x.get("f", 0) * qty
 
     days = []
     for d in sorted(by_day, reverse=True):
@@ -275,10 +284,12 @@ def nutrition_summary(nut, ref):
             continue
         t = by_day[d]
         days.append({"date": d, "kcal": round(t["kcal"]), "p": round(t["p"], 1), "f": round(t["f"], 1),
-                     "ok_kcal": t["kcal"] >= NUT_TARGET["kcal"], "ok_p": t["p"] >= NUT_TARGET["p"]})
+                     "ok_kcal": t["kcal"] >= NUT_TARGET["kcal"], "ok_p": t["p"] >= NUT_TARGET["p"],
+                     "ok_f": t["f"] >= NUT_TARGET["f"]})
         if len(days) == 3:
             break
 
+    ref_recorded = ref in by_day       # 기준일 기록 유무 — 없으면 "0일 미달"과 구분해서 판정 불가 처리 (F2)
     consec = 0
     cur = _date.fromisoformat(ref)
     while True:
@@ -290,7 +301,7 @@ def nutrition_summary(nut, ref):
             break
         consec += 1
         cur -= timedelta(days=1)
-    return {"days": days, "consec_shortfall": consec}
+    return {"days": days, "consec_shortfall": consec, "ref_recorded": ref_recorded}
 
 
 def weight_summary(weights, ref):
@@ -370,13 +381,17 @@ def build_report(ref):
                      + (f"  ⚑ {', '.join(marks)}" if marks else ""))
             L.append(f"    최근: {hist}")
 
-    L.append("\n## 영양 (최근 3일, 최소 충족: 2700kcal·단백질 130g·지방 55g)")
+    L.append("\n## 영양 (최근 기록 3일, 최소 충족: 2700kcal·단백질 130g·지방 55g)")
     ns = nutrition_summary(load_nutrition(), ref)
     for day in ns["days"]:
         L.append(f"- {day['date']}: {day['kcal']}kcal ({'✅' if day['ok_kcal'] else '⚠️'}) · "
-                 f"단백질 {day['p']}g ({'✅' if day['ok_p'] else '⚠️'}) · 지방 {day['f']}g")
-    L.append(f"- 연속 미달일: {ns['consec_shortfall']}일"
-             + (" → 2일↑이면 증량 보류, 3일↑이면 볼륨 조정 검토 (프로토콜 6절)" if ns["consec_shortfall"] >= 2 else ""))
+                 f"단백질 {day['p']}g ({'✅' if day['ok_p'] else '⚠️'}) · "
+                 f"지방 {day['f']}g ({'✅' if day['ok_f'] else '⚠️'})")
+    if ns["ref_recorded"]:
+        L.append(f"- 연속 미달일: {ns['consec_shortfall']}일"
+                 + (" → 2일↑이면 증량 보류, 3일↑이면 볼륨 조정 검토 (프로토콜 4절)" if ns["consec_shortfall"] >= 2 else ""))
+    else:
+        L.append(f"- 연속 미달일: 판정 불가 — {ref} 기록 없음")
 
     L.append("\n## 체중 (목표 +0.3kg/월)")
     wsum = weight_summary(load_weight(), ref)

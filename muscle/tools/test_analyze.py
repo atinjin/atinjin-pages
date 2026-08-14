@@ -43,12 +43,33 @@ class TestAggregation(unittest.TestCase):
         # "스미스 머신 힙 쓰러스트"는 SESSIONS에 없음 → unknown으로 보고돼야 함
         self.assertIn("스미스 머신 힙 쓰러스트", vol["unknown"])
 
+    def test_weekly_volume_days_counts_distinct_dates(self):
+        # 같은 날짜에 같은 부위를 건드리는 레코드가 두 개여도 days는 1이어야 함 (F3)
+        sessions = {"upperA": {"name": "상체A", "ex": [
+            {"n": "테스트벤치", "m": "chest", "lo": 5, "hi": 8, "inc": 2.5}]}}
+        log = [
+            {"date": "2026-08-14", "session": "upperA",
+             "entries": [{"n": "테스트벤치", "sets": 3, "w": 40, "reps": 8}]},
+            {"date": "2026-08-14", "session": "upperA",
+             "entries": [{"n": "테스트벤치", "sets": 2, "w": 40, "reps": 8}]},
+        ]
+        vol = analyze.weekly_volume(log, sessions, "2026-08-14")
+        self.assertEqual(vol["by_muscle"]["chest"]["days"], 1)
+        self.assertEqual(vol["by_muscle"]["chest"]["sets"], 5)
+
     def test_session_frequency_missing(self):
         freq = analyze.session_frequency(self.log, "2026-08-14")
         keys = [k for _, k in freq["recent"]]
         self.assertIn("lowerA", keys)          # 8/13 기록 존재
-        for k in freq["missing"]:
-            self.assertNotIn(k, keys)
+
+    def test_session_frequency_missing_exact(self):
+        # upperA·lowerA만 있는 합성 로그 → missing은 정확히 [upperB, lowerB]
+        log = [
+            {"date": "2026-08-11", "session": "upperA", "entries": []},
+            {"date": "2026-08-13", "session": "lowerA", "entries": []},
+        ]
+        freq = analyze.session_frequency(log, "2026-08-14")
+        self.assertEqual(freq["missing"], ["upperB", "lowerB"])
 
     def test_condition_file_loads(self):
         self.assertIsInstance(analyze.load_condition(), list)
@@ -63,6 +84,15 @@ class TestTrends(unittest.TestCase):
             [{"w": 30, "reps": 12}, {"w": 40, "reps": 10}, {"w": 40, "reps": 10}]), "ramp")
         self.assertEqual(analyze.pattern_of(
             [{"w": 40, "reps": 8}, {"w": 40, "reps": 6}, {"w": 35, "reps": 8}]), "drop")
+
+    def test_pattern_of_assist_is_inverted(self):
+        # 어시스트는 무게가 클수록 쉬움 — baseline()과 방향을 맞추려면 부호 반전 판정 (F4)
+        # 21→28: 보조 증가 = 뒤로 갈수록 쉬워짐 = "drop"(난이도 포기)
+        self.assertEqual(analyze.pattern_of(
+            [{"w": 21, "reps": 10}, {"w": 28, "reps": 10}], assist=True), "drop")
+        # 28→21: 보조 감소 = 뒤로 갈수록 어려워짐 = "ramp"(난이도 상승)
+        self.assertEqual(analyze.pattern_of(
+            [{"w": 28, "reps": 10}, {"w": 21, "reps": 10}], assist=True), "ramp")
 
     def test_baseline_matches_js_recommend(self):
         # 전 세트 상한 도달 → 증량
@@ -121,6 +151,8 @@ class TestSummaries(unittest.TestCase):
         self.assertEqual(s["consec_shortfall"], 1)   # 8/14만 미달, 8/13 충족에서 끊김
         self.assertEqual(s["days"][0]["date"], "2026-08-14")
         self.assertFalse(s["days"][0]["ok_p"])
+        self.assertFalse(s["days"][0]["ok_f"])        # f 40 < 55 목표 (F5)
+        self.assertTrue(s["ref_recorded"])
 
     def test_nutrition_sums_multiple_meals(self):
         nut = [
@@ -130,6 +162,21 @@ class TestSummaries(unittest.TestCase):
         s = analyze.nutrition_summary(nut, "2026-08-14")
         self.assertEqual(s["days"][0]["kcal"], 2900)
         self.assertTrue(s["days"][0]["ok_kcal"])
+        self.assertTrue(s["days"][0]["ok_f"])         # f 30+30=60 >= 55 목표 (F5)
+        self.assertEqual(s["consec_shortfall"], 0)
+
+    def test_nutrition_applies_qty_multiplier(self):
+        # 레코드는 인분당 값 — qty 배수를 적용해야 함 (F1)
+        nut = [{"date": "2026-08-14", "kcal": 500, "p": 25, "f": 10, "qty": 3}]
+        s = analyze.nutrition_summary(nut, "2026-08-14")
+        self.assertEqual(s["days"][0]["kcal"], 1500)
+        self.assertEqual(s["days"][0]["p"], 75)
+
+    def test_nutrition_ref_not_recorded(self):
+        # 기준일 기록이 없으면 "0일 연속 미달"과 구분되는 ref_recorded=False (F2)
+        nut = [{"date": "2026-08-12", "kcal": 2000, "p": 100, "f": 40}]
+        s = analyze.nutrition_summary(nut, "2026-08-14")
+        self.assertFalse(s["ref_recorded"])
         self.assertEqual(s["consec_shortfall"], 0)
 
     def test_weight_pace_and_staleness(self):
