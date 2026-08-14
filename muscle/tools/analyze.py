@@ -8,10 +8,13 @@
 import json
 import re
 import sys
+from datetime import date as _date, timedelta
 from pathlib import Path
 
 MUSCLE_DIR = Path(__file__).resolve().parent.parent   # .../muscle
 LOG_DIR = MUSCLE_DIR / "log"
+
+WEIGHT_SESSIONS = ["upperA", "lowerA", "upperB", "lowerB"]  # 주간 빈도 감사 대상
 
 
 def _js_to_json(src: str) -> str:
@@ -76,6 +79,79 @@ def load_sessions():
     wd_raw = parse_js_object(_extract_const(html, "WEEKDAY_MAP"))
     weekday_map = {int(k): v for k, v in wd_raw.items()}
     return sessions, weekday_map
+
+
+def _load_json(path: Path):
+    if not path.exists():
+        sys.exit(f"오류: {path} 가 없음.")
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def load_history():
+    return _load_json(LOG_DIR / "history.json")
+
+
+def load_nutrition():
+    return _load_json(LOG_DIR / "nutrition-history.json")
+
+
+def load_weight():
+    return _load_json(LOG_DIR / "weight-history.json")
+
+
+def load_condition():
+    return _load_json(LOG_DIR / "condition-history.json")
+
+
+def recent(items, ref, days):
+    lo = (_date.fromisoformat(ref) - timedelta(days=days - 1)).isoformat()
+    return sorted((x for x in items if lo <= x["date"] <= ref), key=lambda x: x["date"])
+
+
+def exercise_index(sessions):
+    """종목명(별칭 포함) → ex 정의. 여러 세션에 같은 이름이 있으면 첫 정의 우선."""
+    idx = {}
+    for s in sessions.values():
+        for ex in s.get("ex", []):
+            for name in [ex["n"]] + ex.get("alias", []):
+                idx.setdefault(name, ex)
+    return idx
+
+
+def _sets_of(entry):
+    """log/index.html setsOf()와 동일: sets가 배열이면 그대로, 아니면 sets×(w,reps) 확장."""
+    if isinstance(entry.get("sets"), list):
+        return [{"w": float(s["w"]), "reps": int(s["reps"])} for s in entry["sets"]]
+    n = max(1, int(entry.get("sets") or 1))
+    return [{"w": float(entry.get("w", 0)), "reps": int(entry.get("reps", 0))}] * n
+
+
+def weekly_volume(log, sessions, ref):
+    idx = exercise_index(sessions)
+    by_muscle = {}
+    unknown = []
+    for sess in recent(log, ref, 7):
+        touched = set()
+        for e in sess.get("entries", []):
+            ex = idx.get(e["n"])
+            if not ex or not ex.get("m"):
+                if e["n"] not in unknown:
+                    unknown.append(e["n"])
+                continue
+            m = ex["m"]
+            rec = by_muscle.setdefault(m, {"sets": 0, "days": 0})
+            rec["sets"] += len(_sets_of(e))
+            touched.add(m)
+        for m in touched:
+            by_muscle[m]["days"] += 1
+    return {"by_muscle": by_muscle, "unknown": unknown}
+
+
+def session_frequency(log, ref):
+    rec = [(s["date"], s["session"]) for s in recent(log, ref, 7)]
+    rec.sort(reverse=True)
+    present = {k for _, k in rec}
+    return {"recent": rec, "missing": [k for k in WEIGHT_SESSIONS if k not in present]}
 
 
 if __name__ == "__main__":
