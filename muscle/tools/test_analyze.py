@@ -1,0 +1,219 @@
+import unittest
+import analyze
+
+
+class TestParser(unittest.TestCase):
+    def test_load_sessions_reads_real_html(self):
+        sessions, weekday_map = analyze.load_sessions()
+        # 5개 웨이트 세션 + 유산소 3종
+        for k in ["upperA", "lowerA", "upperB", "lowerB", "upperM", "running", "swim", "other"]:
+            self.assertIn(k, sessions)
+        bench = next(e for e in sessions["upperA"]["ex"] if e["n"] == "벤치프레스")
+        self.assertEqual(bench["m"], "chest")
+        self.assertEqual(bench["lo"], 5)
+        self.assertEqual(bench["hi"], 8)
+        self.assertEqual(bench["inc"], 2.5)
+        # alias 파싱 확인
+        pullup = next(e for e in sessions["upperB"]["ex"] if e.get("assist"))
+        self.assertIn("어시스트 풀업", pullup["alias"])
+        # weekday_map: int 키
+        self.assertEqual(weekday_map[2], "upperA")
+        self.assertEqual(weekday_map[1], "other")
+
+    def test_parse_failure_exits(self):
+        with self.assertRaises(SystemExit):
+            analyze.parse_js_object("const X = { broken: ")
+
+
+class TestAggregation(unittest.TestCase):
+    def setUp(self):
+        self.sessions, _ = analyze.load_sessions()
+        self.log = analyze.load_history()
+
+    def test_recent_window_inclusive(self):
+        items = [{"date": "2026-08-07"}, {"date": "2026-08-08"}, {"date": "2026-08-14"}]
+        got = analyze.recent(items, "2026-08-14", 7)
+        self.assertEqual([x["date"] for x in got], ["2026-08-08", "2026-08-14"])
+
+    def test_weekly_volume_reflects_0813_lowerA(self):
+        # 2026-08-13 하체A: 스미스 머신 스쿼트 3세트(quad) + 고블릿 없음, RDL 4세트(hamstring) 등
+        vol = analyze.weekly_volume(self.log, self.sessions, "2026-08-14")
+        self.assertGreaterEqual(vol["by_muscle"]["quad"]["sets"], 3)
+        self.assertGreaterEqual(vol["by_muscle"]["hamstring"]["sets"], 4)
+        # "스미스 머신 힙 쓰러스트"는 SESSIONS에 없음 → unknown으로 보고돼야 함
+        self.assertIn("스미스 머신 힙 쓰러스트", vol["unknown"])
+
+    def test_weekly_volume_days_counts_distinct_dates(self):
+        # 같은 날짜에 같은 부위를 건드리는 레코드가 두 개여도 days는 1이어야 함 (F3)
+        sessions = {"upperA": {"name": "상체A", "ex": [
+            {"n": "테스트벤치", "m": "chest", "lo": 5, "hi": 8, "inc": 2.5}]}}
+        log = [
+            {"date": "2026-08-14", "session": "upperA",
+             "entries": [{"n": "테스트벤치", "sets": 3, "w": 40, "reps": 8}]},
+            {"date": "2026-08-14", "session": "upperA",
+             "entries": [{"n": "테스트벤치", "sets": 2, "w": 40, "reps": 8}]},
+        ]
+        vol = analyze.weekly_volume(log, sessions, "2026-08-14")
+        self.assertEqual(vol["by_muscle"]["chest"]["days"], 1)
+        self.assertEqual(vol["by_muscle"]["chest"]["sets"], 5)
+
+    def test_session_frequency_missing(self):
+        freq = analyze.session_frequency(self.log, "2026-08-14")
+        keys = [k for _, k in freq["recent"]]
+        self.assertIn("lowerA", keys)          # 8/13 기록 존재
+
+    def test_session_frequency_missing_exact(self):
+        # upperA·lowerA만 있는 합성 로그 → missing은 정확히 [upperB, lowerB]
+        log = [
+            {"date": "2026-08-11", "session": "upperA", "entries": []},
+            {"date": "2026-08-13", "session": "lowerA", "entries": []},
+        ]
+        freq = analyze.session_frequency(log, "2026-08-14")
+        self.assertEqual(freq["missing"], ["upperB", "lowerB"])
+
+    def test_condition_file_loads(self):
+        self.assertIsInstance(analyze.load_condition(), list)
+
+
+class TestTrends(unittest.TestCase):
+    EX = {"n": "테스트", "sets": 3, "m": "chest", "lo": 5, "hi": 8, "inc": 2.5, "start": "40kg"}
+
+    def test_pattern_classification(self):
+        self.assertEqual(analyze.pattern_of([{"w": 40, "reps": 8}] * 3), "uniform")
+        self.assertEqual(analyze.pattern_of(
+            [{"w": 30, "reps": 12}, {"w": 40, "reps": 10}, {"w": 40, "reps": 10}]), "ramp")
+        self.assertEqual(analyze.pattern_of(
+            [{"w": 40, "reps": 8}, {"w": 40, "reps": 6}, {"w": 35, "reps": 8}]), "drop")
+
+    def test_pattern_of_assist_is_inverted(self):
+        # 어시스트는 무게가 클수록 쉬움 — baseline()과 방향을 맞추려면 부호 반전 판정 (F4)
+        # 21→28: 보조 증가 = 뒤로 갈수록 쉬워짐 = "drop"(난이도 포기)
+        self.assertEqual(analyze.pattern_of(
+            [{"w": 21, "reps": 10}, {"w": 28, "reps": 10}], assist=True), "drop")
+        # 28→21: 보조 감소 = 뒤로 갈수록 어려워짐 = "ramp"(난이도 상승)
+        self.assertEqual(analyze.pattern_of(
+            [{"w": 28, "reps": 10}, {"w": 21, "reps": 10}], assist=True), "ramp")
+
+    def test_baseline_matches_js_recommend(self):
+        # 전 세트 상한 도달 → 증량
+        r = analyze.baseline(self.EX, [{"w": 40, "reps": 8}] * 3)
+        self.assertEqual(r["cls"], "up")
+        self.assertIn("42.5", r["text"])
+        # 하한 미달 → 감량
+        r = analyze.baseline(self.EX, [{"w": 40, "reps": 4}] * 3)
+        self.assertEqual(r["cls"], "down")
+        self.assertIn("37.5", r["text"])
+        # 드롭(램프 포함, JS와 동일) → 상단 무게 전 세트 채우기
+        r = analyze.baseline(self.EX, [{"w": 30, "reps": 12}, {"w": 40, "reps": 10}])
+        self.assertEqual(r["cls"], "hold")
+        self.assertIn("40", r["text"])
+        # 기록 없음 → 시작값
+        r = analyze.baseline(self.EX, [])
+        self.assertEqual(r["cls"], "new")
+
+    def test_baseline_assist_reversed(self):
+        ex = dict(self.EX, assist=True, inc=5, lo=6, hi=10)
+        # 보조 최소 무게 기준 상한 도달 → 보조를 줄임(↓)
+        r = analyze.baseline(ex, [{"w": 30, "reps": 10}] * 3)
+        self.assertEqual(r["cls"], "up")
+        self.assertIn("25", r["text"])
+
+    def test_is_stalled(self):
+        same = {"date": "d", "sets": [{"w": 40, "reps": 6}] * 3}
+        self.assertTrue(analyze.is_stalled([same, same, same]))
+        progressed = [
+            {"date": "d3", "sets": [{"w": 40, "reps": 7}] * 3},
+            {"date": "d2", "sets": [{"w": 40, "reps": 6}] * 3},
+            {"date": "d1", "sets": [{"w": 40, "reps": 6}] * 3},
+        ]
+        self.assertFalse(analyze.is_stalled(progressed))
+        self.assertFalse(analyze.is_stalled([same, same]))  # 3회 미만이면 판정 안 함
+
+    def test_exercise_trends_real_data(self):
+        sessions, _ = analyze.load_sessions()
+        log = analyze.load_history()
+        trends = analyze.exercise_trends(log, sessions, "lowerA")
+        names = [t["n"] for t in trends]
+        self.assertIn("스미스 머신 스쿼트", names)
+        sq = next(t for t in trends if t["n"] == "스미스 머신 스쿼트")
+        self.assertTrue(sq["records"])          # 8/13 기록 존재
+        self.assertIn(sq["pattern"], ("uniform", "ramp", "drop"))
+
+
+class TestSummaries(unittest.TestCase):
+    def test_nutrition_consecutive_shortfall(self):
+        nut = [
+            {"date": "2026-08-12", "kcal": 2000, "p": 100, "f": 40},
+            {"date": "2026-08-13", "kcal": 2800, "p": 140, "f": 60},
+            {"date": "2026-08-14", "kcal": 2000, "p": 100, "f": 40},
+        ]
+        s = analyze.nutrition_summary(nut, "2026-08-14")
+        self.assertEqual(s["consec_shortfall"], 1)   # 8/14만 미달, 8/13 충족에서 끊김
+        self.assertEqual(s["days"][0]["date"], "2026-08-14")
+        self.assertFalse(s["days"][0]["ok_p"])
+        self.assertFalse(s["days"][0]["ok_f"])        # f 40 < 55 목표 (F5)
+        self.assertTrue(s["ref_recorded"])
+
+    def test_nutrition_sums_multiple_meals(self):
+        nut = [
+            {"date": "2026-08-14", "kcal": 1500, "p": 70, "f": 30},
+            {"date": "2026-08-14", "kcal": 1400, "p": 70, "f": 30},
+        ]
+        s = analyze.nutrition_summary(nut, "2026-08-14")
+        self.assertEqual(s["days"][0]["kcal"], 2900)
+        self.assertTrue(s["days"][0]["ok_kcal"])
+        self.assertTrue(s["days"][0]["ok_f"])         # f 30+30=60 >= 55 목표 (F5)
+        self.assertEqual(s["consec_shortfall"], 0)
+
+    def test_nutrition_applies_qty_multiplier(self):
+        # 레코드는 인분당 값 — qty 배수를 적용해야 함 (F1)
+        nut = [{"date": "2026-08-14", "kcal": 500, "p": 25, "f": 10, "qty": 3}]
+        s = analyze.nutrition_summary(nut, "2026-08-14")
+        self.assertEqual(s["days"][0]["kcal"], 1500)
+        self.assertEqual(s["days"][0]["p"], 75)
+
+    def test_nutrition_ref_not_recorded(self):
+        # 기준일 기록이 없으면 "0일 연속 미달"과 구분되는 ref_recorded=False (F2)
+        nut = [{"date": "2026-08-12", "kcal": 2000, "p": 100, "f": 40}]
+        s = analyze.nutrition_summary(nut, "2026-08-14")
+        self.assertFalse(s["ref_recorded"])
+        self.assertEqual(s["consec_shortfall"], 0)
+
+    def test_weight_pace_and_staleness(self):
+        w = [{"date": "2026-07-17", "kg": 65.0}, {"date": "2026-07-31", "kg": 65.4}]
+        s = analyze.weight_summary(w, "2026-08-14")
+        self.assertEqual(s["last"]["kg"], 65.4)
+        self.assertAlmostEqual(s["monthly_pace"], 0.4 / 14 * 30, places=2)
+        self.assertEqual(s["stale_days"], 14)
+        self.assertIsNone(analyze.weight_summary([], "2026-08-14"))
+
+    def test_condition_flags(self):
+        conds = [
+            {"date": "2026-08-13", "pain": [{"site": "어깨", "level": "mild", "note": "숄더프레스"}]},
+            {"date": "2026-08-01", "pain": [{"site": "무릎", "level": "mild"}]},  # 7일 밖
+            {"date": "2026-08-14", "normal": True},
+        ]
+        f = analyze.condition_flags(conds, "2026-08-14")
+        self.assertEqual(len(f["open_pain"]), 1)
+        self.assertEqual(f["open_pain"][0]["site"], "어깨")
+
+
+class TestReport(unittest.TestCase):
+    def test_build_report_sections(self):
+        r = analyze.build_report("2026-08-14")
+        for header in ["오늘 기준", "주간 볼륨", "세션 빈도", "종목별 추세",
+                       "영양", "체중", "컨디션"]:
+            self.assertIn(header, r)
+        self.assertIn("lowerA", r)        # 8/13 기록 반영
+        self.assertIn("스미스 머신 힙 쓰러스트", r)  # unknown 종목 노출
+
+    def test_cli_runs(self):
+        import subprocess, sys as _sys
+        p = subprocess.run([_sys.executable, "analyze.py", "--date", "2026-08-14"],
+                           capture_output=True, text=True)
+        self.assertEqual(p.returncode, 0, p.stderr)
+        self.assertIn("주간 볼륨", p.stdout)
+
+
+if __name__ == "__main__":
+    unittest.main()
