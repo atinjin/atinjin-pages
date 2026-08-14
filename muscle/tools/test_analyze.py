@@ -54,5 +54,61 @@ class TestAggregation(unittest.TestCase):
         self.assertIsInstance(analyze.load_condition(), list)
 
 
+class TestTrends(unittest.TestCase):
+    EX = {"n": "테스트", "sets": 3, "m": "chest", "lo": 5, "hi": 8, "inc": 2.5, "start": "40kg"}
+
+    def test_pattern_classification(self):
+        self.assertEqual(analyze.pattern_of([{"w": 40, "reps": 8}] * 3), "uniform")
+        self.assertEqual(analyze.pattern_of(
+            [{"w": 30, "reps": 12}, {"w": 40, "reps": 10}, {"w": 40, "reps": 10}]), "ramp")
+        self.assertEqual(analyze.pattern_of(
+            [{"w": 40, "reps": 8}, {"w": 40, "reps": 6}, {"w": 35, "reps": 8}]), "drop")
+
+    def test_baseline_matches_js_recommend(self):
+        # 전 세트 상한 도달 → 증량
+        r = analyze.baseline(self.EX, [{"w": 40, "reps": 8}] * 3)
+        self.assertEqual(r["cls"], "up")
+        self.assertIn("42.5", r["text"])
+        # 하한 미달 → 감량
+        r = analyze.baseline(self.EX, [{"w": 40, "reps": 4}] * 3)
+        self.assertEqual(r["cls"], "down")
+        self.assertIn("37.5", r["text"])
+        # 드롭(램프 포함, JS와 동일) → 상단 무게 전 세트 채우기
+        r = analyze.baseline(self.EX, [{"w": 30, "reps": 12}, {"w": 40, "reps": 10}])
+        self.assertEqual(r["cls"], "hold")
+        self.assertIn("40", r["text"])
+        # 기록 없음 → 시작값
+        r = analyze.baseline(self.EX, [])
+        self.assertEqual(r["cls"], "new")
+
+    def test_baseline_assist_reversed(self):
+        ex = dict(self.EX, assist=True, inc=5, lo=6, hi=10)
+        # 보조 최소 무게 기준 상한 도달 → 보조를 줄임(↓)
+        r = analyze.baseline(ex, [{"w": 30, "reps": 10}] * 3)
+        self.assertEqual(r["cls"], "up")
+        self.assertIn("25", r["text"])
+
+    def test_is_stalled(self):
+        same = {"date": "d", "sets": [{"w": 40, "reps": 6}] * 3}
+        self.assertTrue(analyze.is_stalled([same, same, same]))
+        progressed = [
+            {"date": "d3", "sets": [{"w": 40, "reps": 7}] * 3},
+            {"date": "d2", "sets": [{"w": 40, "reps": 6}] * 3},
+            {"date": "d1", "sets": [{"w": 40, "reps": 6}] * 3},
+        ]
+        self.assertFalse(analyze.is_stalled(progressed))
+        self.assertFalse(analyze.is_stalled([same, same]))  # 3회 미만이면 판정 안 함
+
+    def test_exercise_trends_real_data(self):
+        sessions, _ = analyze.load_sessions()
+        log = analyze.load_history()
+        trends = analyze.exercise_trends(log, sessions, "lowerA")
+        names = [t["n"] for t in trends]
+        self.assertIn("스미스 머신 스쿼트", names)
+        sq = next(t for t in trends if t["n"] == "스미스 머신 스쿼트")
+        self.assertTrue(sq["records"])          # 8/13 기록 존재
+        self.assertIn(sq["pattern"], ("uniform", "ramp", "drop"))
+
+
 if __name__ == "__main__":
     unittest.main()
