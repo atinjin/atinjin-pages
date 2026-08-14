@@ -257,6 +257,67 @@ def exercise_trends(log, sessions, session_key):
     return out
 
 
+NUT_TARGET = {"kcal": 2700, "p": 130, "f": 55}   # v12: 최소 충족 목표(탄수는 참고용이라 제외)
+WEIGHT_TARGET_KG_PER_MONTH = 0.3
+
+
+def nutrition_summary(nut, ref):
+    by_day = {}
+    for x in nut:
+        d = by_day.setdefault(x["date"], {"kcal": 0, "p": 0.0, "f": 0.0})
+        d["kcal"] += x.get("kcal", 0)
+        d["p"] += x.get("p", 0)
+        d["f"] += x.get("f", 0)
+
+    days = []
+    for d in sorted(by_day, reverse=True):
+        if d > ref:
+            continue
+        t = by_day[d]
+        days.append({"date": d, "kcal": round(t["kcal"]), "p": round(t["p"], 1), "f": round(t["f"], 1),
+                     "ok_kcal": t["kcal"] >= NUT_TARGET["kcal"], "ok_p": t["p"] >= NUT_TARGET["p"]})
+        if len(days) == 3:
+            break
+
+    consec = 0
+    cur = _date.fromisoformat(ref)
+    while True:
+        d = cur.isoformat()
+        if d not in by_day:
+            break                      # 기록 없는 날 → 판정 불가, 연속 계산 중단
+        t = by_day[d]
+        if t["kcal"] >= NUT_TARGET["kcal"] and t["p"] >= NUT_TARGET["p"]:
+            break
+        consec += 1
+        cur -= timedelta(days=1)
+    return {"days": days, "consec_shortfall": consec}
+
+
+def weight_summary(weights, ref):
+    ws = sorted((w for w in weights if w["date"] <= ref), key=lambda w: w["date"])
+    if not ws:
+        return None
+    last = ws[-1]
+    cutoff = (_date.fromisoformat(last["date"]) - timedelta(days=14)).isoformat()
+    win = [w for w in ws if w["date"] >= cutoff]
+    pace = None
+    if len(win) >= 2:
+        span = (_date.fromisoformat(win[-1]["date"]) - _date.fromisoformat(win[0]["date"])).days
+        if span > 0:
+            pace = (win[-1]["kg"] - win[0]["kg"]) / span * 30
+    stale = (_date.fromisoformat(ref) - _date.fromisoformat(last["date"])).days
+    return {"last": last, "monthly_pace": pace, "stale_days": stale}
+
+
+def condition_flags(conds, ref):
+    week = recent(conds, ref, 7)
+    open_pain = []
+    for c in sorted(week, key=lambda x: x["date"], reverse=True):
+        for p in c.get("pain", []):
+            open_pain.append({"date": c["date"], **p})
+    return {"recent": week, "open_pain": open_pain}
+
+
 if __name__ == "__main__":
     s, w = load_sessions()
     print(f"세션 {len(s)}개, 요일 매핑 {len(w)}개 파싱 완료")

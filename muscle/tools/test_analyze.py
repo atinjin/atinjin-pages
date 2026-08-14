@@ -110,5 +110,46 @@ class TestTrends(unittest.TestCase):
         self.assertIn(sq["pattern"], ("uniform", "ramp", "drop"))
 
 
+class TestSummaries(unittest.TestCase):
+    def test_nutrition_consecutive_shortfall(self):
+        nut = [
+            {"date": "2026-08-12", "kcal": 2000, "p": 100, "f": 40},
+            {"date": "2026-08-13", "kcal": 2800, "p": 140, "f": 60},
+            {"date": "2026-08-14", "kcal": 2000, "p": 100, "f": 40},
+        ]
+        s = analyze.nutrition_summary(nut, "2026-08-14")
+        self.assertEqual(s["consec_shortfall"], 1)   # 8/14만 미달, 8/13 충족에서 끊김
+        self.assertEqual(s["days"][0]["date"], "2026-08-14")
+        self.assertFalse(s["days"][0]["ok_p"])
+
+    def test_nutrition_sums_multiple_meals(self):
+        nut = [
+            {"date": "2026-08-14", "kcal": 1500, "p": 70, "f": 30},
+            {"date": "2026-08-14", "kcal": 1400, "p": 70, "f": 30},
+        ]
+        s = analyze.nutrition_summary(nut, "2026-08-14")
+        self.assertEqual(s["days"][0]["kcal"], 2900)
+        self.assertTrue(s["days"][0]["ok_kcal"])
+        self.assertEqual(s["consec_shortfall"], 0)
+
+    def test_weight_pace_and_staleness(self):
+        w = [{"date": "2026-07-17", "kg": 65.0}, {"date": "2026-07-31", "kg": 65.4}]
+        s = analyze.weight_summary(w, "2026-08-14")
+        self.assertEqual(s["last"]["kg"], 65.4)
+        self.assertAlmostEqual(s["monthly_pace"], 0.4 / 14 * 30, places=2)
+        self.assertEqual(s["stale_days"], 14)
+        self.assertIsNone(analyze.weight_summary([], "2026-08-14"))
+
+    def test_condition_flags(self):
+        conds = [
+            {"date": "2026-08-13", "pain": [{"site": "어깨", "level": "mild", "note": "숄더프레스"}]},
+            {"date": "2026-08-01", "pain": [{"site": "무릎", "level": "mild"}]},  # 7일 밖
+            {"date": "2026-08-14", "normal": True},
+        ]
+        f = analyze.condition_flags(conds, "2026-08-14")
+        self.assertEqual(len(f["open_pain"]), 1)
+        self.assertEqual(f["open_pain"][0]["site"], "어깨")
+
+
 if __name__ == "__main__":
     unittest.main()
