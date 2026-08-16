@@ -6,7 +6,7 @@
   { "date": "2026-05-01", "kg": 68.00 },
   { "date": "2026-05-20", "kg": 67.00, "note": "날짜 추정 (그래프 이미지 기반 재구성)" },
   { "date": "2026-06-06", "kg": 67.05 },
-  { "date": "2026-07-20", "kg": 65.08, "note": "날짜 추정 (그래프 이미지 기반 재구성)" },
+  { "date": "2026-07-13", "kg": 65.08, "bodyFatPct": 9.9, "skeletalMuscleKg": 33.13, "bmi": 21.3, "bodyFatKg": 6.44, "visceralFatIndex": 2, "leanBodyMassKg": 58.64, "muscleMassKg": 54.60, "boneMassKg": 2.50, "mineralKg": 3.99, "waistHipRatio": 0.79, "bodyWaterKg": 42.95, "proteinKg": 11.65, "obesityPct": 97, "bmr": 1636, "bodyAge": 42, "idealWeightKg": 70.70, "segmental": { "leftArm": { "fatPct": 8.8, "muscleKg": 2.21 }, "rightArm": { "fatPct": 7.4, "muscleKg": 2.46 }, "leftLeg": { "fatPct": 10.4, "muscleKg": 6.05 }, "rightLeg": { "fatPct": 10.6, "muscleKg": 5.80 }, "trunk": { "fatPct": 10.0, "muscleKg": 16.61 } }, "note": "InBody 측정 07:40 — 기존 07/20 추정 기록을 이 정확한 날짜/체성분으로 정정" },
   { "date": "2026-07-22", "kg": 65.21 },
   { "date": "2026-07-24", "kg": 65.41, "note": "날짜 추정 (그래프 이미지 기반 재구성)" },
   { "date": "2026-07-27", "kg": 65.32 },
