@@ -266,7 +266,8 @@ def exercise_trends(log, sessions, session_key):
 
 
 NUT_TARGET = {"kcal": 2700, "p": 130, "f": 55}   # v12: 최소 충족 목표(탄수는 참고용이라 제외)
-WEIGHT_TARGET_KG_PER_MONTH = 0.3
+KCAL_SOFT_CAP = 3000                             # v16: 서프러스 상한 — 2700(최소)~3000(상한) 밴드
+WEIGHT_TARGET_KG_PER_MONTH = 0.7                 # v16: 실측 페이스(7/13~8/17 +2.52kg/5주)가 기존 0.3 목표를 크게 초과해 하향 조정, 0.6~0.8 밴드의 중앙값
 
 
 def nutrition_summary(nut, ref):
@@ -285,7 +286,7 @@ def nutrition_summary(nut, ref):
         t = by_day[d]
         days.append({"date": d, "kcal": round(t["kcal"]), "p": round(t["p"], 1), "f": round(t["f"], 1),
                      "ok_kcal": t["kcal"] >= NUT_TARGET["kcal"], "ok_p": t["p"] >= NUT_TARGET["p"],
-                     "ok_f": t["f"] >= NUT_TARGET["f"]})
+                     "ok_f": t["f"] >= NUT_TARGET["f"], "over_cap": t["kcal"] > KCAL_SOFT_CAP})
         if len(days) == 3:
             break
 
@@ -384,7 +385,8 @@ def build_report(ref):
     L.append("\n## 영양 (최근 기록 3일, 최소 충족: 2700kcal·단백질 130g·지방 55g)")
     ns = nutrition_summary(load_nutrition(), ref)
     for day in ns["days"]:
-        L.append(f"- {day['date']}: {day['kcal']}kcal ({'✅' if day['ok_kcal'] else '⚠️'}) · "
+        L.append(f"- {day['date']}: {day['kcal']}kcal ({'✅' if day['ok_kcal'] else '⚠️'}"
+                 f"{' · 🔺상한초과' if day['over_cap'] else ''}) · "
                  f"단백질 {day['p']}g ({'✅' if day['ok_p'] else '⚠️'}) · "
                  f"지방 {day['f']}g ({'✅' if day['ok_f'] else '⚠️'})")
     if ns["ref_recorded"]:
@@ -393,11 +395,13 @@ def build_report(ref):
     else:
         L.append(f"- 연속 미달일: 판정 불가 — {ref} 기록 없음")
 
-    L.append("\n## 체중 (목표 +0.3kg/월)")
+    L.append(f"\n## 체중 (목표 +{WEIGHT_TARGET_KG_PER_MONTH}kg/월, 0.6~0.8 밴드)")
     wsum = weight_summary(load_weight(), ref)
     if wsum:
         pace = f"{wsum['monthly_pace']:+.2f}kg/월" if wsum["monthly_pace"] is not None else "계산 불가"
         L.append(f"- 최근 {wsum['last']['date']}: {wsum['last']['kg']}kg · 페이스 {pace}")
+        if wsum["monthly_pace"] is not None and wsum["monthly_pace"] > WEIGHT_TARGET_KG_PER_MONTH * 1.5:
+            L.append(f"- ⚠️ 페이스가 목표 밴드보다 빠름 — 서프러스(칼로리 상한 {KCAL_SOFT_CAP}kcal) 점검 권장")
         if wsum["stale_days"] > 7:
             L.append(f"- ⚠️ 체중 기록 {wsum['stale_days']}일째 없음 — 측정 권장")
     else:
