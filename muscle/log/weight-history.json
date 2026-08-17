@@ -13,5 +13,6 @@
   { "date": "2026-07-29", "kg": 65.66, "note": "날짜 추정 (그래프 이미지 기반 재구성)" },
   { "date": "2026-07-30", "kg": 65.61 },
   { "date": "2026-07-31", "kg": 65.71 },
-  { "date": "2026-08-16", "kg": 67.72, "note": "공복 측정, 2주 이상 기록 공백 후 재측정" }
+  { "date": "2026-08-16", "kg": 67.72, "note": "공복 측정, 2주 이상 기록 공백 후 재측정" },
+  { "date": "2026-08-17", "kg": 67.60, "bodyFatPct": 11.1, "skeletalMuscleKg": 34.07, "bmi": 22.1, "bodyFatKg": 7.50, "visceralFatIndex": 2, "leanBodyMassKg": 60.10, "muscleMassKg": 56.04, "boneMassKg": 2.56, "mineralKg": 4.08, "waistHipRatio": 0.79, "bodyWaterKg": 44.08, "proteinKg": 11.97, "obesityPct": 100, "bmr": 1668, "bodyAge": 42, "idealWeightKg": 70.70, "segmental": { "leftArm": { "fatPct": 9.4, "muscleKg": 2.42 }, "rightArm": { "fatPct": 8.6, "muscleKg": 2.54 }, "leftLeg": { "fatPct": 10.4, "muscleKg": 5.94 }, "rightLeg": { "fatPct": 10.0, "muscleKg": 6.02 }, "trunk": { "fatPct": 12.3, "muscleKg": 17.15 } }, "note": "InBody 측정 — 7/13 대비 체중+2.52kg(제지방+1.46kg·체지방+1.06kg), 몸통 체지방 증가폭이 가장 큼" }
 ]
