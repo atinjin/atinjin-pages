@@ -388,6 +388,18 @@ function save(){ localStorage.setItem(LS_KEY, JSON.stringify(LOG)); }
 //  - 같은 id는 커밋본이 우선(모든 기기 공통) / id가 새로우면 로컬 추가분 보존.
 //  - 오프라인 등으로 못 불러오면 아래 폴백을 사용.
 const HISTORY_FALLBACK = [
+  { id:"20260822-lowerB", date:"2026-08-22", session:"lowerB", warmup:"바벨 백 스쿼트 5kg×6",
+    entries:[
+      {n:"바벨 백 스쿼트", sets:[{w:5,reps:9},{w:20,reps:10},{w:30,reps:10},{w:30,reps:10},{w:30,reps:9}], note:"스미스(40kg) 대신 프리 바벨로, 가볍게"},
+      {n:"스미스 머신 RDL", sets:[{w:20,reps:10},{w:30,reps:11},{w:35,reps:11},{w:35,reps:11}], note:"계획(50kg)보다 많이 가볍게 — 스쿼트 후 피로 영향일 수도"},
+      {n:"머신 글루트 킥백", sets:[{w:60,reps:10},{w:60,reps:10},{w:60,reps:10}], note:"계획한 글루트(힙 익스텐션) 대신 킥백 머신으로"},
+      {n:"어브덕터", sets:[{w:50,reps:15},{w:55,reps:15},{w:60,reps:20},{w:60,reps:21}], note:"계획(50kg 감량)과 반대로 크게 증량 + 고반복"},
+      {n:"Machine Seated Back Extension", sets:[{w:55,reps:10},{w:50,reps:10},{w:45,reps:10},{w:45,reps:8}], note:"v22 이름 변경 후 첫 기록 — 목표(45kg) 근처로 마무리"},
+      {n:"케틀벨 스윙", sets:[{w:12,reps:12},{w:16,reps:13},{w:16,reps:12},{w:16,reps:12}]},
+      {n:"덤벨 스탠딩 카프 레이즈", sets:[{w:12,reps:12},{w:12,reps:17},{w:12,reps:12},{w:12,reps:15}], note:"계획에 없던 추가"},
+      {n:"행잉 니레이즈", sets:[{w:0,reps:20},{w:0,reps:20},{w:0,reps:20}], note:"복근 마무리"},
+    ],
+    memo:"하체B · Motra 기록(1시간26분, 총 볼륨 14K kg, 362kcal 소모). 어브덕터가 예상과 반대로 크게 증량+고반복으로 인상적. RDL은 스쿼트 후 피로 때문인지 계획보다 가볍게." },
   { id:"20260821-upperB", date:"2026-08-21", session:"upperB", warmup:"스미스 머신 벤치프레스 30kg×12",
     entries:[
       {n:"스미스 머신 벤치프레스", sets:[{w:40,reps:10},{w:40,reps:10},{w:40,reps:11},{w:40,reps:6},{w:40,reps:6},{w:40,reps:4}], note:"오늘 첫 시도 — 계획(3세트)보다 6세트로 확장, 마지막 세트 4회로 사실상 실패 지점까지"},
@@ -757,6 +769,8 @@ const EX_IMG_BY_NAME = {
   "스미스 머신 벤치프레스":"bench-press.jpg",
   "인클라인 바벨 프레스":"incline-dumbbell-press.jpg",
   "바벨 백 스쿼트":"smith-squat.jpg",
+  "덤벨 스탠딩 카프 레이즈":"standing-calf-raise.jpg",
+  "행잉 니레이즈":"abdominal-crunch.jpg",
 };
 
 // ── 종목별 올바른 자세 설명 (이미지 모달에 표시) ──
@@ -798,6 +812,8 @@ const EX_DESC_BY_NAME = {
   "스미스 머신 벤치프레스":"바가 레일에 고정돼 균형 부담 없이 다룰 수 있음. 안전바 위치를 먼저 확인하세요.",
   "인클라인 바벨 프레스":"벤치를 30~45도로. 바벨이라 양팔이 고정된 경로로 움직여 가슴 상부 자극.",
   "바벨 백 스쿼트":"바를 어깨 위(등세모근)에 걸치고 스쿼트. 무릎이 발끝 방향을 넘지 않게.",
+  "덤벨 스탠딩 카프 레이즈":"덤벨 들고 서서 까치발. 발끝만 원판에 걸치면 가동범위가 더 커집니다.",
+  "행잉 니레이즈":"봉에 매달려 무릎을 가슴 쪽으로 끌어올리기. 반동 없이 복근으로 컨트롤.",
 };
 
 // ── 근육별 태그 · 세션당 볼륨 집계(15세트+ 경고) ──
