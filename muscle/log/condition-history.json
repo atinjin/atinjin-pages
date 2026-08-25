@@ -5,5 +5,6 @@
   { "date": "2026-08-18", "fatigue": "low", "timeMin": 77, "pain": [], "note": "2일 잘 쉼, 가용시간 1시간 넘게 — 통증 없음, 실제 77분 소요" },
   { "date": "2026-08-20", "normal": true, "note": "평소와 같다, 큰 근육통도 없음" },
   { "date": "2026-08-21", "normal": true, "note": "이상없음" },
-  { "date": "2026-08-22", "normal": true, "note": "컨디션 좋음" }
+  { "date": "2026-08-22", "normal": true, "note": "컨디션 좋음" },
+  { "date": "2026-08-23", "normal": true, "note": "평소와 같다" }
 ]
