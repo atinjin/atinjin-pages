@@ -388,6 +388,16 @@ function save(){ localStorage.setItem(LS_KEY, JSON.stringify(LOG)); }
 //  - 같은 id는 커밋본이 우선(모든 기기 공통) / id가 새로우면 로컬 추가분 보존.
 //  - 오프라인 등으로 못 불러오면 아래 폴백을 사용.
 const HISTORY_FALLBACK = [
+  { id:"20260826-other", date:"2026-08-26", session:"other", warmup:"",
+    entries:[
+      {n:"맨몸 스쿼트", sets:[{w:0,reps:20},{w:0,reps:20},{w:0,reps:20},{w:0,reps:12},{w:0,reps:10},{w:0,reps:6}], note:"짐 못 가서 홈트로 하체A 대체"},
+      {n:"덤벨 불가리안 스플릿 스쿼트", sets:[{w:2,reps:17},{w:2,reps:13},{w:2,reps:9},{w:2,reps:13},{w:2,reps:12},{w:2,reps:12},{w:2,reps:12}]},
+      {n:"싱글레그 힙힌지", sets:[{w:0,reps:10},{w:0,reps:10},{w:0,reps:10}]},
+      {n:"힙 브릿지", sets:[{w:0,reps:15},{w:0,reps:16},{w:0,reps:16},{w:0,reps:16}]},
+      {n:"맨몸 카프 레이즈", sets:[{w:0,reps:15},{w:0,reps:15},{w:0,reps:20}]},
+      {n:"플랭크", sets:[{w:0,reps:60},{w:0,reps:66},{w:0,reps:64}], note:"반복 수치는 초(sec) 단위"},
+    ],
+    memo:"홈트 하체A 대체 · 짐을 못 가서 맨몸+가벼운 덤벨로 하체A(스쿼트·힌지·둔근·종아리·코어) 패턴 대체. Motra 기록(1시간16분, 총 볼륨 5.3K kg, 287kcal 소모). 스쿼트·불가리안 스플릿 스쿼트는 계획보다 세트를 더 함." },
   { id:"20260825-upperA", date:"2026-08-25", session:"upperA", warmup:"",
     entries:[
       {n:"벤치프레스", sets:[{w:40,reps:10},{w:45,reps:10},{w:45,reps:9},{w:45,reps:8}], note:"Motra: Smith Machine Bench Press — 계획대로 45kg 채움"},
