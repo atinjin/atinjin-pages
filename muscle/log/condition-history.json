@@ -7,5 +7,6 @@
   { "date": "2026-08-21", "normal": true, "note": "이상없음" },
   { "date": "2026-08-22", "normal": true, "note": "컨디션 좋음" },
   { "date": "2026-08-23", "normal": true, "note": "평소와 같다" },
-  { "date": "2026-08-25", "normal": true, "note": "평소" }
+  { "date": "2026-08-25", "normal": true, "note": "평소" },
+  { "date": "2026-08-26", "normal": true, "note": "체크인 응답 없음 — 규칙에 따라 평소로 간주" }
 ]
