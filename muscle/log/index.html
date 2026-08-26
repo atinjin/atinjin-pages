@@ -388,6 +388,19 @@ function save(){ localStorage.setItem(LS_KEY, JSON.stringify(LOG)); }
 //  - 같은 id는 커밋본이 우선(모든 기기 공통) / id가 새로우면 로컬 추가분 보존.
 //  - 오프라인 등으로 못 불러오면 아래 폴백을 사용.
 const HISTORY_FALLBACK = [
+  { id:"20260825-upperA", date:"2026-08-25", session:"upperA", warmup:"",
+    entries:[
+      {n:"벤치프레스", sets:[{w:40,reps:10},{w:45,reps:10},{w:45,reps:9},{w:45,reps:8}], note:"Motra: Smith Machine Bench Press — 계획대로 45kg 채움"},
+      {n:"딥스", sets:[{w:45,reps:10},{w:45,reps:10},{w:45,reps:10},{w:45,reps:11}], note:"계획과 거의 동일"},
+      {n:"머신 숄더프레스", sets:[{w:45,reps:9},{w:35,reps:11},{w:35,reps:11},{w:35,reps:11}], note:"45kg 한 세트 후 35kg로 드롭 — 계획(45kg 유지)보다 살짝 힘들었던 듯"},
+      {n:"랫풀다운 (와이드 그립)", sets:[{w:40,reps:10},{w:40,reps:9},{w:40,reps:9},{w:40,reps:10}], note:"계획한 버티컬 트랙션 대신"},
+      {n:"펙토랄 플라이 (머신)", sets:[{w:30,reps:10},{w:35,reps:10},{w:40,reps:8},{w:40,reps:8}], note:"계획에 없던 추가, 램프업"},
+      {n:"덤벨 오버헤드 트라이셉 익스텐션", sets:[{w:12,reps:17},{w:12,reps:10},{w:12,reps:8},{w:12,reps:15}], note:"계획한 암 익스텐션 대신"},
+      {n:"덤벨 바이셉컬", sets:[{w:8,reps:5},{w:12,reps:3},{w:10,reps:8},{w:10,reps:10}], note:"계획한 바벨컬 대신, 적정 무게(10kg) 찾는 과정"},
+      {n:"덤벨 레터럴 레이즈", sets:[{w:6,reps:11},{w:6,reps:10},{w:6,reps:10},{w:6,reps:10}], note:"계획(4kg×2세트)보다 훨씬 많이"},
+      {n:"행잉 니레이즈", sets:[{w:0,reps:20},{w:0,reps:20},{w:0,reps:20},{w:0,reps:20}], note:"복근 마무리 추가"},
+    ],
+    memo:"상체A · Motra 기록(1시간25분, 총 볼륨 10K kg, 411kcal 소모). 원암 덤벨 로우가 빠져서 등 자극이 랫풀다운 하나뿐 — 등 볼륨은 계획보다 살짝 적었을 수 있음. 레터럴 레이즈는 계획보다 훨씬 많이 해서 어깨 측면은 확실히 채움." },
   { id:"20260822-lowerB", date:"2026-08-22", session:"lowerB", warmup:"바벨 백 스쿼트 5kg×6",
     entries:[
       {n:"바벨 백 스쿼트", sets:[{w:5,reps:9},{w:20,reps:10},{w:30,reps:10},{w:30,reps:10},{w:30,reps:9}], note:"스미스(40kg) 대신 프리 바벨로, 가볍게"},
