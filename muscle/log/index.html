@@ -388,6 +388,18 @@ function save(){ localStorage.setItem(LS_KEY, JSON.stringify(LOG)); }
 //  - 같은 id는 커밋본이 우선(모든 기기 공통) / id가 새로우면 로컬 추가분 보존.
 //  - 오프라인 등으로 못 불러오면 아래 폴백을 사용.
 const HISTORY_FALLBACK = [
+  { id:"20260829-lowerB", date:"2026-08-29", session:"lowerB", warmup:"",
+    entries:[
+      {n:"스미스 머신 스쿼트", sets:[{w:20,reps:12},{w:30,reps:10},{w:40,reps:10}], note:"계획(40kg)에 거의 맞춤, 램프업으로 3세트"},
+      {n:"바벨 RDL", sets:[{w:30,reps:11},{w:30,reps:12},{w:30,reps:11}], note:"스미스 RDL(35kg) 대신 프리 바벨로 가볍게"},
+      {n:"스미스 머신 카프 레이즈", sets:[{w:40,reps:12},{w:40,reps:13},{w:40,reps:12},{w:40,reps:15}], note:"오늘 추가 종목, 계획대로 정확히"},
+      {n:"머신 글루트 킥백", sets:[{w:60,reps:12},{w:60,reps:12},{w:60,reps:12}]},
+      {n:"어브덕터", sets:[{w:60,reps:15},{w:60,reps:19},{w:60,reps:19}]},
+      {n:"Machine Seated Back Extension", sets:[{w:55,reps:10},{w:50,reps:14},{w:45,reps:13},{w:45,reps:3}], note:"마지막 세트 3회로 급격히 실패"},
+      {n:"케틀벨 스윙", sets:[{w:16,reps:13},{w:16,reps:16},{w:16,reps:16}], note:"계획(4세트)보다 1세트 적게, 무게는 계획대로"},
+      {n:"행잉 니레이즈", sets:[{w:0,reps:20},{w:0,reps:20},{w:0,reps:20}], note:"Motra 원본엔 '45kg'로 표기됐으나 데이터 오류로 판단, 맨몸으로 기록"},
+    ],
+    memo:"하체B(오전) · Motra 기록(1시간16분, 총 볼륨 13.4K kg, 329kcal 소모). 처음 보고된 스쿼트·어브덕터·케틀벨 스윙 무게가 실제보다 낮게 기록됐던 걸 사용자가 정정(스쿼트 20/30/40, 어브덕터 60kg, 케틀벨 16kg)." },
   { id:"20260828-upperB", date:"2026-08-28", session:"upperB", warmup:"",
     entries:[
       {n:"인클라인 덤벨 프레스", sets:[{w:12,reps:12},{w:12,reps:12},{w:12,reps:12},{w:12,reps:12},{w:12,reps:12}], note:"계획대로 정확히, 5세트로 확장(드롭 없음)"},
@@ -805,6 +817,7 @@ const EX_IMG_BY_NAME = {
   "인클라인 바벨 프레스":"incline-dumbbell-press.jpg",
   "바벨 백 스쿼트":"smith-squat.jpg",
   "덤벨 스탠딩 카프 레이즈":"standing-calf-raise.jpg",
+  "바벨 RDL":"dumbbell-romanian-deadlift.jpg",
   "행잉 니레이즈":"abdominal-crunch.jpg",
 };
 
@@ -849,6 +862,7 @@ const EX_DESC_BY_NAME = {
   "바벨 백 스쿼트":"바를 어깨 위(등세모근)에 걸치고 스쿼트. 무릎이 발끝 방향을 넘지 않게.",
   "덤벨 스탠딩 카프 레이즈":"덤벨 들고 서서 까치발. 발끝만 원판에 걸치면 가동범위가 더 커집니다.",
   "행잉 니레이즈":"봉에 매달려 무릎을 가슴 쪽으로 끌어올리기. 반동 없이 복근으로 컨트롤.",
+  "바벨 RDL":"바벨을 양손으로 잡고 힙 힌지. 무릎은 살짝만 굽히고 엉덩이를 뒤로 빼기.",
 };
 
 // ── 근육별 태그 · 세션당 볼륨 집계(15세트+ 경고) ──
