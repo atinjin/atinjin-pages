@@ -9,5 +9,6 @@
   { "date": "2026-08-23", "normal": true, "note": "평소와 같다" },
   { "date": "2026-08-25", "normal": true, "note": "평소" },
   { "date": "2026-08-26", "normal": true, "note": "체크인 응답 없음 — 규칙에 따라 평소로 간주" },
-  { "date": "2026-08-28", "normal": true, "note": "평소대로" }
+  { "date": "2026-08-28", "normal": true, "note": "평소대로" },
+  { "date": "2026-08-29", "normal": true, "note": "평소대로" }
 ]
