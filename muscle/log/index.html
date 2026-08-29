@@ -388,6 +388,18 @@ function save(){ localStorage.setItem(LS_KEY, JSON.stringify(LOG)); }
 //  - 같은 id는 커밋본이 우선(모든 기기 공통) / id가 새로우면 로컬 추가분 보존.
 //  - 오프라인 등으로 못 불러오면 아래 폴백을 사용.
 const HISTORY_FALLBACK = [
+  { id:"20260828-upperB", date:"2026-08-28", session:"upperB", warmup:"",
+    entries:[
+      {n:"인클라인 덤벨 프레스", sets:[{w:12,reps:12},{w:12,reps:12},{w:12,reps:12},{w:12,reps:12},{w:12,reps:12}], note:"계획대로 정확히, 5세트로 확장(드롭 없음)"},
+      {n:"펙토랄 플라이 (머신)", sets:[{w:25,reps:12},{w:30,reps:12},{w:35,reps:12},{w:40,reps:12},{w:45,reps:12}], note:"계획(25kg)보다 훨씬 공격적으로 램프업, 45kg까지 12회 유지"},
+      {n:"랫풀다운 (좁은 그립)", sets:[{w:35,reps:12},{w:35,reps:12},{w:35,reps:12},{w:35,reps:7},{w:35,reps:4}], note:"계획대로 35kg — 처음 3세트는 범위(10~15) 안착, 뒤 2세트는 피로로 급감"},
+      {n:"인클라인 덤벨 컬", sets:[{w:8,reps:12},{w:8,reps:12},{w:8,reps:12},{w:8,reps:12}], note:"계획(7kg×2세트)보다 무겁고 세트도 많이"},
+      {n:"어시스트 풀업 (닐링 친 딥)", sets:[{w:45,reps:11},{w:45,reps:10},{w:45,reps:8}], note:"계획대로(총하중 기준 약 -22kg 보조)"},
+      {n:"덤벨 레터럴 레이즈", sets:[{w:8,reps:12},{w:8,reps:12},{w:8,reps:12}], note:"계획에 없던 추가"},
+      {n:"리어 델트 (크로스오버)", sets:[{w:5,reps:12},{w:5,reps:12},{w:5,reps:15},{w:5,reps:12}], note:"Motra: Cable Upright Rear Delt Fly — 계획(1.5kg)보다 훨씬 무겁게"},
+      {n:"행잉 니레이즈", sets:[{w:0,reps:20},{w:0,reps:20},{w:0,reps:20}], note:"복근 마무리"},
+    ],
+    memo:"상체B · Motra 기록(1시간4분, 총 볼륨 8.3K kg, 248kcal 소모). 펙토랄 플라이가 하이라이트 — 25kg 목표에서 45kg까지 램프업하며 12회 유지. 랫풀다운은 낮춘 무게(35kg)가 맞았고 뒤쪽 세트는 순수 피로." },
   { id:"20260826-other", date:"2026-08-26", session:"other", warmup:"",
     entries:[
       {n:"맨몸 스쿼트", sets:[{w:0,reps:20},{w:0,reps:20},{w:0,reps:20},{w:0,reps:12},{w:0,reps:10},{w:0,reps:6}], note:"짐 못 가서 홈트로 하체A 대체"},

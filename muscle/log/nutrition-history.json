@@ -199,5 +199,15 @@
 
   { "id": "nseed-20260826-pizza", "date": "2026-08-26", "meal": "아침", "name": "미니피자", "qty": 1, "kcal": 350, "p": 14, "c": 38, "f": 15 },
   { "id": "nseed-20260826-donkatsu", "date": "2026-08-26", "meal": "점심", "name": "돈까스 소바", "qty": 1, "kcal": 1100, "p": 38, "c": 140, "f": 35 },
-  { "id": "nseed-20260826-steakdinner", "date": "2026-08-26", "meal": "저녁", "name": "스테이크 스파게티 크로와상", "qty": 1, "kcal": 1030, "p": 52, "c": 85, "f": 47 }
+  { "id": "nseed-20260826-steakdinner", "date": "2026-08-26", "meal": "저녁", "name": "스테이크 스파게티 크로와상", "qty": 1, "kcal": 1030, "p": 52, "c": 85, "f": 47 },
+
+  { "id": "nseed-20260828-eggroll", "date": "2026-08-28", "meal": "아침", "name": "계란말이", "qty": 1, "kcal": 160, "p": 13, "c": 2, "f": 11 },
+  { "id": "nseed-20260828-avocadoam", "date": "2026-08-28", "meal": "아침", "name": "아보카도", "qty": 1, "kcal": 160, "p": 2, "c": 9, "f": 15 },
+  { "id": "nseed-20260828-tomato", "date": "2026-08-28", "meal": "아침", "name": "토마토", "qty": 1, "kcal": 25, "p": 1, "c": 5, "f": 0.3 },
+  { "id": "nseed-20260828-avocadopm", "date": "2026-08-28", "meal": "점심", "name": "아보카도", "qty": 1, "kcal": 160, "p": 2, "c": 9, "f": 15 },
+  { "id": "nseed-20260828-chickenpm", "date": "2026-08-28", "meal": "점심", "name": "닭가슴살", "qty": 1, "kcal": 165, "p": 31, "c": 0, "f": 3.6 },
+  { "id": "nseed-20260828-saladpm", "date": "2026-08-28", "meal": "점심", "name": "샐러드", "qty": 1, "kcal": 50, "p": 2, "c": 8, "f": 0.5 },
+  { "id": "nseed-20260828-pizza", "date": "2026-08-28", "meal": "저녁", "name": "피자 2조각", "qty": 1, "kcal": 560, "p": 22, "c": 60, "f": 24 },
+  { "id": "nseed-20260828-chickenpm2", "date": "2026-08-28", "meal": "저녁", "name": "닭가슴살", "qty": 1, "kcal": 165, "p": 31, "c": 0, "f": 3.6 },
+  { "id": "nseed-20260828-egg1", "date": "2026-08-28", "meal": "저녁", "name": "계란 1개", "qty": 1, "kcal": 78, "p": 6.5, "c": 0.5, "f": 5.5 }
 ]
