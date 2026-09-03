@@ -388,6 +388,28 @@ function save(){ localStorage.setItem(LS_KEY, JSON.stringify(LOG)); }
 //  - 같은 id는 커밋본이 우선(모든 기기 공통) / id가 새로우면 로컬 추가분 보존.
 //  - 오프라인 등으로 못 불러오면 아래 폴백을 사용.
 const HISTORY_FALLBACK = [
+  { id:"20260902-other", date:"2026-09-02", session:"other", warmup:"",
+    entries:[
+      {n:"맨몸 스쿼트", sets:[{w:0,reps:20},{w:0,reps:20},{w:0,reps:20},{w:0,reps:19},{w:0,reps:21}], note:"계획대로, 5세트"},
+      {n:"덤벨 불가리안 스플릿 스쿼트", sets:[{w:6,reps:19},{w:16,reps:14},{w:16,reps:14},{w:16,reps:14},{w:16,reps:26}], note:"Motra엔 고블릿 스쿼트로 잘못 표기됨 — 정정"},
+      {n:"싱글레그 힙힌지", sets:[{w:0,reps:15},{w:0,reps:15},{w:0,reps:15}]},
+      {n:"덤벨 힙 쓰러스트", sets:[{w:4,reps:15},{w:4,reps:15},{w:4,reps:15}], note:"마지막 20kg×7 세트는 사용자 요청으로 제외"},
+      {n:"플랭크", sets:[{w:0,reps:65},{w:0,reps:63},{w:0,reps:62}], note:"반복 수치는 초(sec) 단위"},
+      {n:"맨몸 카프 레이즈", sets:[{w:0,reps:20},{w:0,reps:20},{w:0,reps:25}]},
+    ],
+    memo:"홈트 하체A 대체(2회차) · Motra 기록(38분, 총 볼륨 4K kg, 186kcal 소모). 덤벨 힙 쓰러스트에서 20kg 시도했으나 기록에서 제외." },
+  { id:"20260901-upperA", date:"2026-09-01", session:"upperA", warmup:"바벨 벤치프레스 10kg×12",
+    entries:[
+      {n:"바벨 벤치프레스", sets:[{w:20,reps:12},{w:30,reps:12},{w:30,reps:9}], note:"스미스(45kg) 대신 프리 바벨로, 훨씬 가볍게"},
+      {n:"딥스", sets:[{w:45,reps:12},{w:45,reps:11},{w:45,reps:11},{w:52,reps:12}], note:"마지막 세트 52kg로 증량"},
+      {n:"랫풀다운 (와이드 그립)", sets:[{w:50,reps:11},{w:50,reps:12},{w:55,reps:9},{w:55,reps:11}], note:"계획한 버티컬 트랙션 대신, 램프업"},
+      {n:"머신 숄더프레스", sets:[{w:45,reps:16},{w:45,reps:16},{w:45,reps:13}], note:"계획한 숄더프레스와 같은 무게, 고반복"},
+      {n:"원암 덤벨 로우", sets:[{w:16,reps:12},{w:16,reps:12},{w:16,reps:12}]},
+      {n:"바벨컬", sets:[{w:15,reps:12},{w:15,reps:12},{w:15,reps:12},{w:15,reps:12}]},
+      {n:"케이블 로프 트라이셉 푸시다운", sets:[{w:12,reps:9},{w:12,reps:8},{w:12,reps:10}], note:"계획한 암 익스텐션 대신, 신규 종목"},
+      {n:"리어 델트 (크로스오버)", sets:[{w:5,reps:11},{w:5,reps:10},{w:5,reps:10}], note:"계획한 레터럴 레이즈 대신"},
+    ],
+    memo:"상체A(오전) · Motra 기록(49분, 총 볼륨 9.9K kg, 206kcal 소모). 딥스 마지막 세트 52kg 증량이 하이라이트." },
   { id:"20260829-lowerB", date:"2026-08-29", session:"lowerB", warmup:"",
     entries:[
       {n:"스미스 머신 스쿼트", sets:[{w:20,reps:12},{w:30,reps:10},{w:40,reps:10}], note:"계획(40kg)에 거의 맞춤, 램프업으로 3세트"},
@@ -818,6 +840,7 @@ const EX_IMG_BY_NAME = {
   "바벨 백 스쿼트":"smith-squat.jpg",
   "덤벨 스탠딩 카프 레이즈":"standing-calf-raise.jpg",
   "바벨 RDL":"dumbbell-romanian-deadlift.jpg",
+  "케이블 로프 트라이셉 푸시다운":"arm-extension-triceps.jpg",
   "행잉 니레이즈":"abdominal-crunch.jpg",
 };
 
@@ -863,6 +886,7 @@ const EX_DESC_BY_NAME = {
   "덤벨 스탠딩 카프 레이즈":"덤벨 들고 서서 까치발. 발끝만 원판에 걸치면 가동범위가 더 커집니다.",
   "행잉 니레이즈":"봉에 매달려 무릎을 가슴 쪽으로 끌어올리기. 반동 없이 복근으로 컨트롤.",
   "바벨 RDL":"바벨을 양손으로 잡고 힙 힌지. 무릎은 살짝만 굽히고 엉덩이를 뒤로 빼기.",
+  "케이블 로프 트라이셉 푸시다운":"로프 손잡이로 팔꿈치 고정하고 아래로 밀기. 끝에서 양쪽으로 벌려주면 자극 극대화.",
 };
 
 // ── 근육별 태그 · 세션당 볼륨 집계(15세트+ 경고) ──
