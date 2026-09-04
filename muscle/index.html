@@ -614,7 +614,7 @@ ul.c li:last-child{margin-bottom:0}
       <tbody>
         <tr><td class="f">화 상체 A</td><td class="p">벤치프레스, 버티컬 트랙션</td></tr>
         <tr><td class="f">수 하체 A</td><td class="p">스미스 머신 스쿼트, 스미스 머신 RDL, 머신 글루트 킥백</td></tr>
-        <tr><td class="f">금 상체 B</td><td class="p">인클라인 덤벨 프레스, 어시스트 풀업, 랫풀다운</td></tr>
+        <tr><td class="f">금 상체 B</td><td class="p">스미스머신 인클라인 바벨 프레스, 어시스트 풀업, 랫풀다운</td></tr>
         <tr><td class="f">토 하체 B</td><td class="p">글루트, 스미스 머신 스쿼트</td></tr>
       </tbody>
     </table>
@@ -646,7 +646,7 @@ ul.c li:last-child{margin-bottom:0}
         <tr><td class="f">GLUTE</td><td class="p">가장 가벼운 핀</td></tr>
         <tr><td class="f">LEG CURL / EXTENSION</td><td class="p">가장 가벼운 핀</td></tr>
         <tr><td class="f">ABDUCTOR / ADDUCTOR</td><td class="p">가볍게 × 15~20</td></tr>
-        <tr><td class="f">인클라인 덤벨 프레스</td><td class="p">한쪽 10~12kg × 10~12</td></tr>
+        <tr><td class="f">스미스머신 인클라인 바벨 프레스</td><td class="p">30kg부터 × 8~10 (v23)</td></tr>
         <tr><td class="f">원암 덤벨 로우</td><td class="p">한쪽 12~16kg × 10~12</td></tr>
         <tr><td class="f">스미스 머신 RDL</td><td class="p">빈 바(20kg)부터 — 하체A·B 공통(v17)</td></tr>
         <tr><td class="f">케틀벨 스윙</td><td class="p">12~16kg (3주차부터)</td></tr>
@@ -888,7 +888,7 @@ var PLAN={
  5:{n:'금',i:'💪',title:'상체 B — 근비대',tag:'저녁 🌙',tagc:'',
     intro:'같은 상체지만 <b>높은 반복</b>으로 자극의 결을 바꿉니다. 펌핑 위주.',
     ex:[
-     {n:'인클라인 덤벨 프레스',g:'incline dumbbell press form',e:'덤벨',mg:'chest',s:'4 × 10~12',r:'RIR 2',m:'벤치를 30~45도로. 덤벨은 <b>가동범위가 넓어</b> 가슴 상부에 좋습니다'},
+     {n:'스미스머신 인클라인 바벨 프레스',g:'smith machine incline bench press',e:'SMITH INCLINE',mg:'chest',s:'4 × 8~10',r:'RIR 2',m:'인클라인 벤치에서 스미스 머신 바를 밀기. <b>인클라인 덤벨 프레스 대체(v23)</b> — 바가 레일에 고정돼 균형 부담 없이 가슴 상부에 집중',k:true},
      {n:'어시스트 풀업',g:'assisted pull up machine kneeling',e:'KNEELING CHIN DIP',mg:'back',s:'4 × 6~10',r:'RIR 2',m:'무릎 패드로 무게를 덜어줌. <b>보조를 줄이는 것 = 최고의 진행 지표</b>'},
      {n:'펙토랄 (플라이)',g:'pec deck chest fly machine',e:'PECTORAL',mg:'chest',s:'3 × 12~15',r:'RIR 1',m:'가슴 수축. 팔을 껴안듯 모으기'},
      {n:'랫풀다운 (좁은 그립)',g:'close grip lat pulldown',e:'LAT PULLDOWN',mg:'back',s:'3 × 10~15',r:'RIR 1~2',m:'화요일과 그립을 다르게 — 자극 각도 변화'},
@@ -951,6 +951,7 @@ var EX_IMG={
   'technogym abdominal crunch machine':'abdominal-crunch.jpg',
   'running form knee friendly':'running-form.jpg',
   'incline dumbbell press form':'incline-dumbbell-press.jpg',
+  'smith machine incline bench press':'incline-dumbbell-press.jpg',
   'assisted pull up machine kneeling':'assisted-pull-up.jpg',
   'pec deck chest fly machine':'pec-deck-fly.jpg',
   'close grip lat pulldown':'close-grip-lat-pulldown.jpg',
