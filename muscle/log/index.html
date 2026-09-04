@@ -388,6 +388,17 @@ function save(){ localStorage.setItem(LS_KEY, JSON.stringify(LOG)); }
 //  - 같은 id는 커밋본이 우선(모든 기기 공통) / id가 새로우면 로컬 추가분 보존.
 //  - 오프라인 등으로 못 불러오면 아래 폴백을 사용.
 const HISTORY_FALLBACK = [
+  { id:"20260904-upperB", date:"2026-09-04", session:"upperB", warmup:"스미스머신 인클라인 바벨 프레스 20kg×13",
+    entries:[
+      {n:"스미스머신 인클라인 바벨 프레스", sets:[{w:30,reps:8},{w:40,reps:8},{w:45,reps:11},{w:30,reps:9}], note:"v23 첫 시도 — 계획(30kg)대로 시작해 45kg까지 램프업 후 다시 낮춤"},
+      {n:"어시스트 풀업 (닐링 친 딥)", sets:[{w:52.5,reps:9},{w:45,reps:8},{w:45,reps:8},{w:45,reps:8}], note:"첫 세트 보조 적게(더 힘들게), 이후 45kg"},
+      {n:"펙토랄 플라이 (머신)", sets:[{w:40,reps:13},{w:40,reps:12},{w:40,reps:12}], note:"계획(25kg)보다 훨씬 무겁게"},
+      {n:"랫풀다운 (와이드 그립)", sets:[{w:35,reps:12},{w:35,reps:12},{w:35,reps:12}], note:"계획한 좁은 그립 대신 와이드로"},
+      {n:"인클라인 덤벨 컬", sets:[{w:8,reps:8},{w:8,reps:12},{w:8,reps:12}], note:"계획대로"},
+      {n:"케이블 페이스 풀", sets:[{w:10,reps:13},{w:17,reps:13},{w:15,reps:10}], note:"계획한 리어델트 대신, 신규 종목"},
+      {n:"행잉 니레이즈", sets:[{w:0,reps:20},{w:0,reps:20},{w:0,reps:12}], note:"복근 마무리"},
+    ],
+    memo:"상체B · Motra 기록(1시간1분, 총 볼륨 6.9K kg, 400kcal 소모). 신규 도입한 스미스머신 인클라인 바벨 프레스 첫 시도 — 45kg까지 램프업 확인. 펙토랄 플라이도 40kg까지 공격적으로 진행." },
   { id:"20260902-other", date:"2026-09-02", session:"other", warmup:"",
     entries:[
       {n:"맨몸 스쿼트", sets:[{w:0,reps:20},{w:0,reps:20},{w:0,reps:20},{w:0,reps:19},{w:0,reps:21}], note:"계획대로, 5세트"},
