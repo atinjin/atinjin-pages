@@ -17,5 +17,6 @@
   { "date": "2026-09-03", "normal": true, "note": "체크인 응답 없음 — 규칙에 따라 평소로 간주" },
   { "date": "2026-09-04", "normal": true, "note": "평소대로" },
   { "date": "2026-09-08", "normal": true, "note": "평소대로" },
-  { "date": "2026-09-09", "normal": true, "note": "평소" }
+  { "date": "2026-09-09", "normal": true, "note": "평소" },
+  { "date": "2026-09-19", "normal": true, "note": "평소대로 — 내일(9/20) 10K 대회 참석 취소" }
 ]
