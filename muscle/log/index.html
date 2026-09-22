@@ -388,6 +388,16 @@ function save(){ localStorage.setItem(LS_KEY, JSON.stringify(LOG)); }
 //  - 같은 id는 커밋본이 우선(모든 기기 공통) / id가 새로우면 로컬 추가분 보존.
 //  - 오프라인 등으로 못 불러오면 아래 폴백을 사용.
 const HISTORY_FALLBACK = [
+  { id:"20260920-lowerA", date:"2026-09-20", session:"lowerA", warmup:"",
+    entries:[
+      {n:"스미스 머신 스쿼트", sets:[{w:40,reps:8},{w:40,reps:8},{w:40,reps:8},{w:40,reps:8}], note:"추천(40kg×10~15×4)보다 낮은 반복(8회)로 진행"},
+      {n:"바벨 RDL", sets:[{w:30,reps:10},{w:30,reps:11},{w:30,reps:10},{w:30,reps:10}], note:"추천한 스미스 머신 RDL(35kg) 대신 프리 바벨로 가볍게"},
+      {n:"스미스 머신 카프 레이즈", sets:[{w:20,reps:19},{w:20,reps:22},{w:20,reps:20}], note:"추천(40kg)보다 가볍게, 고반복(19~22회), 3세트"},
+      {n:"스미스 머신 데드리프트", sets:[{w:20,reps:10},{w:30,reps:10},{w:40,reps:10},{w:40,reps:10}], note:"램프업 후 40kg 도달, 추천(55kg)보다 가볍게"},
+      {n:"어브덕터", sets:[{w:60,reps:15},{w:60,reps:15},{w:60,reps:15},{w:60,reps:15}], note:"계획에 없던 추가(하체B 종목), 머신 글루트 킥백은 미실시"},
+      {n:"행잉 니레이즈", sets:[{w:0,reps:20},{w:0,reps:20},{w:0,reps:20}], note:"계획한 복근 크런치 대신"},
+    ],
+    memo:"하체A · Motra 기록(58분, 총 볼륨 8.6K kg, 275kcal 소모). RDL·카프레이즈·데드리프트 모두 추천보다 가볍게, 어브덕터(하체B 종목) 추가하고 글루트 킥백은 생략." },
   { id:"20260909-other", date:"2026-09-09", session:"other", warmup:"",
     entries:[
       {n:"맨몸 스쿼트", sets:[{w:0,reps:22},{w:0,reps:20},{w:0,reps:23},{w:0,reps:20},{w:0,reps:21}], note:"계획대로, 5세트"},
