@@ -388,6 +388,17 @@ function save(){ localStorage.setItem(LS_KEY, JSON.stringify(LOG)); }
 //  - 같은 id는 커밋본이 우선(모든 기기 공통) / id가 새로우면 로컬 추가분 보존.
 //  - 오프라인 등으로 못 불러오면 아래 폴백을 사용.
 const HISTORY_FALLBACK = [
+  { id:"20260924-upperB", date:"2026-09-24", session:"upperB", warmup:"바벨 인클라인 벤치프레스 10kg×11",
+    entries:[
+      {n:"인클라인 덤벨 프레스", sets:[{w:12,reps:10},{w:12,reps:13},{w:14,reps:12},{w:14,reps:10},{w:14,reps:10}], note:"계획한 스미스머신 인클라인 바벨 프레스 대신 덤벨로, 5세트"},
+      {n:"랫풀다운 (와이드 그립)", sets:[{w:40,reps:8},{w:50,reps:8},{w:50,reps:8},{w:50,reps:7}], note:"Motra: Cable Lat Pull Down Wide Hammer — 계획한 좁은 그립 대신"},
+      {n:"인클라인 덤벨 컬", sets:[{w:8,reps:12},{w:8,reps:11},{w:8,reps:11},{w:8,reps:9}], note:"추천(6kg)보다 무겁게, 4세트"},
+      {n:"리어 델트 (크로스오버)", sets:[{w:5,reps:14},{w:5,reps:12},{w:5,reps:12},{w:5,reps:10}], note:"추천(2.5kg)보다 무겁게, 4세트"},
+      {n:"펙토랄 플라이", sets:[{w:30,reps:12},{w:40,reps:12},{w:40,reps:12},{w:45,reps:10}], note:"45kg까지 램프업, alias 수정 전 마지막 기록(9/4, 40kg)보다 더 무겁게"},
+      {n:"어시스트 풀업 (닐링 친 딥)", sets:[{w:50,reps:8},{w:57,reps:8},{w:57,reps:10},{w:57,reps:8}], note:"Motra 원본은 어시스트량(-28kg/-21kg)으로 표기 — 기준 체중 78kg 기준 순저항(78-어시스트)으로 환산"},
+      {n:"행잉 니레이즈", sets:[{w:0,reps:20},{w:0,reps:20},{w:0,reps:20}], note:"복근 마무리"},
+    ],
+    memo:"상체B · Motra 기록(1시간12분, 총 볼륨 6K kg, 268kcal 소모). 인클라인 프레스는 스미스 대신 덤벨로, 어시스트 풀업은 어시스트량 표기를 기준체중 78kg로 환산해 기록." },
   { id:"20260923-lowerB", date:"2026-09-23", session:"lowerB", warmup:"",
     entries:[
       {n:"머신 글루트 킥백", sets:[{w:60,reps:12},{w:60,reps:12},{w:60,reps:12}], note:"계획한 글루트 대신 킥백 머신으로, 3세트만"},
