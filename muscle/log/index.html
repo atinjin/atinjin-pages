@@ -330,7 +330,7 @@ const LS_KEY = "muscle_log_v1";
 const SESSIONS = {
   upperA: { name:"상체 A", emoji:"💪", sub:"힘 위주 · 화", ex:[
     {n:"벤치프레스", sets:4, m:"chest", lo:5, hi:8, inc:2.5, kind:"바벨", start:"40~45kg", rir:"2~3"},
-    {n:"딥스", sets:3, m:"chest", lo:8, hi:12, inc:2, kind:"체중(+벨트)", start:"체중, 익숙해지면 벨트로 추가", rir:"2"},
+    {n:"Machine Assisted Dips", sets:3, m:"chest", lo:8, hi:12, inc:5, kind:"보조", start:"보조 많이", rir:"2", assist:true, note:"딥스(체중+벨트) 대체(v24) — 머신 어시스트 방식으로 영구 전환, 기존 웨이티드 딥스와 무게 방향이 반대라 베이스라인 [new]로 리셋"},
     {n:"버티컬 트랙션", sets:4, m:"back", lo:8, hi:10, inc:5, kind:"머신", start:"40kg", rir:"1~2"},
     {n:"숄더 프레스", sets:3, m:"shoulder", lo:6, hi:10, inc:5, kind:"머신", start:"가벼운 핀", rir:"2"},
     {n:"원암 덤벨 로우", sets:3, m:"back", lo:10, hi:12, inc:2, kind:"덤벨(한쪽)", start:"12~16kg", rir:"1~2"},
@@ -879,6 +879,7 @@ function recommend(ex){
 const EX_IMG_BY_NAME = {
   "벤치프레스":"bench-press.jpg",
   "딥스":"dips.jpg",
+  "Machine Assisted Dips":"dips.jpg",
   "바벨컬":"barbell-curl.jpg",
   "버티컬 트랙션":"vertical-traction.jpg",
   "숄더 프레스":"shoulder-press.jpg",
@@ -926,6 +927,7 @@ const EX_IMG_BY_NAME = {
 const EX_DESC_BY_NAME = {
   "벤치프레스":"가슴 앞에서 바를 내렸다가 밀어올리기. 어깨는 뒤로 젖히고 견갑을 모아 고정합니다.",
   "딥스":"가슴 하부·삼두 자극. 체중으로 시작, 익숙해지면 벨트로 중량 추가. 어깨 불편하면 어시스트 딥 머신으로 대체.",
+  "Machine Assisted Dips":"무릎을 패드에 얹으면 그만큼 무게를 덜어주는 어시스트 딥 머신. 보조를 줄여가며 강도를 높입니다.",
   "바벨컬":"팔꿈치를 몸통에 고정하고 반동 없이 컬. 상체를 흔들지 않기.",
   "버티컬 트랙션":"랫풀다운 계열 머신. 등 폭 자극 — 견갑을 아래로 내리며 당기기.",
   "숄더 프레스":"앉아서 위로 미는 머신. 팔꿈치를 완전히 펴지 말고 살짝 남기기.",
